@@ -1,0 +1,16 @@
+
+<h3>Net: {{model.networkCode}} {{model.description}}</h3>
+<div class="stationList">
+<h1>Stations {{model.stations.length}}</h1>
+<ul>
+{{#each model.stations as |sta|}}
+<li>
+  <a href="http://eeyore.seis.sc.edu:16022/heli?code={{sta.stationCode}}_HHZ_CO_00">
+   {{sta.codes}} - {{sta.name}}
+ </a>
+</li>
+{{/each}}
+</ul>
+</div>
+
+{{outlet}}

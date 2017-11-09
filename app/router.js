@@ -8,6 +8,15 @@ const Router = EmberRouter.extend({
 
 Router.map(function() {
   this.route('helicorders');
+  this.route('stations', function() {
+    this.route('show', {
+      path: ':station_id'
+    }, function() {
+      this.route('channel', {
+        path: ':channel_id'
+      });
+    });
+  });
 });
 
 export default Router;

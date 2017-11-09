@@ -1,0 +1,22 @@
+
+<h3>Channel {{model.codes}}</h3>
+
+<p>{{#link-to 'stations.show' model.station}}{{model.station.codes}}{{/link-to}}</p>
+
+<ul>
+  <li>{{model.name}}</li>
+  <li>{{model.description}}</li>
+  <li>{{model.startTime}}</li>
+  <li>{{model.endTime}}</li>
+  <li>{{model.latitudeFormatted}}</li>
+  <li>{{model.longitudeFormatted}}</li>
+  <li>{{model.elevation}}</li>
+  <li>{{model.depth}}</li>
+  <li>{{model.azimuth}}</li>
+  <li>{{model.dip}}</li>
+  <li>{{model.sampleRate}}</li>
+  <li>{{model.restrictedStatus}}</li>
+  <li>{{model.instrumentSensitivity.sensitivity}} {{model.instrumentSensitivity.inputUnits}} per {{model.instrumentSensitivity.outputUnits}}</li>
+</ul>
+
+{{outlet}}

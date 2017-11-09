@@ -1,0 +1,18 @@
+
+
+<h3>Net: {{model.networkCode}} {{model.description}}</h3>
+<div class="stationList">
+<h1>Stations {{model.stations.length}}</h1>
+<ul>
+{{#each model.stations as |sta|}}
+<li>
+  {{#link-to 'stations.show' sta}}
+    {{sta.codes}} - {{sta.name}}
+  {{/link-to}}
+  
+</li>
+{{/each}}
+</ul>
+</div>
+
+{{outlet}}

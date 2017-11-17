@@ -3,6 +3,9 @@
 <h3>Cell Voltage</h3>
 
 <p>len: {{model.length}}</p>
+
+{{cellstatus-plot statusData=model}}
+
 <ul>
 {{#each model as |daystat|}}
 <li>Day: {{daystat.id}} {{daystat.values.length}}</li>

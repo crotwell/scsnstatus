@@ -5,7 +5,6 @@ export default DS.JSONAPISerializer.extend({
   normalizeResponse(store, primaryModelClass, payload, id, requestType) {
     if (requestType === 'findRecord') {
       return this.normalize(primaryModelClass, payload);
-    } else if (requestType === 'findHasMany') {
     } else {
       console.log("normalizeResponse "+requestType+" payload len: "+payload.length);
       const mythis = this;

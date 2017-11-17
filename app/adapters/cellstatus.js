@@ -1,6 +1,9 @@
 import DS from 'ember-data';
 import { inject as service } from '@ember/service';
 
+const DEFAULT_HOST = 'eeyore.seis.sc.edu';
+const DEFAULT_PORT = 80;
+
 export default DS.Adapter.extend({
   ajax: service(),
   defaultSerializer: 'cellstatus',
@@ -24,7 +27,7 @@ export default DS.Adapter.extend({
     let jday = null;
     if (query.host) { host = query.host;}
     if (query.port) { port = query.port;}
-    if (query.station) { match = query.station;}
+    if (query.station) { station = query.station;}
     if (query.year) { year = query.year;}
     if (query.jday) { jday = query.jday;}
 

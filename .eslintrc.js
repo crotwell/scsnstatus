@@ -9,5 +9,7 @@ module.exports = {
     browser: true
   },
   rules: {
+    "no-console": 1,
+    "no-unused-vars": 1,
   }
 };

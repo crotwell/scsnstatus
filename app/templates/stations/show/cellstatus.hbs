@@ -4,7 +4,9 @@
 
 <p>len: {{model.cellstatus.length}}</p>
 
-{{cellstatus-plot statusData=model.cellstatus}}
+{{cellstatus-plot statusData=model.cellstatus plotkeys='volts'}}
+
+{{cellstatus-plot statusData=model.cellstatus plotkeys='rssi'}}
 
 <ul>
 {{#each model.cellstatus as |daystat|}}

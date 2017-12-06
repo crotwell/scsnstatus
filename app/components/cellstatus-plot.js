@@ -26,6 +26,7 @@ export default Component.extend({
     let height= DEFAULT_HEIGHT - margin.top - margin.bottom;
     let elementId = this.get('elementId');
     let statusData = this.get('statusData');
+    let plotkeys = this.get('plotkeys');
     console.log("statusData "+statusData);
     let allData = [];
     for (const cellStatus of statusData) {
@@ -51,17 +52,26 @@ export default Component.extend({
     let yRssiMap = function(d) { return yRssiScale(yRssiValue(d));}; // data -> display
     let yRssiAxis = d3.axisLeft().scale(yRssiScale);
 
-    // just yVolts
-  //  let yValue = yVoltValue
-//    let yScale = yVoltScale
-//    let yMap = yVoltMap
-//    let yAxis = yVoltAxis
+    let yValue;
+    let yScale;
+    let yMap;
+    let yAxis;
 
-    // just yRssi
-    let yValue = yRssiValue
-    let yScale = yRssiScale
-    let yMap = yRssiMap
-    let yAxis = yRssiAxis
+    if (plotkeys === 'volts') {
+      // just yVolts
+      yValue = yVoltValue
+      yScale = yVoltScale
+      yMap = yVoltMap
+      yAxis = yVoltAxis
+    } else if (plotkeys === 'rssi') {
+      // just yRssi
+      yValue = yRssiValue
+      yScale = yRssiScale
+      yMap = yRssiMap
+      yAxis = yRssiAxis
+    } else {
+      throw new Error("unknown plotkey: "+plotkeys);
+    }
 
     // setup fill color
     let cValue = function(d) { return "blabla";};

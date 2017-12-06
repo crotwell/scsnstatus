@@ -13,8 +13,11 @@ Router.map(function() {
       path: ':station_id'
     }, function() {
       this.route('cellstatus');
-      this.route('channel', {
-        path: ':channel_id'
+
+      this.route('channels', function() {
+        this.route('show', {
+          path: ':channel_id'
+        }, function() {});
       });
     });
   });

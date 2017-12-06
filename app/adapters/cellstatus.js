@@ -51,5 +51,13 @@ export default DS.Adapter.extend({
   },
   findHasMany(store, snapshot, link, relationship) {
     throw new Error("No impl findHasMany");
+  },
+
+  formBaseURL(protocol, host, port) {
+      let colon = ":";
+      if (this.protocol().endsWith(colon)) {
+        colon = "";
+      }
+      return this.protocol()+colon+"//"+this.host()+"/fdsnws/dataselect/"+this.specVersion();
   }
 });

@@ -1,13 +1,13 @@
 
 
-<h3>Cell Voltage</h3>
+<h3>Cell Voltage {{model.station.codes}}</h3>
 
-<p>len: {{model.length}}</p>
+<p>len: {{model.cellstatus.length}}</p>
 
-{{cellstatus-plot statusData=model}}
+{{cellstatus-plot statusData=model.cellstatus}}
 
 <ul>
-{{#each model as |daystat|}}
+{{#each model.cellstatus as |daystat|}}
 <li>Day: {{daystat.id}} {{daystat.values.length}}</li>
 {{#each daystat.values as |val|}}
 <li>{{val.time}} {{val.volt}} {{val.netrssi}}</li>

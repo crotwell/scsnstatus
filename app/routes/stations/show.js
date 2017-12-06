@@ -7,7 +7,8 @@ export default Route.extend({
   },
   afterModel: function(model, transition) {
     let out = RSVP.hash({
-      channelHash: model.get('channels')
+      channelHash: model.get('channels'),
+      networkHash: model.get('network')
     });
     return out.then(hash => {
       console.log("afterModel RSVP hash "+model.get('channels'));

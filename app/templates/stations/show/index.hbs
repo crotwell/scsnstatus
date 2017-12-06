@@ -11,8 +11,10 @@
 </ul>
 
 <ul>
+  <li>{{#link-to 'stations.show.cellstatus' chan.station }}Voltage and Cell Status Plots{{/link-to}}</li>
   <li>Metadata in <a href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{model.networkCode}}&lookupcode={{model.stationCode}}">SIS</a></li>
   <li><a href="https://{{model.stationCode}}.seis.sc.edu:9443">ACEManager</a> (if RV50)</li>
+  <li><a href="http://ds.iris.edu/mda/{{model.networkCode}}/{{model.stationCode}}">IRIS MDA</a></li>
 </ul>
 
 <h5>Current Channels {{model.channels.length}}</h5>

@@ -39,28 +39,47 @@ export default Component.extend({
     let xMap = function(d) { return xScale(xValue(d));}; // data -> display
     let xAxis = d3.axisBottom().scale(xScale);
 
-    // setup y
-    let yValue = function(d) { return d.volt;}; // data -> value
-    let yScale = d3.scaleLinear().range([height, 0]); // value -> display
-    let yMap = function(d) { return yScale(yValue(d));}; // data -> display
-    let yAxis = d3.axisLeft().scale(yScale);
+    // setup y volt
+    let yVoltValue = function(d) { return d.volt;}; // data -> value
+    let yVoltScale = d3.scaleLinear().range([height, 0]); // value -> display
+    let yVoltMap = function(d) { return yVoltScale(yVoltValue(d));}; // data -> display
+    let yVoltAxis = d3.axisLeft().scale(yVoltScale);
+
+    // setup y rssi
+    let yRssiValue = function(d) { return d.netrssi;}; // data -> value
+    let yRssiScale = d3.scaleLinear().range([height, 0]); // value -> display
+    let yRssiMap = function(d) { return yRssiScale(yRssiValue(d));}; // data -> display
+    let yRssiAxis = d3.axisLeft().scale(yRssiScale);
+
+    // just yVolts
+  //  let yValue = yVoltValue
+//    let yScale = yVoltScale
+//    let yMap = yVoltMap
+//    let yAxis = yVoltAxis
+
+    // just yRssi
+    let yValue = yRssiValue
+    let yScale = yRssiScale
+    let yMap = yRssiMap
+    let yAxis = yRssiAxis
 
     // setup fill color
     let cValue = function(d) { return "blabla";};
     let color = d3.scaleOrdinal(d3.schemeCategory10);
 
     xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
-    //yScale.domain([d3.min(data, yValue)-1, d3.max(data, yValue)+1]);
-    yScale.domain([11, 15]);
+    yRssiScale.domain([d3.min(allData, yRssiValue)-5, d3.max(allData, yRssiValue)+5]);
+    yVoltScale.domain([11, 15]);
+console.log('yRssi domain: '+yRssiScale.domain());
 
     let svg = d3.select('#'+elementId).append('svg');
-    svg.attr("width", width + margin.left + margin.right)
+    let svgG = svg.attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // x-axis
-      svg.append("g")
+      svgG.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis)
@@ -72,7 +91,7 @@ export default Component.extend({
           .text("Time");
 
       // y-axis
-      svg.append("g")
+      svgG.append("g")
           .attr("class", "y axis")
           .call(yAxis)
         .append("text")
@@ -84,7 +103,7 @@ export default Component.extend({
           .text("Volts");
 
       // draw dots
-      svg.selectAll(".dot")
+      svgG.selectAll(".dot")
           .data(allData)
         .enter().append("circle")
           .attr("class", "dot")

@@ -1,6 +1,6 @@
 
 
-<h3>Cell Voltage {{model.station.codes}}</h3>
+<h3>Cell Voltage {{#link-to 'stations.show' model.station }}{{model.station.codes}}{{/link-to}}</h3>
 
 <p>len: {{model.cellstatus.length}}</p>
 

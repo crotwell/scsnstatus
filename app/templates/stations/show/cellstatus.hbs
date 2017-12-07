@@ -8,11 +8,13 @@
 
 {{cellstatus-plot statusData=model.cellstatus plotkeys='rssi'}}
 
+{{cellstatus-plot statusData=model.cellstatus plotkeys='latency'}}
+
 <ul>
 {{#each model.cellstatus as |daystat|}}
 <li>Day: {{daystat.id}} {{daystat.values.length}}</li>
 {{#each daystat.values as |val|}}
-<li>{{val.time}} {{val.volt}} {{val.netrssi}}</li>
+<li>{{val.time}} {{val.volt}} {{val.netrssi}} {{val.latency.eeyore}}</li>
 {{/each}}
 {{/each}}
 </ul>

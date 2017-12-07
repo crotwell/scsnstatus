@@ -52,6 +52,12 @@ export default Component.extend({
     let yRssiMap = function(d) { return yRssiScale(yRssiValue(d));}; // data -> display
     let yRssiAxis = d3.axisLeft().scale(yRssiScale);
 
+    // setup y latency
+    let yLatencyValue = function(d) { return d.latency ? d.latency.eeyore : -1;}; // data -> value
+    let yLatencyScale = d3.scaleLinear().range([height, 0]); // value -> display
+    let yLatencyMap = function(d) { return yLatencyScale(yLatencyValue(d));}; // data -> display
+    let yLatencyAxis = d3.axisLeft().scale(yLatencyScale);
+
     let yValue;
     let yScale;
     let yMap;
@@ -69,6 +75,12 @@ export default Component.extend({
       yScale = yRssiScale
       yMap = yRssiMap
       yAxis = yRssiAxis
+    } else if (plotkeys === 'latency') {
+      // just yLatency
+      yValue = yLatencyValue
+      yScale = yLatencyScale
+      yMap = yLatencyMap
+      yAxis = yLatencyAxis
     } else {
       throw new Error("unknown plotkey: "+plotkeys);
     }
@@ -78,6 +90,8 @@ export default Component.extend({
     let color = d3.scaleOrdinal(d3.schemeCategory10);
 
     xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
+    // default case
+    yScale.domain([d3.min(allData, yValue), d3.max(allData, yValue)]);
     yRssiScale.domain([d3.min(allData, yRssiValue)-5, d3.max(allData, yRssiValue)+5]);
     yVoltScale.domain([11, 15]);
 console.log('yRssi domain: '+yRssiScale.domain());

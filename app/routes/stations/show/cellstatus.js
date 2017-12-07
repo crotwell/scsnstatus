@@ -9,7 +9,7 @@ export default Route.extend({
     console.log("station id : "+station_id);
   console.log("station : "+station);
      station = station_id.split('_')[0].split('.')[1];
-     let now = moment.utc();
+     let now = moment(); // cellstatus is not utc
 let year = now.year();
 let startjday = now.dayOfYear()-3;
 let endjday = now.dayOfYear();
@@ -19,7 +19,7 @@ let endjday = now.dayOfYear();
     //params.endjday
     let out = [];
     console.log('station '+params.station_id);
-    for (var i = startjday; i < endjday; i++) {
+    for (var i = startjday; i <= endjday; i++) {
       out.push(this.store.findRecord('cellstatus', station+"_"+year+"_"+i));
     }
     return RSVP.hash({

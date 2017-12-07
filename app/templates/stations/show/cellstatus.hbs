@@ -2,6 +2,8 @@
 
 <h3>Cell Voltage {{#link-to 'stations.show' model.station }}{{model.station.codes}}{{/link-to}}</h3>
 
+<button {{action "refresh"}} >Refresh</button>
+
 <p>len: {{model.cellstatus.length}}</p>
 
 {{cellstatus-plot statusData=model.cellstatus plotkeys='volts'}}

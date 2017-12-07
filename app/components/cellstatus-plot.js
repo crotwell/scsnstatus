@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import seisplotjs from 'ember-seisplotjs';
 
 const d3 = seisplotjs.d3;
-const DEFAULT_WIDTH=560;
+const DEFAULT_WIDTH=760;
 const DEFAULT_HEIGHT=400
 export default Component.extend({
 
@@ -39,62 +39,11 @@ export default Component.extend({
     let xScale = d3.scaleUtc().range([0, width]); // value -> display
     let xMap = function(d) { return xScale(xValue(d));}; // data -> display
     let xAxis = d3.axisBottom().scale(xScale);
-
-    // setup y volt
-    let yVoltValue = function(d) { return d.volt;}; // data -> value
-    let yVoltScale = d3.scaleLinear().range([height, 0]); // value -> display
-    let yVoltMap = function(d) { return yVoltScale(yVoltValue(d));}; // data -> display
-    let yVoltAxis = d3.axisLeft().scale(yVoltScale);
-
-    // setup y rssi
-    let yRssiValue = function(d) { return d.netrssi;}; // data -> value
-    let yRssiScale = d3.scaleLinear().range([height, 0]); // value -> display
-    let yRssiMap = function(d) { return yRssiScale(yRssiValue(d));}; // data -> display
-    let yRssiAxis = d3.axisLeft().scale(yRssiScale);
-
-    // setup y latency
-    let yLatencyValue = function(d) { return d.latency ? d.latency.eeyore : -1;}; // data -> value
-    let yLatencyScale = d3.scaleLinear().range([height, 0]); // value -> display
-    let yLatencyMap = function(d) { return yLatencyScale(yLatencyValue(d));}; // data -> display
-    let yLatencyAxis = d3.axisLeft().scale(yLatencyScale);
-
-    let yValue;
-    let yScale;
-    let yMap;
-    let yAxis;
-
-    if (plotkeys === 'volts') {
-      // just yVolts
-      yValue = yVoltValue
-      yScale = yVoltScale
-      yMap = yVoltMap
-      yAxis = yVoltAxis
-    } else if (plotkeys === 'rssi') {
-      // just yRssi
-      yValue = yRssiValue
-      yScale = yRssiScale
-      yMap = yRssiMap
-      yAxis = yRssiAxis
-    } else if (plotkeys === 'latency') {
-      // just yLatency
-      yValue = yLatencyValue
-      yScale = yLatencyScale
-      yMap = yLatencyMap
-      yAxis = yLatencyAxis
-    } else {
-      throw new Error("unknown plotkey: "+plotkeys);
-    }
-
-    // setup fill color
-    let cValue = function(d) { return "blabla";};
-    let color = d3.scaleOrdinal(d3.schemeCategory10);
-
     xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
-    // default case
-    yScale.domain([d3.min(allData, yValue), d3.max(allData, yValue)]);
-    yRssiScale.domain([d3.min(allData, yRssiValue)-5, d3.max(allData, yRssiValue)+5]);
-    yVoltScale.domain([11, 15]);
-console.log('yRssi domain: '+yRssiScale.domain());
+
+    // setup y
+    let plotConfig = this.setUpYValueFunctions(plotkeys, allData, height);
+
 
     let svg = d3.select('#'+elementId).append('svg');
     let svgG = svg.attr("width", width + margin.left + margin.right)
@@ -117,14 +66,14 @@ console.log('yRssi domain: '+yRssiScale.domain());
       // y-axis
       svgG.append("g")
           .attr("class", "y axis")
-          .call(yAxis)
+          .call(plotConfig.yAxis)
         .append("text")
           .attr("class", "label")
           .attr("transform", "rotate(-90)")
           .attr("y", 6)
           .attr("dy", ".71em")
           .style("text-anchor", "end")
-          .text("Volts");
+          .text(plotConfig.yAxisLabel);
 
       // draw dots
       svgG.selectAll(".dot")
@@ -133,10 +82,38 @@ console.log('yRssi domain: '+yRssiScale.domain());
           .attr("class", "dot")
           .attr("r", 3.5)
           .attr("cx", xMap)
-          .attr("cy", yMap)
-          .style("fill", function(d) { return color(cValue(d));})
+          .attr("cy", plotConfig.yMap)
+          .style("fill", function(d) { return plotConfig.color(plotConfig.cValue(d));})
   },
   teardownSeisDisplay() {
   },
-
+  setUpYValueFunctions(plotkey, allData, height) {
+    let out = {
+      yValue: null,
+      yScale: d3.scaleLinear().range([height, 0]),
+      yMap: null,
+      yAxis: null,
+      cValue: function(d) { return plotkey;},
+      color: d3.scaleOrdinal(d3.schemeCategory10),
+      yAxisLabel: plotkey
+    };
+    if (plotkey === 'volts') {
+      // setup y volt
+      out.yValue = function(d) { return d.volt;}; // data -> value
+      out.yScale.domain([11, 15]);
+    } else if (plotkey === 'rssi') {
+      // setup y rssi
+      out.yValue = function(d) { return d.netrssi;}; // data -> value
+      out.yScale.domain([d3.min(allData, out.yValue)-5, d3.max(allData, out.yValue)+5]);
+    } else if (plotkey === 'latency') {
+      // setup y latency
+      out.yValue = function(d) { return d.latency ? d.latency.eeyore : -1;}; // data -> value
+      out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
+    } else {
+      throw new Error("unknown plotkey: "+plotkey);
+    }
+    out.yMap = function(d) { return out.yScale(out.yValue(d));}; // data -> display
+    out.yAxis = d3.axisLeft().scale(out.yScale);
+    return out;
+  }
 });

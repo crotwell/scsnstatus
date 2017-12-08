@@ -16,7 +16,16 @@ export default DS.Adapter.extend({
       let year = idSplit[1];
       let jday = idSplit[2];
       let url = this.baseURL+year+'/'+jday+'/'+station+'.json';
-      return this.get('ajax').request(url);
+      return this.get('ajax').request(url)
+      .catch(function(error){
+        console.log(error);
+        return {
+          "station": station,
+          "dayofyear": jday,
+          "values": [],
+          "year": year
+        };
+      });
   },
   query(store, type, query) {
     console.log("cell-status adapter query");

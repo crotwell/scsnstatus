@@ -14,10 +14,21 @@ export default Component.extend({
     this._super(...arguments);
     this.setupStatusDisplay();
   },
+  didUpdate() {
+    this._super(...arguments);
+    this.redisplay();
+  },
+
 
   willDestroyElement() {
     this._super(...arguments);
     this.teardownSeisDisplay();
+  },
+  redisplay() {
+    console.log("redisplay cellstatus-plot");
+    let elementId = this.get('elementId');
+    d3.select('#'+elementId).select('svg').remove();
+    this.setupStatusDisplay();
   },
 
   setupStatusDisplay() {
@@ -26,20 +37,26 @@ export default Component.extend({
     let height= DEFAULT_HEIGHT - margin.top - margin.bottom;
     let elementId = this.get('elementId');
     let statusData = this.get('statusData');
+    let start = this.get('start');
+    let end = this.get('end');
     let plotkeys = this.get('plotkeys');
     console.log("statusData "+statusData);
     let allData = [];
     for (const cellStatus of statusData) {
-    console.log("cellStatus.values[0]: "+cellStatus.get('values')[0]+"  "+" "+cellStatus.get('values')[0].time);
       allData = allData.concat(cellStatus.get('values'));
     }
-    console.log("allData[0]: "+allData[0]+"  "+" "+allData[0].time);
+    if (allData.length == 0) {
+      let svg = d3.select('#'+elementId).append('svg');
+      svg.append('g').text("No Data");
+      return;
+    }
     // setup x
     let xValue = function(d) { return new Date(d.time);}; // data -> value
     let xScale = d3.scaleUtc().range([0, width]); // value -> display
     let xMap = function(d) { return xScale(xValue(d));}; // data -> display
     let xAxis = d3.axisBottom().scale(xScale);
-    xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
+    //xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
+    xScale.domain([start, end]);
 
     // setup y
     let plotConfig = this.setUpYValueFunctions(plotkeys, allData, height);
@@ -108,7 +125,10 @@ export default Component.extend({
     } else if (plotkey === 'latency') {
       // setup y latency
       out.yValue = function(d) { return d.latency ? d.latency.eeyore : -1;}; // data -> value
-      out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
+      //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
+      let maxLatency = d3.max(allData, out.yValue);
+      if (maxLatency <= 0) { maxLatency = 1;}
+      out.yScale.domain([0, maxLatency]);
     } else {
       throw new Error("unknown plotkey: "+plotkey);
     }

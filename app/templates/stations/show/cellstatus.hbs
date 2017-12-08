@@ -1,16 +1,29 @@
 
 
-<h3>Cell Voltage {{#link-to 'stations.show' model.station }}{{model.station.codes}}{{/link-to}}</h3>
+<h3>Cell Voltage
+  {{#link-to 'stations'}}{{model.station.networkCode}}{{/link-to}}
+  {{#link-to 'stations.show' model.station }}{{model.station.stationCode}}{{/link-to}}</h3>
+<h5>Days: {{days}} End: {{end}}</h5>
 
-<button {{action "refresh"}} >Refresh</button>
+<ul>
+  <li>
+    <button {{action "refresh"}} >Refresh</button>
+  </li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params end=prevISO)}}Prev{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params end="now")}}Now{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params end=nextISO)}}Next{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="3")}}3 Days{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="7")}}Week{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="30")}}Month{{/link-to}}</li>
+</ul>
 
 <p>len: {{model.cellstatus.length}}</p>
 
-{{cellstatus-plot statusData=model.cellstatus plotkeys='volts'}}
+{{cellstatus-plot statusData=model.cellstatus plotkeys='volts' end=model.end start=model.start }}
 
-{{cellstatus-plot statusData=model.cellstatus plotkeys='rssi'}}
+{{cellstatus-plot statusData=model.cellstatus plotkeys='rssi' end=model.end start=model.start }}
 
-{{cellstatus-plot statusData=model.cellstatus plotkeys='latency'}}
+{{cellstatus-plot statusData=model.cellstatus plotkeys='latency' end=model.end start=model.start }}
 
 <ul>
 {{#each model.cellstatus as |daystat|}}

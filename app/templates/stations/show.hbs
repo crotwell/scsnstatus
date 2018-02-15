@@ -24,6 +24,10 @@
   <li>{{#link-to 'stations.show.helicorder' model.station.id }}Helicorder{{/link-to}}</li>
   <li>{{#link-to 'stations.show.cellstatus' model.station.id }}Voltage and Cell Status Plots{{/link-to}}</li>
   <li>Metadata in <a target="_blank" href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{model.station.networkCode}}&lookupcode={{model.station.stationCode}}">SIS</a></li>
+  <li>Metadata published from SIS as
+           <a href="http://files.anss-sis.scsn.org/production/dataless/{{model.station.networkCode}}/{{model.station.networkCode}}_{{model.station.stationCode}}.dataless">Dataless SEED</a>,
+           <a href="http://files.anss-sis.scsn.org/production/FDSNstationXML/{{model.station.networkCode}}/{{model.station.networkCode}}_{{model.station.stationCode}}.xml">StationXML</a>,
+           or <a href="http://files.anss-sis.scsn.org/production/Extended-XML/{{model.station.networkCode}}/{{model.station.networkCode}}_{{model.station.stationCode}}_ext.xml">Extended StationXML</a>.</li>
   <li><a target="_blank" href="https://{{model.station.stationCode}}.seis.sc.edu:9443">ACEManager</a> (if RV50)</li>
   <li><a target="_blank" href="http://ds.iris.edu/mda/{{model.station.networkCode}}/{{model.station.stationCode}}">IRIS MDA</a></li>
 </ul>

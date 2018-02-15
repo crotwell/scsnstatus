@@ -7,7 +7,7 @@ const DEFAULT_DAYS=3;
 export default Route.extend({
   model: function(params) {
     let { station_id } = this.paramsFor('stations/show');
-    let { station } = this.modelFor('stations/show');
+    let { station, stationList } = this.modelFor('stations.show');
     console.log("station id : "+station_id);
     console.log("station : "+station);
 
@@ -35,6 +35,7 @@ console.log("cellstatus route "+params.days+" "+params.end);
       end: endDate,
       days: days,
       station: this.store.findRecord('station', station_id),
+      stationList: stationList,
       cellstatus: RSVP.all(out),
     }).then(hash => {
       hash.network = hash.station.get('network')
@@ -48,6 +49,14 @@ console.log("cellstatus route "+params.days+" "+params.end);
     },
     end: {
       refreshModel: true
+    }
+  },
+  actions: {
+    changeStationOnRoute(station_id) {
+      const routeName = this.get('routeName');
+      const routeA = routeName.split('.');
+        console.log(routeName+" route changeStation "+station_id);
+      return this.transitionTo(routeName, station_id);
     }
   }
 });

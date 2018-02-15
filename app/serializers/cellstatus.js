@@ -23,8 +23,14 @@ export default DS.JSONAPISerializer.extend({
   },
   normalizeCellStatus(resourceHash) {
     console.log("normalizeCellStatus: "+resourceHash.station+"_"+resourceHash.year+"_"+resourceHash.dayofyear);
+    // eeyore uses day of year with leading 0, trim it
+    let dofy = resourceHash.dayofyear.match(/0*(\d+)/);
+    if (! dofy) {
+      throw new Error("regex for day of year did not match: "+resourceHash.dayofyear);
+    }
+    const idStr = resourceHash.station+"_"+resourceHash.year+"_"+dofy[1];
     const data = {
-      id: resourceHash.station+"_"+resourceHash.year+"_"+resourceHash.dayofyear,
+      id: idStr,
       type: 'cellstatus',
       attributes: {
           station: resourceHash.station,

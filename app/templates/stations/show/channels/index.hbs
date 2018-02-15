@@ -1,0 +1,24 @@
+
+
+<h3>Active Channels</h3>
+<ul>
+  {{#each model.channelList as |chan|}}
+    {{#if chan.isActive}}
+      <li>
+        {{#link-to 'stations.show.channels.show' model.station.id chan.id}}
+          {{chan.locationCode}}.{{chan.channelCode}}
+        {{/link-to}}
+      </li>
+    {{/if}}
+  {{/each}}
+</ul>
+
+<h3>Inactive Channels</h3>
+<ul>
+  {{#each model.channelList as |chan|}}
+    {{#if (not chan.isActive)}}
+      <li>{{chan.locationCode}}.{{chan.channelCode}} {{moment-format chan.startTime 'YYYY-MM-DD'}} to {{moment-format chan.endTime 'YYYY-MM-DD'}}</li>
+    {{/if}}
+  {{/each}}
+</ul>
+{{outlet}}

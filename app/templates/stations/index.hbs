@@ -1,27 +1,22 @@
 
 
-<h3>Net: {{model.networkCode}} {{model.description}}</h3>
+<h3>Net: {{model.network.networkCode}} {{model.network.description}}</h3>
+
 <div class="stationList">
-<h1>Stations {{model.stations.length}}</h1>
+<h1>Stations {{model.network.stations.length}}</h1>
 <ul>
-{{#each model.network.stations as |sta|}}
+{{#each model.stationList as |sta|}}
 <li>
-  {{#link-to 'stations.show' sta}}
+  {{#link-to 'stations.show' sta.id}}
     {{sta.codes}} - {{sta.name}}
   {{/link-to}}
 
 </li>
 {{/each}}
-
-<p>{{model.rsid}} {{model.latency.length}}</p>
-
-{{#each model.latency as |latency|}}
-<li>
-    {{latency.key}} - {{latency.latest}} {{latency.latencyHumanize}}
-
-</li>
-{{/each}}
 </ul>
+
+{{latency-table model=model.latency}}
+
 </div>
 
 {{outlet}}

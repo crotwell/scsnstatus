@@ -1,1 +1,31 @@
+
+<h3>Station: {{model.station.codes}} {{#link-to 'stations'}}Show All{{/link-to}}</h3>
+<ul>
+  <li>{{model.station.name}}</li>
+  <li>{{model.station.description}}</li>
+  <li>{{model.station.startTime}}</li>
+  <li>{{model.station.endTime}}</li>
+  <li>{{model.station.latitudeFormatted}}</li>
+  <li>{{model.station.longitudeFormatted}}</li>
+  <li>{{model.station.elevation}}</li>
+</ul>
+
+<span>Choose Station: </span>
+<select onchange={{action 'changeStation'  value="target.value"}}>
+  {{#each model.stationList as |sta|}}
+    {{#if sta.isActive}}
+      <option value={{sta.id}} selected={{eq sta model.station}}>{{sta.stationCode}}</option>
+    {{/if}}
+  {{/each}}
+</select>
+
+<ul>
+  <li>{{#link-to 'stations.show.channels' model.station.id }}Channels{{/link-to}}</li>
+  <li>{{#link-to 'stations.show.helicorder' model.station.id }}Helicorder{{/link-to}}</li>
+  <li>{{#link-to 'stations.show.cellstatus' model.station.id }}Voltage and Cell Status Plots{{/link-to}}</li>
+  <li>Metadata in <a target="_blank" href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{model.station.networkCode}}&lookupcode={{model.station.stationCode}}">SIS</a></li>
+  <li><a target="_blank" href="https://{{model.station.stationCode}}.seis.sc.edu:9443">ACEManager</a> (if RV50)</li>
+  <li><a target="_blank" href="http://ds.iris.edu/mda/{{model.station.networkCode}}/{{model.station.stationCode}}">IRIS MDA</a></li>
+</ul>
+
 {{outlet}}

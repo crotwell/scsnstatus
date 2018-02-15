@@ -3,17 +3,34 @@ import RSVP from 'rsvp';
 
 export default Route.extend({
   model: function(params) {
-    return this.store.findRecord('station', params.station_id);
+    let stationsModel = this.modelFor('stations');
+    console.log("route stations.show sM: "+stationsModel);
+    let  stationList  = stationsModel.stationList;
+    console.log("route stations.show "+stationList);
+    return RSVP.hash({
+      'station': this.store.findRecord('station', params.station_id),
+      'stationList': stationList
+    });
   },
   afterModel: function(model, transition) {
     let out = RSVP.hash({
-      channelHash: model.get('channels'),
-      networkHash: model.get('network')
+      channelHash: model.station.get('channels'),
+      networkHash: model.station.get('network')
     });
-    return out.then(hash => {
-      console.log("afterModel RSVP hash "+model.get('channels'));
-        console.log("afterModel RSVP hash "+model.get('channels').get('length'));
-      return hash;
-    });
+  },
+  queryLatency: function(networkCode, stationCode) {
+    return this.store.query('stream-status',
+         {host: ringserver_host,
+          port: ringserver_port,
+          match: '^'+networkCode+'_'+stationCode+'_.*'
+        });
+  },
+  actions: {
+    changeStationOnRoute(station_id) {
+      const routeName = this.get('routeName');
+      const routeA = routeName.split('.');
+        console.log(routeName+" route changeStation B"+station_id);
+      return this.transitionTo('stations.show', station_id);
+    }
   }
 });

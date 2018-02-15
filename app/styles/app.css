@@ -2,3 +2,9 @@ path.seispath {
      stroke: skyblue;
      fill: none;
 }
+
+nav {
+  padding: 3px;
+  background-color: lightgrey;
+  color: skyblue;
+}

@@ -8,6 +8,7 @@ const ringserver_host = 'eeyore.seis.sc.edu';
 const ringserver_port = 6382;
 
 export default Route.extend({
+  updateInterval: 10000,
   queryLatency: function() {
     return this.store.query('stream-status',
          {host: ringserver_host,
@@ -45,14 +46,14 @@ export default Route.extend({
   startRefreshing: function(){
     this.set('refreshing', true);
     console.log("### startRefreshing");
-    run.later(this, this.refresh, 100000);
+    run.later(this, this.refresh, this.updateInterval);
   },
   refresh: function(){
     console.log("latency refresh");
     if(!this.get('refreshing'))
       return;
     this.queryLatency().then( x => {console.log("### query " +x);});
-    run.later(this, this.refresh, 10000);
+    run.later(this, this.refresh, this.updateInterval);
   },
   actions:{
     willTransition: function(){

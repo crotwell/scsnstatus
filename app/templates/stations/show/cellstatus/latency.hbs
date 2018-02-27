@@ -1,0 +1,18 @@
+{{outlet}}
+
+
+<ul class="horizontal">
+  <li>
+    <button {{action "refresh"}} >Refresh</button>
+  </li>
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params end=prevISO)}}Prev{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params end="now")}}Now{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params end=nextISO)}}Next{{/link-to}}</li>
+</ul>
+<ul class="horizontal">
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params days="3")}}3 Days{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params days="7")}}Week{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus.latency" (query-params days="30")}}Month{{/link-to}}</li>
+</ul>
+
+{{cellstatus-plot statusData=model.cellstatus plotkeys='latency' end=model.end start=model.start }}

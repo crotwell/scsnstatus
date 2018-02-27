@@ -8,3 +8,7 @@ nav {
   background-color: lightgrey;
   color: skyblue;
 }
+
+ul.horizontal > li {
+  display: inline-block;
+}

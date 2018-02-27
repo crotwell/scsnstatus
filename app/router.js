@@ -11,7 +11,11 @@ Router.map(function() {
     this.route('show', {
       path: ':station_id'
     }, function() {
-      this.route('cellstatus');
+      this.route('cellstatus', function() {
+        this.route('voltage');
+        this.route('rssi');
+        this.route('latency');
+      });
 
       this.route('channels', function() {
         this.route('show', {

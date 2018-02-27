@@ -19,6 +19,7 @@ export default DS.Adapter.extend({
       return this.get('ajax').request(url)
       .catch(function(error){
         console.log(error);
+        console.log("...returning valid but empty value.")
         return {
           "station": station,
           "dayofyear": jday,

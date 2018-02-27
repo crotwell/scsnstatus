@@ -22,7 +22,9 @@
 <ul>
   <li>{{#link-to 'stations.show.channels' model.station.id }}Channels{{/link-to}}</li>
   <li>{{#link-to 'stations.show.helicorder' model.station.id }}Helicorder{{/link-to}}</li>
-  <li>{{#link-to 'stations.show.cellstatus' model.station.id }}Voltage and Cell Status Plots{{/link-to}}</li>
+  <li>{{#link-to 'stations.show.cellstatus.voltage' model.station.id }}Voltage Plots{{/link-to}}</li>
+  <li>{{#link-to 'stations.show.cellstatus.rssi' model.station.id }}Cell RSSI Plots{{/link-to}}</li>
+  <li>{{#link-to 'stations.show.cellstatus.latency' model.station.id }}Latency Plots{{/link-to}}</li>
   <li>Metadata in <a target="_blank" href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{model.station.networkCode}}&lookupcode={{model.station.stationCode}}">SIS</a></li>
   <li>Metadata published from SIS as
            <a href="http://files.anss-sis.scsn.org/production/dataless/{{model.station.networkCode}}/{{model.station.networkCode}}_{{model.station.stationCode}}.dataless">Dataless SEED</a>,

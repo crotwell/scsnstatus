@@ -14,7 +14,11 @@ Router.map(function() {
       this.route('cellstatus', function() {
         this.route('voltage');
         this.route('rssi');
-        this.route('latency');
+        this.route('latency', function() {
+          this.route('destination', {
+            path: ':destination'
+          });
+        });
       });
 
       this.route('channels', function() {

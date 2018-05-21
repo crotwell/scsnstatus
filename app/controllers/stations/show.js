@@ -2,9 +2,9 @@ import Controller from '@ember/controller';
 
 export default Controller.extend({
   actions: {
-    changeStation(station_id) {
+    changeStation(station_id, plotname) {
       // send action to route
-      this.send('changeStationOnRoute', station_id);
+      this.send('changeStationOnRoute', station_id, plotname);
     }
   }
 });

@@ -6,25 +6,20 @@
 <h5>Days: {{days}} End: {{end}}</h5>
 
 
-<p>len: {{model.cellstatus.length}}</p>
-
-<!--
-{{cellstatus-plot statusData=model.cellstatus plotkeys='volts' end=model.end start=model.start }}
-
-{{cellstatus-plot statusData=model.cellstatus plotkeys='rssi' end=model.end start=model.start }}
-
-{{cellstatus-plot statusData=model.cellstatus plotkeys='latency' end=model.end start=model.start }}
--->
-
-<!--
-<ul>
-{{#each model.cellstatus as |daystat|}}
-<li>Day: {{daystat.id}} {{daystat.values.length}}</li>
-{{#each daystat.values as |val|}}
-<li>{{val.time}} {{val.volt}} {{val.netrssi}} {{val.latency.eeyore}}</li>
-{{/each}}
-{{/each}}
+<ul class="horizontal">
+  <li>
+    <button {{action "refresh"}} >Refresh</button>
+  </li>
+  <li><button {{action "goPrev"}}>Prev</button></li>
+  <li><button {{action "goNext"}}>Next</button></li>
+  <li><button {{action "goNow"}}>Now</button></li>
 </ul>
--->
+<ul class="horizontal">
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="3")}}3 Days{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="7")}}Week{{/link-to}}</li>
+  <li>{{#link-to "stations.show.cellstatus" (query-params days="30")}}Month{{/link-to}}</li>
+</ul>
+
+
 
 {{outlet}}

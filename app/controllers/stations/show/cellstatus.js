@@ -9,7 +9,7 @@ export default Controller.extend({
   prev: computed('end', 'days', function() {
     let end = this.get('end');
     if ( ! end || end === 'now') {
-      end = moment();
+      end = this.midnightAfter(moment());
     }
     return moment(end).subtract(this.get('days') / 2, 'days');
   }),
@@ -22,12 +22,19 @@ export default Controller.extend({
       end = moment();
     }
     let out = moment(end).add(this.get('days') / 2 , 'days');
-    if (out.isAfter(moment())) { out = moment();}
+    if (out.isAfter(moment())) {
+      // midnight after now
+      out = this.midnightAfter(moment());
+    }
     return out;
   }),
   nextISO: computed('next', function() {
     return this.get('next').toISOString();
   }),
+  midnightAfter(date) {
+    if (date === 'now') { date = moment();}
+    return moment(date).add(1, 'days').hours(0).minutes(0).seconds(0).millisecond(0);
+  },
 
   actions: {
     refresh() {

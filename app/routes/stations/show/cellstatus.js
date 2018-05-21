@@ -3,6 +3,7 @@ import RSVP from 'rsvp';
 import moment from 'moment';
 
 const DEFAULT_DAYS=3;
+const DEFAULT_DESTINATION="eeyore";
 
 export default Route.extend({
   model: function(params) {
@@ -16,14 +17,15 @@ export default Route.extend({
     let days = params.days ? params.days : DEFAULT_DAYS;
     let endDate = now;
     if ( params.end && params.end != "now") {
+      console.log("params.end: "+params.end);
       endDate = moment(params.end);
     }
     let startDate = params.startdate ? moment(params.startdate) : moment(endDate).subtract(days, 'days');
-
-console.log("cellstatus route "+params.days+" "+params.end);
-    let year = now.year();
-    let startjday = now.dayOfYear()-days;
-    let endjday = now.dayOfYear();
+    let destination = params.destination ? params.destination : DEFAULT_DESTINATION;
+console.log("cellstatus route "+days+" "+endDate+"  "+destination);
+    let year = endDate.year();
+    let startjday = endDate.dayOfYear()-days;
+    let endjday = endDate.dayOfYear();
     let out = [];
     console.log('station '+params.station_id);
     for (var i = 0; i <= days; i++) {
@@ -52,11 +54,32 @@ console.log("cellstatus route "+params.days+" "+params.end);
     }
   },
   actions: {
-    changeStationOnRoute(station_id) {
+    changeStationOnRoute(station_id, plotname) {
       const routeName = this.get('routeName');
       const routeA = routeName.split('.');
         console.log(routeName+" route changeStation "+station_id);
-      return this.transitionTo(routeName, station_id);
-    }
+      return this.transitionTo(routeName, station_id, { "queryParams": { "end": moment(this.get('model').end).format("YYYY-MM-DD"),
+                                                                         "days": this.get('model').days }});
+    },
+    refresh() {
+      let m = this.get('model');
+      this.get('model').cellstatus.forEach(cs => {
+        cs.reload();
+      });
+    },
+    goPrev() {
+      console.log("cellstatus route goPrev() "+this.controller.get('prev').format("YYYY-MM-DD"));
+      this.controller.set('end', this.controller.get('prev').format("YYYY-MM-DD"));
+    },
+    goNext() {
+      console.log("cellstatus route goNext()");
+      this.controller.set('end', this.controller.get('next').format("YYYY-MM-DD"));
+    },
+    goNow() {
+      console.log("cellstatus route goNow()");
+      this.controller.set('end', "now");
+    },
+
+
   }
 });

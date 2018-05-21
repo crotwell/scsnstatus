@@ -3,7 +3,8 @@ import seisplotjs from 'ember-seisplotjs';
 
 const d3 = seisplotjs.d3;
 const DEFAULT_WIDTH=760;
-const DEFAULT_HEIGHT=400
+const DEFAULT_HEIGHT=400;
+const DEFAULT_DESTINATION="eeyore";
 export default Component.extend({
 
   //margin: {top: 20, right: 20, bottom: 30, left: 40},
@@ -122,9 +123,11 @@ export default Component.extend({
       // setup y rssi
       out.yValue = function(d) { return d.netrssi;}; // data -> value
       out.yScale.domain([d3.min(allData, out.yValue)-5, d3.max(allData, out.yValue)+5]);
-    } else if (plotkey === 'latency') {
+    } else if (plotkey.startsWith('latency')) {
       // setup y latency
-      out.yValue = function(d) { return d.latency ? d.latency.eeyore : -1;}; // data -> value
+      let latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
+      console.log("cellstatus-plot destination: "+latencyDest);
+      out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : -1;}; // data -> value
       //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
       let maxLatency = d3.max(allData, out.yValue);
       if (maxLatency <= 0) { maxLatency = 1;}

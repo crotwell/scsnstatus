@@ -1,10 +1,13 @@
 import Component from '@ember/component';
 import seisplotjs from 'ember-seisplotjs';
+import moment from 'moment';
 
 const d3 = seisplotjs.d3;
 const DEFAULT_WIDTH=760;
 const DEFAULT_HEIGHT=400;
 const DEFAULT_DESTINATION="eeyore";
+const CLIP_PREFIX = "PLOT_CLIP";
+
 export default Component.extend({
 
   //margin: {top: 20, right: 20, bottom: 30, left: 40},
@@ -33,7 +36,7 @@ export default Component.extend({
   },
 
   setupStatusDisplay() {
-    let margin= {top: 20, right: 20, bottom: 30, left: 40};
+    let margin= {top: 20, right: 20, bottom: 30, left: 60};
     let width= DEFAULT_WIDTH - margin.left - margin.right;
     let height= DEFAULT_HEIGHT - margin.top - margin.bottom;
     let elementId = this.get('elementId');
@@ -52,12 +55,12 @@ export default Component.extend({
       return;
     }
     // setup x
-    let xValue = function(d) { return new Date(d.time);}; // data -> value
+    let xValue = function(d) { return d.time.valueOf();}; // data -> value
     let xScale = d3.scaleUtc().range([0, width]); // value -> display
     let xMap = function(d) { return xScale(xValue(d));}; // data -> display
     let xAxis = d3.axisBottom().scale(xScale);
     //xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
-    xScale.domain([start, end]);
+    xScale.domain([moment(start).valueOf(), moment(end).valueOf()]);
 
     // setup y
     let plotConfig = this.setUpYValueFunctions(plotkeys, allData, height);
@@ -68,7 +71,19 @@ export default Component.extend({
         .attr("height", height + margin.top + margin.bottom)
       .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // clip rect
+        // check if clip exists, wonky d3 convention
+      const CLIP_ID = CLIP_PREFIX+elementId;
+      let container = svg.select("defs").select("#"+CLIP_ID);
+      if (container.empty()) {
+        svg.append("defs").append("clipPath").attr("id", CLIP_ID);
+      }
+      let clip = svg.select("defs").select("#"+CLIP_ID);
 
+      clip.selectAll("rect").remove();
+      clip.append("rect")
+            .attr("width", width)
+            .attr("height", height);
         // x-axis
       svgG.append("g")
           .attr("class", "x axis")
@@ -94,7 +109,9 @@ export default Component.extend({
           .text(plotConfig.yAxisLabel);
 
       // draw dots
-      svgG.selectAll(".dot")
+      let dotsG = svgG.append("g");
+      dotsG.attr("style", "clip-path: url(#"+CLIP_ID+")")
+      dotsG.selectAll(".dot")
           .data(allData)
         .enter().append("circle")
           .attr("class", "dot")
@@ -126,7 +143,6 @@ export default Component.extend({
     } else if (plotkey.startsWith('latency')) {
       // setup y latency
       let latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
-      console.log("cellstatus-plot destination: "+latencyDest);
       out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : -1;}; // data -> value
       //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
       let maxLatency = d3.max(allData, out.yValue);

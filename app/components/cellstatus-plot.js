@@ -53,10 +53,20 @@ export default Component.extend({
       let svg = d3.select('#'+elementId).append('svg');
       svg.append('g').text("No Data");
       return;
+    } else {
+
+      if (plotkeys === 'volts') {
+        allData = allData.filter( d => d.volt && d.volt != 0);
+      } else if (plotkeys === 'rssi') {
+        allData = allData.filter( d => d.netrssi && d.netrssi != -200);
+      } else if (plotkeys.startsWith('latency')) {
+        const latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
+        allData = allData.filter( d => d.latency && d.latency[latencyDest]);
+      }
     }
     // setup x
     let xValue = function(d) { return d.time.valueOf();}; // data -> value
-    let xScale = d3.scaleUtc().range([0, width]); // value -> display
+    let xScale = d3.scaleUtc().range([0, width]).nice(); // value -> display
     let xMap = function(d) { return xScale(xValue(d));}; // data -> display
     let xAxis = d3.axisBottom().scale(xScale);
     //xScale.domain([d3.min(allData, xValue), d3.max(allData, xValue)]);
@@ -125,7 +135,7 @@ export default Component.extend({
   setUpYValueFunctions(plotkey, allData, height) {
     let out = {
       yValue: null,
-      yScale: d3.scaleLinear().range([height, 0]),
+      yScale: d3.scaleLinear().range([height, 0]).nice(),
       yMap: null,
       yAxis: null,
       cValue: function(d) { return plotkey;},
@@ -143,11 +153,11 @@ export default Component.extend({
     } else if (plotkey.startsWith('latency')) {
       // setup y latency
       let latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
-      out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : -1;}; // data -> value
+      out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : Number.NaN;}; // data -> value
       //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
       let maxLatency = d3.max(allData, out.yValue);
       if (maxLatency <= 0) { maxLatency = 1;}
-      out.yScale.domain([0, maxLatency]);
+      out.yScale.domain([0, maxLatency*1.05]);
     } else {
       throw new Error("unknown plotkey: "+plotkey);
     }

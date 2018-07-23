@@ -3,6 +3,7 @@ import RSVP from 'rsvp';
 
 export default Route.extend({
   model: function(params) {
+    if ( ! params.station_id) {throw new Error("no station_id in params");}
     let stationsModel = this.modelFor('stations');
     console.log("route stations.show sM: "+stationsModel);
     let  stationList  = stationsModel.stationList;
@@ -29,7 +30,9 @@ export default Route.extend({
     changeStationOnRoute(station_id) {
       const routeName = this.get('routeName');
       const routeA = routeName.split('.');
-        console.log(routeName+" route changeStation B"+station_id);
+        console.log(routeName+" route changeStation show.js"+station_id);
+        console.log("routeName: "+routeName);
+        console.log("routeA: "+routeA);
       return this.transitionTo('stations.show', station_id);
     }
   }

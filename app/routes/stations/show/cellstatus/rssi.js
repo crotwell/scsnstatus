@@ -8,7 +8,7 @@ export default Route.extend({
     changeStationOnRoute(station_id) {
       const routeName = this.get('routeName');
       const routeA = routeName.split('.');
-        console.log(routeName+" route changeStation B"+station_id);
+        console.log(routeName+" route changeStation rssi.js "+station_id);
       return this.transitionTo('stations.show.cellstatus.rssi',
                                 station_id,
                                 { "queryParams": {

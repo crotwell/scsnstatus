@@ -1,0 +1,13 @@
+
+<h5>RS Seismo display...</h5>
+
+
+<div class="seismogramOuterDiv">
+  {{yield}}
+  <button {{action "resetZoom"}} >ResetZoom</button>
+  <label>{{input type="checkbox" name="overlay" checked=isOverlay }}<span class="checkable">Overlay</span></label>
+  <label>{{input type="checkbox" name="rotate" checked=isRotateGCP }}<span class="checkable">Rotate GCP</span></label>
+  <label>{{input type="checkbox" name="rmean" checked=isRMean }}<span class="checkable">Remove Mean</span></label>
+  <div class="seismogramInnerDiv">
+  </div>
+</div>

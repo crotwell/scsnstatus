@@ -15,4 +15,6 @@
   <li>{{#link-to "stations.show.cellstatus.voltage" (query-params days="30")}}Month{{/link-to}}</li>
 </ul>
 
+<h3>Voltage</h3>
+
 {{cellstatus-plot statusData=model.cellstatus plotkeys='volts' end=model.end start=model.start }}

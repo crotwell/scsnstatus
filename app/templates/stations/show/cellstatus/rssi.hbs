@@ -15,4 +15,6 @@
   <li>{{#link-to "stations.show.cellstatus.rssi" (query-params days="30")}}Month{{/link-to}}</li>
 </ul>
 
+<h3>RSSI</h3>
+
 {{cellstatus-plot statusData=model.cellstatus plotkeys='rssi' end=model.end start=model.start }}

@@ -50,7 +50,7 @@ export default Route.extend({
   },
   refresh: function(){
     console.log("latency refresh");
-    if(!this.get('refreshing'))
+    if(!this.refreshing)
       return;
     this.queryLatency().then( x => {console.log("### query " +x);});
     run.later(this, this.refresh, this.updateInterval);

@@ -6,7 +6,7 @@ export default Route.extend({
   },
   actions: {
     changeStationOnRoute(station_id) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       let routeA = routeName.split('.');
       // can't use full route as need to pick a channel, so go up one level
       routeA.pop();

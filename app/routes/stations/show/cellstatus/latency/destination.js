@@ -15,21 +15,21 @@ export default Route.extend({
   },
   actions: {
     changeStationOnRoute(station_id) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       const routeA = routeName.split('.');
-      let destination = this.get('model').destination;
+      let destination = this.model.destination;
       if ( ! destination) {
         destination = 'eeyore';
-        this.get('model').destination = destination;
+        this.model.destination = destination;
       }
-        console.log(routeName+" route changeStation destination.js: "+station_id+" dest:"+this.get('model').destination);
+        console.log(routeName+" route changeStation destination.js: "+station_id+" dest:"+this.model.destination);
         console.log("routeA: "+routeA);
       return this.transitionTo('stations.show.cellstatus.latency.destination',
                                 station_id,
                                 destination,
                                 { "queryParams": {
-                                  "end": moment(this.get('model').end).format("YYYY-MM-DD"),
-                                  "days": this.get('model').days }});
+                                  "end": moment(this.model.end).format("YYYY-MM-DD"),
+                                  "days": this.model.days }});
     }
   }
 });

@@ -7,21 +7,21 @@ export default Controller.extend({
   days: 3,
   end: "now",
   prev: computed('end', 'days', function() {
-    let end = this.get('end');
+    let end = this.end;
     if ( ! end || end === 'now') {
       end = this.midnightAfter(moment());
     }
-    return moment(end).subtract(this.get('days') / 2, 'days');
+    return moment(end).subtract(this.days / 2, 'days');
   }),
   prevISO: computed('prev', function() {
-    return this.get('prev').toISOString();
+    return this.prev.toISOString();
   }),
   next: computed('end', 'days', function() {
-    let end = this.get('end');
+    let end = this.end;
     if ( ! end || end === 'now') {
       end = moment();
     }
-    let out = moment(end).add(this.get('days') / 2 , 'days');
+    let out = moment(end).add(this.days / 2 , 'days');
     if (out.isAfter(moment())) {
       // midnight after now
       out = this.midnightAfter(moment());
@@ -29,7 +29,7 @@ export default Controller.extend({
     return out;
   }),
   nextISO: computed('next', function() {
-    return this.get('next').toISOString();
+    return this.next.toISOString();
   }),
   midnightAfter(date) {
     if (date === 'now') { date = moment();}
@@ -38,8 +38,8 @@ export default Controller.extend({
 
   actions: {
     refresh() {
-      let m = this.get('model');
-      this.get('model').cellstatus.forEach(cs => {
+      let m = this.model;
+      this.model.cellstatus.forEach(cs => {
         cs.reload();
       });
     }

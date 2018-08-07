@@ -34,7 +34,7 @@ console.log("x  "+x);
     },
     actions: {
       changeStationOnRoute(station_id) {
-        const routeName = this.get('routeName');
+        const routeName = this.routeName;
         const routeA = routeName.split('.');
           console.log(routeName+" route changeStation "+station_id);
         return this.transitionTo(routeName, station_id);

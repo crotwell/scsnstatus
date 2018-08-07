@@ -5,7 +5,7 @@ export default Controller.extend({
     goDestination(dest) {
       console.log('goDestination controller '+dest);
       // send action to route
-      this.send('goDestinationOnRoute', dest, this.get('model').station.id);
+      this.send('goDestinationOnRoute', dest, this.model.station.id);
 //      this.set('destination', dest);
 
     }

@@ -5,7 +5,7 @@ import SeismogramDisplay  from 'ember-seisplotjs/components/seismogram-display';
 export default SeismogramDisplay.extend({
   mseedArchive: service(),
   loadDataForChannel: function(channel) {
-    const ds = this.get('mseedArchive');
+    const ds = this.mseedArchive;
     let seconds = 300;
     let sps = channel.sampleRate;
     if (sps > 1) {

@@ -28,7 +28,7 @@ export default Route.extend({
   },
   actions: {
     changeStationOnRoute(station_id) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       const routeA = routeName.split('.');
         console.log(routeName+" route changeStation show.js"+station_id);
         console.log("routeName: "+routeName);

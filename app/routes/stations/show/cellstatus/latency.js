@@ -16,15 +16,15 @@ export default Route.extend({
   },
   actions: {
     changeStationOnRoute(station_id) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       const routeA = routeName.split('.');
-        console.log(routeName+" route changeStation latency.js: "+station_id+" dest:"+this.get('model').destination);
+        console.log(routeName+" route changeStation latency.js: "+station_id+" dest:"+this.model.destination);
         console.log("routeA: "+routeA);
       return this.transitionTo('stations.show.cellstatus.latency',
                                 station_id,
                                 { "queryParams": {
-                                  "end": moment(this.get('model').end).format("YYYY-MM-DD"),
-                                  "days": this.get('model').days }});
+                                  "end": moment(this.model.end).format("YYYY-MM-DD"),
+                                  "days": this.model.days }});
     },
     xxxgoDestinationOnRoute( dest ) {
       console.log("cellstatus route goDest("+dest+") "+this.controller.get('dest')+"->"+dest);

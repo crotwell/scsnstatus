@@ -6,14 +6,14 @@ export default Route.extend({
   },
   actions: {
     changeStationOnRoute(station_id) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       const routeA = routeName.split('.');
         console.log(routeName+" route changeStation rssi.js "+station_id);
       return this.transitionTo('stations.show.cellstatus.rssi',
                                 station_id,
                                 { "queryParams": {
-                                   "end": moment(this.get('model').end).format("YYYY-MM-DD"),
-                                   "days": this.get('model').days }});
+                                   "end": moment(this.model.end).format("YYYY-MM-DD"),
+                                   "days": this.model.days }});
     }
   }
 });

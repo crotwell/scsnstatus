@@ -30,7 +30,7 @@ export default Component.extend({
   },
   redisplay() {
     console.log("redisplay cellstatus-plot");
-    let elementId = this.get('elementId');
+    let elementId = this.elementId;
     d3.select('#'+elementId).select('svg').remove();
     this.setupStatusDisplay();
   },
@@ -39,11 +39,11 @@ export default Component.extend({
     let margin= {top: 20, right: 20, bottom: 30, left: 60};
     let width= DEFAULT_WIDTH - margin.left - margin.right;
     let height= DEFAULT_HEIGHT - margin.top - margin.bottom;
-    let elementId = this.get('elementId');
-    let statusData = this.get('statusData');
-    let start = this.get('start');
-    let end = this.get('end');
-    let plotkeys = this.get('plotkeys');
+    let elementId = this.elementId;
+    let statusData = this.statusData;
+    let start = this.start;
+    let end = this.end;
+    let plotkeys = this.plotkeys;
     console.log("statusData "+statusData);
     let allData = [];
     for (const cellStatus of statusData) {
@@ -60,7 +60,7 @@ export default Component.extend({
       } else if (plotkeys === 'rssi') {
         allData = allData.filter( d => d.netrssi && d.netrssi != -200);
       } else if (plotkeys.startsWith('latency')) {
-        const latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
+        const latencyDest = this.destination ? this.destination : DEFAULT_DESTINATION;
         allData = allData.filter( d => d.latency && d.latency[latencyDest]);
       }
     }
@@ -152,7 +152,7 @@ export default Component.extend({
       out.yScale.domain([d3.min(allData, out.yValue)-5, d3.max(allData, out.yValue)+5]);
     } else if (plotkey.startsWith('latency')) {
       // setup y latency
-      let latencyDest = this.get('destination') ? this.get('destination') : DEFAULT_DESTINATION;
+      let latencyDest = this.destination ? this.destination : DEFAULT_DESTINATION;
       out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : Number.NaN;}; // data -> value
       //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
       let maxLatency = d3.max(allData, out.yValue);

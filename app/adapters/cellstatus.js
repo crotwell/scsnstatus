@@ -16,7 +16,7 @@ export default DS.Adapter.extend({
       let year = idSplit[1];
       let jday = idSplit[2];
       let url = this.baseURL+year+'/'+jday+'/'+station+'.json';
-      return this.get('ajax').request(url)
+      return this.ajax.request(url)
       .catch(function(error){
         console.log(error);
         console.log("...returning valid but empty value.")
@@ -42,7 +42,7 @@ export default DS.Adapter.extend({
     if (query.jday) { jday = query.jday;}
 
     let url = this.baseURL+year+'/'+jday+'/'+station+'.json';
-    return this.get('ajax').request(url);
+    return this.ajax.request(url);
 
   },
   findAll(store, type, sinceToken) {

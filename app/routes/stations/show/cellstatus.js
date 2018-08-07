@@ -55,15 +55,15 @@ console.log("cellstatus route "+days+" "+endDate+"  "+destination);
   },
   actions: {
     changeStationOnRoute(station_id, plotname) {
-      const routeName = this.get('routeName');
+      const routeName = this.routeName;
       const routeA = routeName.split('.');
         console.log(routeName+" route changeStation "+station_id);
-      return this.transitionTo(routeName, station_id, { "queryParams": { "end": moment(this.get('model').end).format("YYYY-MM-DD"),
-                                                                         "days": this.get('model').days }});
+      return this.transitionTo(routeName, station_id, { "queryParams": { "end": moment(this.model.end).format("YYYY-MM-DD"),
+                                                                         "days": this.model.days }});
     },
     refresh() {
-      let m = this.get('model');
-      this.get('model').cellstatus.forEach(cs => {
+      let m = this.model;
+      this.model.cellstatus.forEach(cs => {
         cs.reload();
       });
     },

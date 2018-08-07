@@ -29,6 +29,7 @@ Router.map(function() {
       this.route('helicorder');
     });
   });
+  this.route('quakes', function() {});
 });
 
 export default Router;

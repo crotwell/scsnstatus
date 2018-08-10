@@ -1,5 +1,40 @@
 
-{{#leaflet-map lat=model.center.lat lng=model.center.lon zoom=7}}
+{{#leaflet-map lat=model.center.lat lng=model.center.lon zoom=7 class="quakemap" }}
+  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+
+  {{#each model.stationList as |s|}}
+  {{#marker-layer lat=s.latitude lng=s.longitude class='stationMarker' }}
+    {{#popup-layer}}
+      <h3>Station: {{#link-to 'station.quakes' s }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+    {{/popup-layer}}
+  {{/marker-layer}}
+{{/each}}
+
+{{#each model.quakeList as |q|}}
+  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=q.scaledMag }}
+    {{#popup-layer}}
+      <h3>Event: {{#link-to 'quakes.show.stations' q.quake }}{{format-iso-date q.quake.prefOrigin.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+    {{/popup-layer}}
+  {{/circle-marker-layer}}
+{{/each}}
 {{/leaflet-map}}
 
+<p>Events: num={{model.quakeList.length}}</p>
+
+<table>
+  <tr>
+    <th>EventId</th>
+    <th>Time</th>
+    <th>Latitude/Longitude</th>
+    <th>Depth</th>
+  </tr>
+  {{#each model.quakeList as |q|}}
+  <tr>
+    <td>{{q.eventid}}</td>
+    <td>{{moment-format q.time }}</td>
+    <td>{{q.latitude}}/{{q.longitude}}</td>
+    <td>{{q.depth}}</td>
+  </tr>
+  {{/each}}
+</table>
 {{outlet}}

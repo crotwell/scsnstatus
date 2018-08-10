@@ -12,3 +12,12 @@ nav {
 ul.horizontal > li {
   display: inline-block;
 }
+
+.leaflet-container {
+  width: 90%;
+}
+
+.quakemap {
+  width: 90%;
+  height: 500px;
+}

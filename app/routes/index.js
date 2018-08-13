@@ -18,6 +18,7 @@ export default Route.extend({
   },
   model: function(params) {
     return RSVP.hash({
+      networkCode: networkCode,
       network: this.store.findRecord('network', networkCode),
       latency: this.store.query('stream-status',
        {host: ringserver_host,

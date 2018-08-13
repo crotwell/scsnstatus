@@ -29,7 +29,11 @@ Router.map(function() {
       this.route('helicorder');
     });
   });
-  this.route('quakes', function() {});
+  this.route('quakes', function() {
+    this.route('detail', {
+      path: ':quake_id'
+    });
+  });
 });
 
 export default Router;

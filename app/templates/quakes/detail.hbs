@@ -1,5 +1,6 @@
 
-{{#leaflet-map lat=model.center.lat lng=model.center.lon zoom=7 class="quakemap" }}
+
+{{#leaflet-map lat=model.quake.latitude lng=model.quake.longitude zoom=7 class="quakemap" }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
 
   {{#each model.stationList as |s|}}
@@ -10,31 +11,35 @@
   {{/marker-layer}}
 {{/each}}
 
-{{#each model.quakeList as |q|}}
+{{#let model.quake as |q|}}
   {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=q.scaledMag }}
     {{#popup-layer}}
-      <h3>Event: {{#link-to 'quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+      <h3>Event: {{#link-to 'quakes.detail' q }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
     {{/popup-layer}}
   {{/circle-marker-layer}}
-{{/each}}
+{{/let}}
 {{/leaflet-map}}
 
-<p>Events: num={{model.quakeList.length}}</p>
 
+{{#let model.quake as |q|}}
 <table>
   <tr>
     <th>EventId</th>
-    <th>Time</th>
-    <th>Latitude/Longitude</th>
-    <th>Depth</th>
+    <td>{{q.eventid}}</td>
   </tr>
-  {{#each model.quakeList as |q|}}
   <tr>
-    <td>{{#link-to 'quakes.detail' q }}{{q.eventid}}{{/link-to}}</td>
+    <th>Time</th>
     <td>{{moment-format q.time }}</td>
-    <td>{{q.latitude}}/{{q.longitude}}</td>
-    <td>{{q.depth}}</td>
   </tr>
-  {{/each}}
+  <tr>
+    <th>Latitude/Longitude</th>
+    <td>{{q.latitude}}/{{q.longitude}}</td>
+  </tr>
+  <tr>
+    <th>Depth</th>
+    <td>{{q.depth}} m</td>
+  </tr>
 </table>
+{{/let}}
+
 {{outlet}}

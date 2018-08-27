@@ -1,0 +1,18 @@
+
+{{#leaflet-map lat=model.center.lat lng=model.center.lon zoom=7 class="quakemap" }}
+  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+
+{{/leaflet-map}}
+
+<p>Events: <span>...loading</span></p>
+
+<table>
+  <tr>
+    <th>EventId</th>
+    <th>Time</th>
+    <th>Latitude/Longitude</th>
+    <th>Depth</th>
+    <th>Magnitude</th>
+  </tr>
+</table>
+{{outlet}}

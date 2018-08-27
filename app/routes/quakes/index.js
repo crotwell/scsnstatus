@@ -23,4 +23,12 @@ export default Route.extend({
 
     });
   },
+  afterModel: function(model) {
+    return RSVP.hash({
+      stationList: model.stationList,
+      quakeList: model.quakeList,
+      center: model.center,
+      magList: RSVP.all(model.quakeList.map( q => q.prefMagnitude)),
+    })
+  },
 });

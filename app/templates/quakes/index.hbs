@@ -20,20 +20,22 @@
 {{/leaflet-map}}
 
 <p>Events: num={{model.quakeList.length}}</p>
-
+<p>First mag: {{model.magList.length}} {{model.quakeList.[0].prefMagnitude.mag}} {{model.magList.[0].mag}}</p>
 <table>
   <tr>
     <th>EventId</th>
     <th>Time</th>
     <th>Latitude/Longitude</th>
     <th>Depth</th>
+    <th>Magnitude</th>
   </tr>
   {{#each model.quakeList as |q|}}
   <tr>
-    <td>{{#link-to 'quakes.detail' q }}{{q.eventid}}{{/link-to}}</td>
+    <td>{{#link-to 'quakes.detail' q.id }}{{q.eventid}}{{/link-to}}</td>
     <td>{{moment-format q.time }}</td>
     <td>{{q.latitude}}/{{q.longitude}}</td>
     <td>{{q.depth}}</td>
+    <td>{{q.prefMagnitude.mag}}</td>
   </tr>
   {{/each}}
 </table>

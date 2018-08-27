@@ -39,7 +39,15 @@
     <th>Depth</th>
     <td>{{q.depth}} m</td>
   </tr>
+  <tr>
+    <th>Magnitude</th>
+    <td>{{q.prefMagnitude.mag}} {{q.prefMagnitude}} {{q.prefMagnitude.id}} {{q.prefMagnitude.mag}} {{q.prefMagnitude.type}}</td>
+  </tr>
 </table>
 {{/let}}
+
+
+{{#seismogram-display quake=model.quake }}
+{{/seismogram-display}}
 
 {{outlet}}

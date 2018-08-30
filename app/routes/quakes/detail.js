@@ -46,6 +46,35 @@ export default Route.extend({
     console.log(`loadSeismograms found ${chanList.length} channels ${Array.isArray(chanList)}`);
     let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
     console.log(`loadSeismograms shortChanList ${shortChanList.length} channels ${Array.isArray(shortChanList)}`);
+
+    if (quake.time.isAfter(moment.utc('2016-06-01T00:00:00Z'))) {
+      return this.loadSeismogramsEeyore(shortChanList, quake);
+    } else {
+      return this.loadSeismogramsIRIS(shortChanList, quake);
+    }
+  },
+  loadSeismogramsIRIS(chanList, quake) {
+    let query = new seisplotjs.fdsndataselect.DataSelectQuery();
+    let endTime = moment.utc(quake.time).add(180, 'seconds');
+    let chanTimeList = chanList.map(c => {
+      return {
+        channel: {
+          station: {
+            stationCode: c.get('station').get('stationCode'),
+            network: {
+              networkCode: c.get('station').get('network').get('networkCode'),
+            },
+          },
+          locationCode: c.get('locationCode'),
+          channelCode: c.get('channelCode')
+        },
+        startTime: quake.time,
+        endTime: endTime,
+      };
+    });
+    return query.postQuerySeismograms(chanTimeList);
+  },
+  loadSeismogramsEeyore(chanList, quake) {
       let seismogramMap = new Map();
       let pArray = [];
       shortChanList.forEach(c => {

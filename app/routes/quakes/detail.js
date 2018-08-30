@@ -53,11 +53,12 @@ export default Route.extend({
       return this.loadSeismogramsIRIS(shortChanList, quake);
     }
   },
-  loadSeismogramsIRIS(chanList, quake) {
+  loadSeismogramsIRIS(shortChanList, quake) {
     let query = new seisplotjs.fdsndataselect.DataSelectQuery();
     let endTime = moment.utc(quake.time).add(180, 'seconds');
-    let chanTimeList = chanList.map(c => {
+    let chanTimeList = shortChanList.map(c => {
       return {
+        // dumb to avoid Ember proxy needing get style property access
         channel: {
           station: {
             stationCode: c.get('station').get('stationCode'),
@@ -74,7 +75,7 @@ export default Route.extend({
     });
     return query.postQuerySeismograms(chanTimeList);
   },
-  loadSeismogramsEeyore(chanList, quake) {
+  loadSeismogramsEeyore(shortChanList, quake) {
       let seismogramMap = new Map();
       let pArray = [];
       shortChanList.forEach(c => {

@@ -18,7 +18,7 @@ export default Route.extend({
       }),
       center: {
         lat: 33.75,
-        lon: -81
+        lon: -81,
       },
 
     });

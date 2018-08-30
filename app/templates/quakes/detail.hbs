@@ -1,6 +1,6 @@
 
 
-{{#leaflet-map lat=model.quake.latitude lng=model.quake.longitude zoom=7 class="quakemap" }}
+{{#leaflet-map lat=model.quake.latitude lng=model.quake.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
 
   {{#each model.stationList as |s|}}
@@ -46,8 +46,7 @@
 </table>
 {{/let}}
 
-
-{{#seismogram-display quake=model.quake }}
+{{#seismogram-display seismogramMap=model.seismogramMap quake=model.quake }}
 {{/seismogram-display}}
 
 {{outlet}}

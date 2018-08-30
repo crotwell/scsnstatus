@@ -1,7 +1,10 @@
 import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
+import { inject as service } from '@ember/service';
+import seisplotjs from 'ember-seisplotjs';
 
 export default Route.extend({
+  mseedArchive: service(),
   model: function(params) {
     if ( ! params.quake_id) {throw new Error("no quake_id in params");}
     let appModel = this.modelFor('application');
@@ -14,24 +17,56 @@ export default Route.extend({
         console.log(`m  ${m}`);
         // console.log(`magnitude: ${hash.quake.prefMagnitude.mag} ${hash.quake.prefMagnitude}  ${hash.quake.prefMagnitude.id}`);
         console.log(`hash.quake lat/lon ${hash.quake.latitude} ${hash.quake.longitude}`);
-        hash.center = {
-          lat: hash.quake.latitude,
-          lon: hash.quake.longitude,
-        };
-        hash._mag = hash.quake.prefMagnitude;
+        let staCodes = hash.stationList.filter(s => s.activeAt(hash.quake.time)).map( s => s.stationCode).join();
+        let chanList = this.store.query('channel', {
+          networkCode: appModel.networkCode,
+          stationCode: staCodes,
+          chanCode: "HH?,HN?",
+        });
         return RSVP.hash({
           quake: hash.quake,
           stationList: hash.stationList,
-          center: hash.center,
+          center: {
+              lat: hash.quake.latitude,
+              lon: hash.quake.longitude,
+            },
+          chanList: chanList,
           _mag: hash._mag,
         });
       }).then(hash => {
-        if (hash._mag) {
-        console.log(`hash mag ${hash._mag.get('mag')}`);
-      } else {
-        console.log(`hash mag not defined......`);
-      }
-        return hash;
+        console.log(`found ${hash.chanList.length} channels`);
+        hash.seismogramMap = this.loadSeismograms(hash.chanList, hash.quake);
+        return RSVP.hash(hash);
       });
+  },
+  loadSeismograms(chanList, quake) {
+    console.log(`loadSeismograms found ${chanList.length} channels ${Array.isArray(chanList)}`);
+    let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
+    console.log(`loadSeismograms shortChanList ${shortChanList.length} channels ${Array.isArray(shortChanList)}`);
+      let seismogramMap = new Map();
+      let pArray = [];
+      shortChanList.forEach(c => {
+        console.log(`try ${c.codes}`);
+        if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
+          let promise = this.mseedArchive.load(c, quake.time, moment.utc(quake.time).add(300, 'seconds'))
+            .then(seisMap => {
+              console.log(`retrieve ${c.codes}  found ${seisMap.size} in map`);
+              if (seisMap.get(c.codes).length > 0) {
+                seismogramMap.set(c.codes, seisMap.get(c.codes));
+              }
+            }).catch(e => {
+              console.log("error getting data: "+e);
+            });
+          console.log(`promise is ${promise}`);
+          pArray.push(promise);
+        } else {
+          console.log(`skipping ${c.codes}`);
+        }
+      });
+      console.log(`pArray has ${pArray.length} promises`);
+      return RSVP.all(pArray)
+      .then(pA => {
+        console.log(`ONLY LOAD FEW!!!! loadSeismograms found ${seismogramMap.size} seismograms pA: ${pA.length}`);
+      }).then(() => seismogramMap);
   },
 });

@@ -45,8 +45,9 @@
   </tr>
 </table>
 {{/let}}
+<p>ChannelMap size {{model.channelMap.size}}</p>
 
-{{#seismogram-display seismogramMap=model.seismogramMap quake=model.quake }}
+{{#seismogram-display seismogramMap=model.seismogramMap quake=model.quake channelMap=model.channelMap }}
 {{/seismogram-display}}
 
 {{outlet}}

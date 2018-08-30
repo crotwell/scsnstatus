@@ -22,19 +22,22 @@ export default Route.extend({
           networkCode: appModel.networkCode,
           stationCode: staCodes,
           chanCode: "HH?,HN?",
-        });
-        return RSVP.hash({
+        });return RSVP.hash({
           quake: hash.quake,
           stationList: hash.stationList,
           center: {
-              lat: hash.quake.latitude,
-              lon: hash.quake.longitude,
-            },
+            lat: 33.75,
+            lon: -81,
+          },
           chanList: chanList,
           _mag: hash._mag,
         });
       }).then(hash => {
         console.log(`found ${hash.chanList.length} channels`);
+
+        let channelMap = new Map();
+        hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
+        hash.channelMap = channelMap;
         hash.seismogramMap = this.loadSeismograms(hash.chanList, hash.quake);
         return RSVP.hash(hash);
       });
@@ -48,11 +51,12 @@ export default Route.extend({
       shortChanList.forEach(c => {
         console.log(`try ${c.codes}`);
         if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
-          let promise = this.mseedArchive.load(c, quake.time, moment.utc(quake.time).add(300, 'seconds'))
+          let promise = this.mseedArchive.load(c, quake.time, moment.utc(quake.time).add(180, 'seconds'))
             .then(seisMap => {
               console.log(`retrieve ${c.codes}  found ${seisMap.size} in map`);
               if (seisMap.get(c.codes).length > 0) {
                 seismogramMap.set(c.codes, seisMap.get(c.codes));
+                console.log(`create seisMap ${Array.isArray(seisMap.get(c.codes))}`);
               }
             }).catch(e => {
               console.log("error getting data: "+e);

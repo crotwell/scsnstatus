@@ -26,8 +26,8 @@ export default Route.extend({
           quake: hash.quake,
           stationList: hash.stationList,
           center: {
-            lat: 33.75,
-            lon: -81,
+            latitude: 33.75,
+            longitude: -81,
           },
           chanList: chanList,
           _mag: hash._mag,

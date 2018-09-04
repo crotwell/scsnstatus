@@ -4,31 +4,33 @@ import RSVP from 'rsvp';
 export default Route.extend({
   model: function(params) {
     let appModel = this.modelFor('application');
+    let quakeQueryParams = {
+      minLat: 31.75,
+      maxLat: 35.5,
+      minLon: -84,
+      maxLon: -78,
+      startTime: '2009-06-01T00:00:00',
+      format: 'xml',
+    };
     return RSVP.hash({
       stationList: this.store.query('station',
                                     { networkCode: appModel.networkCode,
                                       endAfter: moment.utc()}),
-      quakeList: this.store.query('quake', {
-        minLat: 32,
-        maxLat: 35,
-        minLon: -84,
-        maxLon: -78,
-        startTime: '2009-06-01T00:00:00',
-        format: 'xml',
-      }),
+      quakeQueryParams: quakeQueryParams,
+      quakeList: this.store.query('quake', quakeQueryParams),
       center: {
-        lat: 33.75,
-        lon: -81,
+        latitude: 33.75,
+        longitude: -81,
       },
-
+      quakeQueryBox: [ { lat: quakeQueryParams.minLat, lng: quakeQueryParams.minLon},
+                       { lat: quakeQueryParams.maxLat, lng: quakeQueryParams.minLon},
+                       { lat: quakeQueryParams.maxLat, lng: quakeQueryParams.maxLon},
+                       { lat: quakeQueryParams.minLat, lng: quakeQueryParams.maxLon},
+      ]
     });
   },
   afterModel: function(model) {
-    return RSVP.hash({
-      stationList: model.stationList,
-      quakeList: model.quakeList,
-      center: model.center,
-      magList: RSVP.all(model.quakeList.map( q => q.prefMagnitude)),
-    })
+    model.magList = RSVP.all(model.quakeList.map( q => q.prefMagnitude));
+    return RSVP.hash(model);
   },
 });

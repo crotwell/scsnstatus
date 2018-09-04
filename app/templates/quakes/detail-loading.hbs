@@ -1,20 +1,27 @@
 
-<h3>Earthquakes near South Carolina since 2009-06-01</h3>
 
-{{#leaflet-map lat=33.75 lng=-81 zoom=7 class="quakemap" }}
+{{#leaflet-map lat=33.75 lng=-81 zoom=7 class="quakemap" scrollWheelZoom=false }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
 
 {{/leaflet-map}}
 
-<p>Events: <span>...loading</span></p>
 
 <table>
   <tr>
     <th>EventId</th>
+  </tr>
+  <tr>
     <th>Time</th>
+  </tr>
+  <tr>
     <th>Latitude/Longitude</th>
+  </tr>
+  <tr>
     <th>Depth</th>
+  </tr>
+  <tr>
     <th>Magnitude</th>
   </tr>
 </table>
-{{outlet}}
+
+<p>Loading Seismograms</p>

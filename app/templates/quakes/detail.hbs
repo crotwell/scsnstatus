@@ -1,6 +1,6 @@
 
 
-{{#leaflet-map lat=model.quake.latitude lng=model.quake.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
+{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
 
   {{#each model.stationList as |s|}}
@@ -12,7 +12,7 @@
 {{/each}}
 
 {{#let model.quake as |q|}}
-  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=q.scaledMag }}
+  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 10) }}
     {{#popup-layer}}
       <h3>Event: {{#link-to 'quakes.detail' q }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
     {{/popup-layer}}
@@ -41,7 +41,7 @@
   </tr>
   <tr>
     <th>Magnitude</th>
-    <td>{{q.prefMagnitude.mag}} {{q.prefMagnitude}} {{q.prefMagnitude.id}} {{q.prefMagnitude.mag}} {{q.prefMagnitude.type}}</td>
+    <td>{{q.prefMagnitude.mag}} {{q.prefMagnitude.type}}</td>
   </tr>
 </table>
 {{/let}}

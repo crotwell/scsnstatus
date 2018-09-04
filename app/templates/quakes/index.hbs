@@ -1,6 +1,14 @@
 
-{{#leaflet-map lat=model.center.lat lng=model.center.lon zoom=7 class="quakemap"  scrollWheelZoom=false }}
+<h3>Earthquakes near South Carolina since {{moment-format model.quakeQueryParams.startTime "YYYY-MM-DD"}}</h3>
+
+{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap"  scrollWheelZoom=false }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+
+  {{#polygon-layer locations=model.quakeQueryBox color="lightgrey"}}
+    {{#tooltip-layer sticky=true}}
+      DANGER ZONE
+    {{/tooltip-layer}}
+  {{/polygon-layer}}
 
   {{#each model.stationList as |s|}}
   {{#marker-layer lat=s.latitude lng=s.longitude class='stationMarker' }}
@@ -11,7 +19,7 @@
 {{/each}}
 
 {{#each model.quakeList as |q|}}
-  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=q.scaledMag }}
+  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 7) }}
     {{#popup-layer}}
       <h3>Event: {{#link-to 'quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
     {{/popup-layer}}

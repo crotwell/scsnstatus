@@ -24,7 +24,7 @@ export default Service.extend({
 
 
     let host = 'eeyore.seis.sc.edu';
-    let port = 6383
+    let port = 80; //6383
     let protocol = 'http:';
     if ("https:" == document.location.protocol) {
       protocol = 'https:'

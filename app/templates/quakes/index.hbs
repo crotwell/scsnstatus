@@ -31,7 +31,6 @@
 
 <table>
   <tr>
-    <th>Id</th>
     <th>EventId</th>
     <th>Time</th>
     <th>Latitude/Longitude</th>
@@ -40,8 +39,7 @@
   </tr>
   {{#each model.quakeList as |q|}}
   <tr>
-    <td>{{q.id }}</td>
-    <td>{{#link-to 'quakes.detail' q.id }}{{q.eventid}}{{/link-to}}</td>
+    <td>{{#link-to 'quakes.detail' q.id }}{{q.eventId}}{{/link-to}}</td>
     <td>{{moment-format q.time }}</td>
     <td>{{q.latitude}}/{{q.longitude}}</td>
     <td>{{q.depth}}</td>

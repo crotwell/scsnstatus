@@ -31,10 +31,11 @@ export default Route.extend({
           },
           chanList: chanList,
           _mag: hash._mag,
+          _pickList: hash.quake.pickList,
         });
       }).then(hash => {
         console.log(`found ${hash.chanList.length} channels`);
-
+        console.log(`quake has ${hash.quake.pickList.length} picks`);
         let channelMap = new Map();
         hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
         hash.channelMap = channelMap;
@@ -45,6 +46,7 @@ export default Route.extend({
   loadSeismograms(chanList, quake) {
     console.log(`loadSeismograms found ${chanList.length} channels ${Array.isArray(chanList)}`);
     let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
+    //shortChanList = shortChanList.slice(0, 1); // testing just one
     console.log(`loadSeismograms shortChanList ${shortChanList.length} channels ${Array.isArray(shortChanList)}`);
 
     if (quake.time.isAfter(moment.utc('2016-06-01T00:00:00Z'))) {

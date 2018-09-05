@@ -3,13 +3,13 @@
 {{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
   {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
 
-  {{#each model.stationList as |s|}}
-  {{#marker-layer lat=s.latitude lng=s.longitude class='stationMarker' }}
-    {{#popup-layer}}
-      <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
-    {{/popup-layer}}
-  {{/marker-layer}}
-{{/each}}
+  {{#each model.activeStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' ) zIndexOffset=100 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
 
 {{#let model.quake as |q|}}
   {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 10) }}
@@ -18,6 +18,15 @@
     {{/popup-layer}}
   {{/circle-marker-layer}}
 {{/let}}
+
+  {{#each model.inactiveStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className='inactiveStationMarker')  zIndexOffset=-10 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
+
 {{/leaflet-map}}
 
 

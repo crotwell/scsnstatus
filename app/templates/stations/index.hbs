@@ -2,10 +2,31 @@
 
 <h3>Net: {{model.network.networkCode}} {{model.network.description}}</h3>
 
+{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap"  scrollWheelZoom=false }}
+  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+
+  {{#each model.activeStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' )  zIndexOffset=100 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
+
+  {{#each model.inactiveStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className='inactiveStationMarker')  zIndexOffset=-10 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
+
+{{/leaflet-map}}
+
 <div class="stationList">
-<h1>Stations {{model.network.stations.length}}</h1>
+<h1>Stations {{model.activeStations.length}}</h1>
 <ul>
-{{#each model.stationList as |sta|}}
+{{#each model.activeStations as |sta|}}
 <li>
   {{#link-to 'stations.show' sta.id}}
     {{sta.codes}} - {{sta.name}}

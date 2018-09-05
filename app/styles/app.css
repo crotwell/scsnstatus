@@ -17,6 +17,27 @@ ul.horizontal > li {
   width: 90%;
 }
 
+.inactiveStationMarker {
+  color: darkgrey;
+  font-size: large;
+  z-index: 1;
+  text-shadow: 1px 1px 0 dimgrey, -1px 1px 0 dimgrey, -2px 1px 0 dimgrey, -1px -1px 0 dimgrey, 0 -3px 0 dimgrey, 1px -1px 0 dimgrey, 2px 1px 0 dimgrey;
+}
+.inactiveStationMarker:after{
+    content: "\25B2"
+}
+
+.stationMarker {
+  color: crimson;
+  font-size: large;
+  z-index: 10;
+  text-shadow: 1px 1px 0 dimgrey, -1px 1px 0 dimgrey, -2px 1px 0 dimgrey, -1px -1px 0 dimgrey, 0 -3px 0 dimgrey, 1px -1px 0 dimgrey, 2px 1px 0 dimgrey;
+}
+.stationMarker:after{
+    content: "\25B2"
+}
+
+
 .quakemap {
   width: 90%;
   height: 500px;

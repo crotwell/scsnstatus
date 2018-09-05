@@ -17,7 +17,9 @@ export default Route.extend({
         console.log(`m  ${m}`);
         // console.log(`magnitude: ${hash.quake.prefMagnitude.mag} ${hash.quake.prefMagnitude}  ${hash.quake.prefMagnitude.id}`);
         console.log(`hash.quake lat/lon ${hash.quake.latitude} ${hash.quake.longitude}`);
-        let staCodes = hash.stationList.filter(s => s.activeAt(hash.quake.time)).map( s => s.stationCode).join();
+        let activeStations = hash.stationList.filter(s => s.activeAt(hash.quake.time));
+        let inactiveStations = hash.stationList.filter(s => ! s.activeAt(hash.quake.time));
+        let staCodes = activeStations.map( s => s.stationCode).join();
         let chanList = this.store.query('channel', {
           networkCode: appModel.networkCode,
           stationCode: staCodes,
@@ -32,6 +34,8 @@ export default Route.extend({
           chanList: chanList,
           _mag: hash._mag,
           _pickList: hash.quake.pickList,
+          activeStations: activeStations,
+          inactiveStations: inactiveStations,
         });
       }).then(hash => {
         console.log(`found ${hash.chanList.length} channels`);

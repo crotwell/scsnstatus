@@ -10,7 +10,11 @@ export default Route.extend({
     model: function(params) {
       return RSVP.hash({
         network: this.store.findRecord('network', networkCode),
-        latency: this.queryLatency(networkCode)
+        latency: this.queryLatency(networkCode),
+        center: {
+          latitude: 33.75,
+          longitude: -81,
+        },
       }).then(function(hash) {
         hash.stationList = hash.network.get('stations');
         return RSVP.hash(hash);
@@ -18,8 +22,11 @@ export default Route.extend({
     },
     afterModel: function(model, transition) {
       console.log("station.index afterModel");
+      model.activeStations = model.stationList.filter(s => s.activeAt());
+      model.inactiveStations = model.stationList.filter(s => ! s.activeAt());
       let out = RSVP.hash({
-        stationHash: model.network.get('stations')
+        stationHash: model.network.get('stations'),
+
       });
       return out.then(hash => {
         console.log("afterModel RSVP hash "+model.network.get('stations'));

@@ -14,8 +14,7 @@ export default Route.extend({
     };
     return RSVP.hash({
       stationList: this.store.query('station',
-                                    { networkCode: appModel.networkCode,
-                                      endAfter: moment.utc()}),
+                                    { networkCode: appModel.networkCode}),
       quakeQueryParams: quakeQueryParams,
       quakeList: this.store.query('quake', quakeQueryParams),
       center: {
@@ -31,6 +30,8 @@ export default Route.extend({
   },
   afterModel: function(model) {
     model.magList = RSVP.all(model.quakeList.map( q => q.prefMagnitude));
+    model.activeStations = model.stationList.filter(s => s.isActive);
+    model.inactiveStations = model.stationList.filter(s => ! s.isActive);
     return RSVP.hash(model);
   },
 });

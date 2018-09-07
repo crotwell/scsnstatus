@@ -23,7 +23,6 @@ export default DS.JSONAPISerializer.extend({
     }
   },
   normalizeCellStatus(resourceHash) {
-    console.log("normalizeCellStatus: "+resourceHash.station+"_"+resourceHash.year+"_"+resourceHash.dayofyear);
     // eeyore uses day of year with leading 0, trim it
     let dofy = resourceHash.dayofyear.match(/0*(\d+)/);
     if (! dofy) {
@@ -33,12 +32,14 @@ export default DS.JSONAPISerializer.extend({
     for (const v of resourceHash.values) {
       v.volt = Number.parseFloat(v.volt);
       v.netrssi = Number.parseFloat(v.netrssi);
-      v.latency.eeyore = Number.parseFloat(v.latency.eeyore);
-      if (v.latency.eeyore > 1500000000) {delete v.latency.eeyore; }
-      v.latency.thecloud = Number.parseFloat(v.latency.thecloud);
-      if (v.latency.thecloud > 1500000000) {delete v.latency.thecloud; }
-      v.latency.iris = Number.parseFloat(v.latency.iris);
-      if (v.latency.iris > 1500000000) {delete v.latency.iris; }
+      if (v.latency) {
+        v.latency.eeyore = Number.parseFloat(v.latency.eeyore);
+        if (v.latency.eeyore > 1500000000) {delete v.latency.eeyore; }
+        v.latency.thecloud = Number.parseFloat(v.latency.thecloud);
+        if (v.latency.thecloud > 1500000000) {delete v.latency.thecloud; }
+        v.latency.iris = Number.parseFloat(v.latency.iris);
+        if (v.latency.iris > 1500000000) {delete v.latency.iris; }
+      }
       v.time = moment(v.time);
     }
     const data = {

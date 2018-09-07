@@ -40,7 +40,21 @@ console.log("cellstatus route "+days+" "+endDate+"  "+destination);
       stationList: stationList,
       cellstatus: RSVP.all(out),
     }).then(hash => {
-      hash.network = hash.station.get('network')
+      hash.network = hash.station.get('network');
+      hash.dailyminmax = hash.cellstatus.map(cs => {
+        return {
+          dayofyear: cs.dayofyear,
+          station: cs.station,
+          minmax: this.findMinMax(cs)
+        };
+      });
+      hash.minmax = hash.dailyminmax[0].minmax;
+      hash.dailyminmax.forEach((cs, i) => {
+        hash.minmax.volt.min = Math.min(hash.minmax.volt.min, cs.minmax.volt.min);
+        hash.minmax.volt.max = Math.max(hash.minmax.volt.max, cs.minmax.volt.max);
+        hash.minmax.netrssi.min = Math.min(hash.minmax.netrssi.min, cs.minmax.netrssi.min);
+        hash.minmax.netrssi.max = Math.min(hash.minmax.netrssi.max, cs.minmax.netrssi.max);
+      });
       return RSVP.hash(hash);
     });
   },
@@ -51,6 +65,19 @@ console.log("cellstatus route "+days+" "+endDate+"  "+destination);
     },
     end: {
       refreshModel: true
+    }
+  },
+  findMinMax(cellStatus) {
+    // skip volt==0 as those are cases where did not get a reading
+    return {
+      volt: {
+        min: cellStatus.values.reduce((accum, cur) => cur.volt===0 ? accum : Math.min(accum, cur.volt), 99999),
+        max: cellStatus.values.reduce((accum, cur) => cur.volt===0 ? accum : Math.max(accum, cur.volt), -99999),
+      },
+      netrssi: {
+        min: cellStatus.values.reduce((accum, cur) => cur.volt===0 ? accum : Math.min(accum, cur.netrssi), 99999),
+        max: cellStatus.values.reduce((accum, cur) => cur.volt===0 ? accum : Math.max(accum, cur.netrssi), -99999),
+      }
     }
   },
   actions: {

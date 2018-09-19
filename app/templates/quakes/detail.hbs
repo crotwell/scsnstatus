@@ -1,7 +1,7 @@
 
 
 {{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
-  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
 
   {{#each model.activeStations as |s|}}
     {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' ) zIndexOffset=100 }}

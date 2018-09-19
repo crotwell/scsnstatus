@@ -2,11 +2,11 @@
 <h3>Earthquakes near South Carolina since {{moment-format model.quakeQueryParams.startTime "YYYY-MM-DD"}}</h3>
 
 {{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap"  scrollWheelZoom=false }}
-  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
 
   {{#polygon-layer locations=model.quakeQueryBox color="lightgrey"}}
     {{#tooltip-layer sticky=true}}
-      DANGER ZONE
+      Earthquake Search Region
     {{/tooltip-layer}}
   {{/polygon-layer}}
 

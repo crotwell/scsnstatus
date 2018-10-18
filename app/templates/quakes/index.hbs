@@ -27,16 +27,24 @@
   {{/each}}
 
 
-{{#each model.quakeList as |q|}}
-  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 7) }}
-    {{#popup-layer}}
-      <h3>Event: {{#link-to 'quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
-    {{/popup-layer}}
-  {{/circle-marker-layer}}
-{{/each}}
+  {{#each model.oldQuakes as |q|}}
+    {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=5 color='darkGrey'}}
+      {{#popup-layer}}
+        <h3>Event: {{#link-to 'quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/circle-marker-layer}}
+  {{/each}}
+
+  {{#each model.yearQuakes as |q|}}
+    {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 7) }}
+      {{#popup-layer}}
+        <h3>Event: {{#link-to 'quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/circle-marker-layer}}
+  {{/each}}
 {{/leaflet-map}}
 
-<p>Events: {{model.quakeList.length}}</p>
+<p>Events Past Year: {{model.yearQuakes.length}}</p>
 
 <table>
   <tr>
@@ -46,7 +54,29 @@
     <th>Depth</th>
     <th>Magnitude</th>
   </tr>
-  {{#each model.quakeList as |q|}}
+  {{#each model.yearQuakes as |q|}}
+  <tr>
+    <td>{{#link-to 'quakes.detail' q.id }}{{q.eventId}}{{/link-to}}</td>
+    <td>{{moment-format q.time }}</td>
+    <td>{{q.latitude}}/{{q.longitude}}</td>
+    <td>{{q.depth}}</td>
+    <td>{{q.prefMagnitude.mag}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+
+<p>Events Older: {{model.oldQuakes.length}}</p>
+
+<table>
+  <tr>
+    <th>EventId</th>
+    <th>Time</th>
+    <th>Latitude/Longitude</th>
+    <th>Depth</th>
+    <th>Magnitude</th>
+  </tr>
+  {{#each model.oldQuakes as |q|}}
   <tr>
     <td>{{#link-to 'quakes.detail' q.id }}{{q.eventId}}{{/link-to}}</td>
     <td>{{moment-format q.time }}</td>

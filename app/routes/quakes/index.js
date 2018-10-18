@@ -1,5 +1,6 @@
 import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
+import moment from 'moment';
 
 export default Route.extend({
   model: function(params) {
@@ -29,6 +30,9 @@ export default Route.extend({
     });
   },
   afterModel: function(model) {
+    let yearAgo = moment.utc().subtract(1, 'year');
+    model.oldQuakes = model.quakeList.filter(q => q.time.isBefore(yearAgo));
+    model.yearQuakes = model.quakeList.filter(q => q.time.isAfter(yearAgo));
     model.magList = RSVP.all(model.quakeList.map( q => q.prefMagnitude));
     model.activeStations = model.stationList.filter(s => s.isActive);
     model.inactiveStations = model.stationList.filter(s => ! s.isActive);

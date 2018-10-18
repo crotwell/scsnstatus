@@ -12,6 +12,6 @@ module('Integration | Helper | magnitude-to-radius', function(hooks) {
 
     await render(hbs`{{magnitude-to-radius inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('1234');
   });
 });

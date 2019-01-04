@@ -1,20 +1,27 @@
 
-<h3>Earthquakes near South Carolina since 2009-06-01</h3>
 
-{{#leaflet-map lat=33.75 lng=-81 zoom=7 class="quakemap" }}
+{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=2 class="quakemap" scrollWheelZoom=false }}
   {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
 
 {{/leaflet-map}}
 
-<p>Events: <span>...loading</span></p>
 
 <table>
   <tr>
     <th>EventId</th>
+  </tr>
+  <tr>
     <th>Time</th>
+  </tr>
+  <tr>
     <th>Latitude/Longitude</th>
+  </tr>
+  <tr>
     <th>Depth</th>
+  </tr>
+  <tr>
     <th>Magnitude</th>
   </tr>
 </table>
-{{outlet}}
+
+<p>Loading Seismograms</p>

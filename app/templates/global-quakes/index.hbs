@@ -1,0 +1,63 @@
+
+<h3>Global Earthquakes of Magnitude 4.5 and Greater in last 30 Days</h3>
+
+{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=2 class="quakemap"  scrollWheelZoom=false }}
+  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
+
+
+  {{#each model.activeStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' ) zIndexOffset=100 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
+
+  {{#each model.inactiveStations as |s|}}
+    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className='inactiveStationMarker')  zIndexOffset=-10 }}
+      {{#popup-layer}}
+        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/marker-layer}}
+  {{/each}}
+
+
+
+  {{#each model.quakeList as |q|}}
+    {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 2) }}
+      {{#popup-layer}}
+        <h3>Event: {{#link-to 'global-quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+      {{/popup-layer}}
+    {{/circle-marker-layer}}
+  <!-- also plot with long < 0 for global wraparound -->
+      {{#circle-marker-layer lat=q.latitude lng=(add q.longitude -360) radius=(magnitude-to-radius q.prefMagnitude.mag 2) }}
+        {{#popup-layer}}
+          <h3>Event: {{#link-to 'global-quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+        {{/popup-layer}}
+      {{/circle-marker-layer}}
+  {{/each}}
+{{/leaflet-map}}
+
+<p>Earthquakes:</p>
+
+<table>
+  <tr>
+    <th>EventId</th>
+    <th>Time</th>
+    <th>Latitude/Longitude</th>
+    <th>Depth</th>
+    <th>Magnitude</th>
+  </tr>
+  {{#each model.quakeList as |q|}}
+  <tr>
+    <td>{{#link-to 'global-quakes.detail' q.id }}{{q.eventId}}{{/link-to}}</td>
+    <td>{{moment-format q.time }}</td>
+    <td>{{q.latitude}}/{{q.longitude}}</td>
+    <td>{{q.depth}}</td>
+    <td>{{q.prefMagnitude.mag}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+
+{{outlet}}

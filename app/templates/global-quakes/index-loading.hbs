@@ -1,0 +1,20 @@
+
+<h3>Global Earthquakes of Magnitude 4.5 and Greater in last 30 Days</h3>
+
+{{#leaflet-map lat=0 lng=-180 zoom=2 class="quakemap" }}
+  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+
+{{/leaflet-map}}
+
+<p>Events: <span>...loading</span></p>
+
+<table>
+  <tr>
+    <th>EventId</th>
+    <th>Time</th>
+    <th>Latitude/Longitude</th>
+    <th>Depth</th>
+    <th>Magnitude</th>
+  </tr>
+</table>
+{{outlet}}

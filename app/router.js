@@ -34,6 +34,11 @@ Router.map(function() {
       path: ':quake_id'
     });
   });
+  this.route('global-quakes', function() {
+    this.route('detail', {
+      path: ':quake_id'
+    });
+  });
 });
 
 export default Router;

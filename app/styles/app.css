@@ -2,7 +2,11 @@ path.seispath {
      stroke: skyblue;
      fill: none;
 }
-
+div.waveformplot {
+  position: "relative";
+    width: 90%;
+    height: 300px;
+}
 nav {
   padding: 3px;
   background-color: lightgrey;

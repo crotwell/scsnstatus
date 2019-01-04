@@ -2,7 +2,7 @@ import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
 import moment from 'moment';
 
-const DEFAULT_DAYS=3;
+const DEFAULT_DAYS=7;
 const DEFAULT_DESTINATION="eeyore";
 
 export default Route.extend({

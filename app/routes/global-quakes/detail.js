@@ -26,8 +26,10 @@ export default Route.extend({
         let chanList = this.store.query('channel', {
           networkCode: appModel.networkCode,
           stationCode: staCodes,
-          channelCode: "LH?",
+          locationCode: "00",
+          channelCode: "HHZ,LHZ",
         });
+
         // empty phaseList means default of [ 'p', 'P', 's', 'S', 'PKP', 'PKP', 'PKIKP', 'SKS']
         let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
         return RSVP.hash({
@@ -117,33 +119,22 @@ export default Route.extend({
     });
     return query.postQuerySeismograms(chanTimeList);
   },
-  loadSeismogramsEeyore(shortChanList, quake, ttList, preP, postS) {
-      let seismogramMap = new Map();
+  loadSeismogramsEeyore(shortChanList, quake) {
       let pArray = [];
+      let chanTR = [];
       shortChanList.forEach(c => {
         console.log(`try ${c.codes}`);
         if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
-          let promise = this.mseedArchive.load(c, quake.time, moment.utc(quake.time).add(180, 'seconds'))
-            .then(seisMap => {
-              console.log(`retrieve ${c.codes}  found ${seisMap.size} in map`);
-              if (seisMap.get(c.codes).length > 0) {
-                seismogramMap.set(c.codes, seisMap.get(c.codes));
-                console.log(`create seisMap ${Array.isArray(seisMap.get(c.codes))}`);
-              }
-            }).catch(e => {
-              console.log("error getting data: "+e);
-            });
-          console.log(`promise is ${promise}`);
-          pArray.push(promise);
+          chanTR.push({
+            channel: c,
+            startTime: quake.time,
+            endTime: seisplotjs.moment.utc(quake.time).add(180, 'seconds')
+          });
         } else {
           console.log(`skipping ${c.codes}`);
         }
       });
-      console.log(`pArray has ${pArray.length} promises`);
-      return RSVP.all(pArray)
-      .then(pA => {
-        console.log(`ONLY LOAD FEW!!!! loadSeismograms found ${seismogramMap.size} seismograms pA: ${pA.length}`);
-      }).then(() => seismogramMap);
+      return this.mseedArchive.loadTraces(chanTR);
   },
   calcArrivals(ttList, quake, staCode, netCode) {
 

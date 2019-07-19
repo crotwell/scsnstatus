@@ -2,10 +2,15 @@ import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
 import { inject as service } from '@ember/service';
 import seisplotjs from 'ember-seisplotjs';
+import travelTime from 'ember-seisplotjs/utils/travel-time';
+import firstPS from 'ember-seisplotjs/utils/first-p-s';
+
 
 export default Route.extend({
   mseedArchive: service(),
   model: function(params) {
+    let preOrigin = 30;
+    let postOrigin = 270;
     if ( ! params.quake_id) {throw new Error("no quake_id in params");}
     let appModel = this.modelFor('application');
     return RSVP.hash({
@@ -27,6 +32,7 @@ export default Route.extend({
           channelCode: "HHZ,HNZ",
         });
 
+        let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
         return RSVP.hash({
           quake: hash.quake,
           stationList: hash.stationList,
@@ -35,6 +41,7 @@ export default Route.extend({
             longitude: -81,
           },
           chanList: chanList,
+          ttList: ttList,
           _mag: hash._mag,
           _pickList: hash.quake.pickList,
           activeStations: activeStations,
@@ -46,59 +53,80 @@ export default Route.extend({
         let channelMap = new Map();
         hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
         hash.channelMap = channelMap;
-        hash.seismogramMap = this.loadSeismograms(hash.chanList, hash.quake);
+        hash.chanTRList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
         return RSVP.hash(hash);
       });
   },
-  loadSeismograms(chanList, quake) {
+  loadSeismograms(chanList, quake, ttList, preOrigin, postOrigin) {
     console.log(`loadSeismograms found ${chanList.length} channels ${Array.isArray(chanList)}`);
-    let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
+    let shortChanList = chanList;
+    //let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
     //shortChanList = shortChanList.slice(0, 1); // testing just one
     console.log(`loadSeismograms shortChanList ${shortChanList.length} channels ${Array.isArray(shortChanList)}`);
 
-    if (quake.time.isAfter(moment.utc('2016-06-01T00:00:00Z'))) {
-      return this.loadSeismogramsEeyore(shortChanList, quake);
+    if (quake.time.isAfter(moment.utc('2019-06-01T00:00:00Z'))) {
+      return this.loadSeismogramsEeyore(shortChanList, quake, ttList, preOrigin, postOrigin);
     } else {
-      return this.loadSeismogramsIRIS(shortChanList, quake);
+      return this.loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin);
     }
   },
-  loadSeismogramsIRIS(shortChanList, quake) {
+  loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin) {
     let query = new seisplotjs.fdsndataselect.DataSelectQuery();
     let endTime = moment.utc(quake.time).add(180, 'seconds');
     let chanTimeList = shortChanList.map(c => {
+      let staCode = c.get('station').get('stationCode');
+      let netCode = c.get('station').get('network').get('networkCode');
+      let ttime = this.getTTime(ttList, staCode, netCode);
+      let pAndS = firstPS(ttime);
+      let pArrival = pAndS.firstP;
+      let sArrival = pAndS.firstS;
       return {
         // dumb to avoid Ember proxy needing get style property access
         channel: {
           station: {
-            stationCode: c.get('station').get('stationCode'),
+            stationCode: staCode,
             network: {
-              networkCode: c.get('station').get('network').get('networkCode'),
+              networkCode: netCode,
             },
           },
           locationCode: c.get('locationCode'),
           channelCode: c.get('channelCode')
         },
-        startTime: quake.time,
-        endTime: endTime,
+        startTime: moment.utc(quake.time).add(-1*preOrigin, 'second'),
+        endTime: moment.utc(quake.time).add(postOrigin, 'second'),
       };
     });
-    return query.postQueryTraces(chanTimeList);
+    return query.postQuerySeismograms(chanTimeList);
   },
-  loadSeismogramsEeyore(shortChanList, quake) {
+  loadSeismogramsEeyore(shortChanList, quake, ttList, preOrigin, postOrigin) {
       let pArray = [];
       let chanTR = [];
       shortChanList.forEach(c => {
         console.log(`try ${c.codes}`);
         if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
+          let staCode = c.get('station').get('stationCode');
+          let netCode = c.get('station').get('network').get('networkCode');
+          let ttime = this.getTTime(ttList, staCode, netCode);
+          let pAndS = firstPS(ttime);
+          let pArrival = pAndS.firstP;
+          let sArrival = pAndS.firstS;
           chanTR.push({
             channel: c,
-            startTime: quake.time,
-            endTime: seisplotjs.moment.utc(quake.time).add(180, 'seconds')
+            startTime: moment.utc(quake.time).add(-1*preOrigin, 'second'),
+            endTime: moment.utc(quake.time).add(postOrigin, 'second'),
           });
         } else {
           console.log(`skipping ${c.codes}`);
         }
       });
       return this.mseedArchive.loadTraces(chanTR);
+  },
+  getTTime(ttList, staCode, netCode) {
+    for(let t of ttList) {
+      if (t.station.get('stationCode') === staCode
+          && t.station.network.get('networkCode') === netCode) {
+        return t;
+      }
+    }
   },
 });

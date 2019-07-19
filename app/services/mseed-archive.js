@@ -2,22 +2,25 @@ import Service from '@ember/service';
 
 import seisplotjs from 'ember-seisplotjs';
 const moment = seisplotjs.moment;
+const Network = seisplotjs.stationxml.Network;
+const Station = seisplotjs.stationxml.Station;
+const Channel = seisplotjs.stationxml.Channel;
 
 export default Service.extend({
   loadTraces(channelTimeList) {
     let fakeCT = channelTimeList.map(ct => {
-      let fakeNet = new seisplotjs.model.Network(ct.channel.get('station').get('network').get('networkCode'));
-      let fakeSta = new seisplotjs.model.Station(fakeNet, ct.channel.get('station').get('stationCode'));
-      let fake = new seisplotjs.model.Channel(fakeSta, ct.channel.channelCode, ct.channel.locationCode);
+      let fakeNet = new Network(ct.channel.get('station').get('network').get('networkCode'));
+      let fakeSta = new Station(fakeNet, ct.channel.get('station').get('stationCode'));
+      let fake = new Channel(fakeSta, ct.channel.channelCode, ct.channel.locationCode);
       fake.sampleRate = ct.channel.sampleRate;
-      return {
-        channel: fake,
-        startTime: ct.startTime,
-        endTime: ct.endTime
-      };
+      return new seisplotjs.fdsndataselect.ChannelTimeRange(
+        fake,
+        ct.startTime,
+        ct.endTime
+      );
     })
     let mseedArchive = this.createMSeedArchive();
-    return mseedArchive.loadTraces(fakeCT);
+    return mseedArchive.loadSeismograms(fakeCT);
   },
   load(channel, startTime, endTime) {
     if ( ! endTime) {
@@ -64,7 +67,7 @@ export default Service.extend({
       let pattern = "%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H";
 
       console.log("baseUrl: "+baseUrl);
-      let mseedArchive = new seisplotjs.seedlink.MSeedArchive(baseUrl, pattern);
+      let mseedArchive = new seisplotjs.mseedarchive.MSeedArchive(baseUrl, pattern);
       return mseedArchive;
   }
 });

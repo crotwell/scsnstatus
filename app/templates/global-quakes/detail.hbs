@@ -4,9 +4,9 @@
   {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
 
   {{#each model.activeStations as |s|}}
-    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' ) zIndexOffset=100 }}
+    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className="stationMarker" ) zIndexOffset=100 }}
       {{#popup-layer}}
-        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+        <h3>Station: {{#link-to "stations.show" s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
       {{/popup-layer}}
     {{/marker-layer}}
   {{/each}}
@@ -14,21 +14,21 @@
   {{#let model.quake as |q|}}
     {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 5) }}
       {{#popup-layer}}
-        <h3>Event: {{#link-to 'global-quakes.detail' q }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+        <h3>Event: {{#link-to "global-quakes.detail" q }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
       {{/popup-layer}}
     {{/circle-marker-layer}}
-<!-- also plot with long < 0 for global wraparound -->
+    <!-- also plot with long < 0 for global wraparound -->
     {{#circle-marker-layer lat=q.latitude lng=(add q.longitude -360) radius=(magnitude-to-radius q.prefMagnitude.mag 5) }}
       {{#popup-layer}}
-        <h3>Event: {{#link-to 'global-quakes.detail' q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
+        <h3>Event: {{#link-to "global-quakes.detail" q.id }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
       {{/popup-layer}}
     {{/circle-marker-layer}}
   {{/let}}
 
   {{#each model.inactiveStations as |s|}}
-    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className='inactiveStationMarker')  zIndexOffset=-10 }}
+    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className="inactiveStationMarker")  zIndexOffset=-10 }}
       {{#popup-layer}}
-        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
+        <h3>Station: {{#link-to "stations.show" s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
       {{/popup-layer}}
     {{/marker-layer}}
   {{/each}}
@@ -37,31 +37,31 @@
 
 
 {{#let model.quake as |q|}}
-<table>
-  <tr>
-    <th>EventId</th>
-    <td>{{q.eventId}}</td>
-  </tr>
-  <tr>
-    <th>Time</th>
-    <td>{{moment-format q.time }}</td>
-  </tr>
-  <tr>
-    <th>Latitude/Longitude</th>
-    <td>{{q.latitude}}/{{q.longitude}}</td>
-  </tr>
-  <tr>
-    <th>Depth</th>
-    <td>{{q.depth}} m</td>
-  </tr>
-  <tr>
-    <th>Magnitude</th>
-    <td>{{q.prefMagnitude.mag}} {{q.prefMagnitude.type}}</td>
-  </tr>
-</table>
+  <table>
+    <tr>
+      <th>EventId</th>
+      <td>{{q.eventId}}</td>
+    </tr>
+    <tr>
+      <th>Time</th>
+      <td>{{moment-format q.time }}</td>
+    </tr>
+    <tr>
+      <th>Latitude/Longitude</th>
+      <td>{{q.latitude}}/{{q.longitude}}</td>
+    </tr>
+    <tr>
+      <th>Depth</th>
+      <td>{{q.depth}} m</td>
+    </tr>
+    <tr>
+      <th>Magnitude</th>
+      <td>{{q.prefMagnitude.mag}} {{q.prefMagnitude.type}}</td>
+    </tr>
+  </table>
 {{/let}}
 
-{{#seismogram-display seismogramMap=model.seismogramMap quake=model.quake channelMap=model.channelMap }}
+{{#seismogram-display chanTRList=model.chanTRList quake=model.quake channelMap=model.channelMap overlayPicks=true phases="P,S,PKP,SKS"}}
 {{/seismogram-display}}
 
 {{outlet}}

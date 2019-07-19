@@ -3,6 +3,7 @@ import RSVP from 'rsvp';
 import { inject as service } from '@ember/service';
 import seisplotjs from 'ember-seisplotjs';
 import travelTime from 'ember-seisplotjs/utils/travel-time';
+import firstPS from 'ember-seisplotjs/utils/first-p-s';
 
 export default Route.extend({
   mseedArchive: service(),
@@ -53,7 +54,7 @@ export default Route.extend({
         hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
         hash.channelMap = channelMap;
         //hash.arrivals = ttList.map( tt => moment.utc(hash.quake.time).add())
-        hash.seismogramMap = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preP, postS);
+        hash.chanTRList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preP, postS);
         return RSVP.hash(hash);
       });
   },
@@ -77,30 +78,9 @@ export default Route.extend({
       let staCode = c.get('station').get('stationCode');
       let netCode = c.get('station').get('network').get('networkCode');
       let ttime = this.getTTime(ttList, staCode, netCode);
-      let pArrival = ttime.traveltime.arrivals.reduce( (acc, cur) => {
-        if (cur.phase.startsWith('P') || cur.phase.startsWith('p')) {
-          if ( ! acc) {
-            return cur;
-          } else if (cur.time < acc.time) {
-            return cur;
-          } else {
-            return acc;
-          }
-        }
-        return acc;
-      });
-      let sArrival = ttime.traveltime.arrivals.reduce( (acc, cur) => {
-        if (cur.phase.startsWith('P') || cur.phase.startsWith('p')) {
-          if ( ! acc) {
-            return cur;
-          } else if (cur.time < acc.time) {
-            return cur;
-          } else {
-            return acc;
-          }
-        }
-        return acc;
-      });
+      let pAndS = firstPS(ttime);
+      let pArrival = pAndS.firstP;
+      let sArrival = pAndS.firstS;
       return {
         // dumb to avoid Ember proxy needing get style property access
         channel: {
@@ -119,16 +99,22 @@ export default Route.extend({
     });
     return query.postQuerySeismograms(chanTimeList);
   },
-  loadSeismogramsEeyore(shortChanList, quake) {
+  loadSeismogramsEeyore(shortChanList, quake, ttList, preP, postS) {
       let pArray = [];
       let chanTR = [];
       shortChanList.forEach(c => {
         console.log(`try ${c.codes}`);
         if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
+          let staCode = c.get('station').get('stationCode');
+          let netCode = c.get('station').get('network').get('networkCode');
+          let ttime = this.getTTime(ttList, staCode, netCode);
+          let pAndS = firstPS(ttime);
+          let pArrival = pAndS.firstP;
+          let sArrival = pAndS.firstS;
           chanTR.push({
             channel: c,
-            startTime: quake.time,
-            endTime: seisplotjs.moment.utc(quake.time).add(180, 'seconds')
+            startTime: moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preP, 'second'),
+            endTime: moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'),
           });
         } else {
           console.log(`skipping ${c.codes}`);

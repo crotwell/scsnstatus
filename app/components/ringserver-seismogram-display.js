@@ -1,6 +1,9 @@
 import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import SeismogramDisplay  from 'ember-seisplotjs/components/seismogram-display';
+import seisplotjs from 'ember-seisplotjs';
+
+const ChannelTimeRange = seisplotjs.fdsndataselect.ChannelTimeRange;
 
 export default SeismogramDisplay.extend({
   mseedArchive: service(),
@@ -15,6 +18,7 @@ export default SeismogramDisplay.extend({
     } else {
       seconds = 3600;
     }
-    return ds.load(channel, seconds, moment.utc());
+    let ctr = new ChannelTimeRange(channel, moment.utc().subtract(seconds,'seconds'), moment.utc());
+    return ds.loadTraces([ ctr]);
   },
 });

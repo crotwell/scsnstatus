@@ -1,22 +1,24 @@
 <h3>Channel {{model.codes}}</h3>
 
-<p>{{#link-to 'stations.show' model.station}}{{model.station.codes}}{{/link-to}}</p>
+<p>{{#link-to "stations.show" model.station}}{{model.station.codes}}{{/link-to}}</p>
 
-<ul>
-  <li>{{model.name}}</li>
-  <li>{{model.description}}</li>
-  <li>{{model.startTime}}</li>
-  <li>{{model.endTime}}</li>
-  <li>{{model.latitudeFormatted}}</li>
-  <li>{{model.longitudeFormatted}}</li>
-  <li>{{model.elevation}}</li>
-  <li>{{model.depth}}</li>
-  <li>{{model.azimuth}}</li>
-  <li>{{model.dip}}</li>
-  <li>{{model.sampleRate}}</li>
-  <li>{{model.restrictedStatus}}</li>
-  <li>{{model.instrumentSensitivity._sensitivity}} {{model.instrumentSensitivity._inputUnits}} per {{model.instrumentSensitivity._outputUnits}}</li>
-</ul>
+<table>
+  <tbody>
+    <tr><th>Name:</th><td>{{model.name}}</td></tr>
+    <tr><th>Desc:</th><td>{{model.description}}</td></tr>
+    <tr><th>Start:</th><td>{{model.startTime}}</td></tr>
+    <tr><th>End:</th><td>{{model.endTime}}</td></tr>
+    <tr><th>Lat:</th><td>{{model.latitudeFormatted}}</td></tr>
+    <tr><th>Lon:</th><td>{{model.longitudeFormatted}}</td></tr>
+    <tr><th>Elev:</th><td>{{model.elevation}}</td></tr>
+    <tr><th>Depth:</th><td>{{model.depth}}</td></tr>
+    <tr><th>Az:</th><td>{{model.azimuth}}</td></tr>
+    <tr><th>Dip:</th><td>{{model.dip}}</td></tr>
+    <tr><th>Samp:</th><td>{{model.sampleRate}}</td></tr>
+    <tr><th>Restr.:</th><td>{{model.restrictedStatus}}</td></tr>
+    <tr><th>Sens.:</th><td>{{model.instrumentSensitivity.sensitivity}} {{model.instrumentSensitivity.outputUnits}} per {{model.instrumentSensitivity.inputUnits}}</td></tr>
+  </tbody>
+</table>
 
 {{#ringserver-seismogram-display channel=model }}
 {{/ringserver-seismogram-display}}

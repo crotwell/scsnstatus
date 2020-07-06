@@ -1,0 +1,31 @@
+<h3>Latency for {{dataLatency.networkCode}} {{dataLatency.latencyData.latestData.length}}</h3>
+
+
+<table>
+  <tr>
+    <th>Station</th>
+    <th>Eeyore (UTC)</th>
+    <th>Latency</th>
+    <th>Cloud (UTC)</th>
+    <th>Latency</th>
+    <th>Iris (UTC)</th>
+    <th>Latency</th>
+  </tr>
+  {{#each dataLatency.latencyData.latestData as |streamStat|}}
+    <tr>
+      <td>{{streamStat.key}}</td>
+      <td class={{latency-seriousness streamStat.eeyore.end}}>{{moment-format streamStat.eeyore.end 'HH:mm:ss'}}</td>
+      <td class={{latency-seriousness streamStat.eeyore.end}}>{{moment-from-now streamStat.eeyore.end  interval=10500}}</td>
+      <td class={{latency-seriousness streamStat.thecloud.end}}>{{moment-format streamStat.thecloud.end 'HH:mm:ss'}}</td>
+      <td class={{latency-seriousness streamStat.thecloud.end}}>{{moment-from-now streamStat.thecloud.end  interval=10500}}</td>
+      <td class={{latency-seriousness streamStat.rtserve.end}}>{{moment-format streamStat.rtserve.end 'HH:mm:ss'}}</td>
+      <td class={{latency-seriousness streamStat.rtserve.end}}>{{moment-from-now streamStat.rtserve.end  interval=10500}}</td>
+    </tr>
+  {{/each}}
+</table>
+<h3>Access at {{moment-format (utc dataLatency.latencyData.accessTime) 'YYYY-MM-DD HH:mm:ss'}} UTC,
+   {{moment-from-now dataLatency.latency.accessTime  interval=10500}}</h3>
+<h3>UTC: {{moment-format (utc (now interval=2000)) 'YYYY-MM-DD HH:mm:ss'}}</h3>
+<h3>Local: {{moment-format (now interval=2000) 'YYYY-MM-DD HH:mm:ss'}}</h3>
+
+{{yield}}

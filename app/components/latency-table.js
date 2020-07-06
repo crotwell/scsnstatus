@@ -1,6 +1,7 @@
-import Component from '@ember/component';
-import _moment from 'ember-moment/computeds/moment';
-import utc from 'ember-moment/computeds/utc';
+import Component from '@glimmer/component';
+import { action } from "@ember/object";
+import { inject as service } from '@ember/service';
 
-export default Component.extend({
-});
+export default class LatencyTableComponent extends Component {
+  @service dataLatency;
+}

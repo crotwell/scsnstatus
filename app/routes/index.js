@@ -1,68 +1,32 @@
 import Route from '@ember/routing/route';
-import RSVP from 'rsvp';
-import seisplotjs from 'ember-seisplotjs';
+import { A, isArray } from '@ember/array';
 import { run } from '@ember/runloop';
+import RSVP from 'rsvp';
+import { inject as service } from '@ember/service';
+import { tracked } from "@glimmer/tracking";
+import { action } from "@ember/object";
+import moment from 'moment';
+import {d3, seismogram, seismographconfig, seismograph, ringserverweb} from 'seisplotjs';
 
-const networkCode = 'CO';
-const ringserver_host = 'eeyore.seis.sc.edu';
-const ringserver_port = 6382;
-
-export default Route.extend({
-  updateInterval: 10000,
-  queryLatency: function() {
-    return this.store.query('stream-status',
-         {host: ringserver_host,
-          port: ringserver_port,
-          match: '^'+networkCode+'_.*'
-        });
-  },
-  model: function(params) {
-    return RSVP.hash({
-      networkCode: networkCode,
-      network: this.store.findRecord('network', networkCode),
-      latency: this.store.query('stream-status',
-       {host: ringserver_host,
-        port: ringserver_port,
-        match: '^'+networkCode+'_.*'
-      })
-    });
-  },
-    afterModel: function(model, transition) {
-      console.log("station.index afterModel");
-      let out = RSVP.hash({
-        stationHash: model.network.get('stations')
-      });
-      return out.then(hash => {
-        console.log("afterModel RSVP hash "+model.network.get('stations'));
-          console.log("afterModel RSVP hash "+model.network.get('stations').get('length'));
-        return hash;
-      });
-    },
-
-
-  setupController: function(controller, model){
-    this._super(controller, model); // do the default implementation since I'm overriding this func
-    this.startRefreshing();
-  },
-  startRefreshing: function(){
-    this.set('refreshing', true);
-    console.log("### startRefreshing");
-    run.later(this, this.refresh, this.updateInterval);
-  },
-  refresh: function(){
-    console.log("latency refresh");
-    if(!this.refreshing)
-      return;
-    this.queryLatency().then( x => {console.log("### query " +x);});
-    run.later(this, this.refresh, this.updateInterval);
-  },
-  actions:{
-    willTransition: function(){
-      this.set('refreshing', false);
-    },
-    changeStation(station) {
-      console.log("/index route changeStation"+station);
-      this.transitionTo('stations/show',  station);
-    }
+export default class IndexRoute extends Route {
+  @service dataLatency;
+  model() {
+    return this.dataLatency.queryLatency();
   }
-});
+  async afterModel() {
+    //this.startRefreshing();
+    //await this.queryLatency();
+  }
+  @action updateLatency() {
+    console.log(`IndexRoute  @action updateLatency()`);
+    this.dataLatency.queryLatency();
+  }
+
+
+  setupController(controller, model) {
+    console.log("### setupController IndexController");
+    super.setupController(controller, model);
+
+    controller.startRefreshing();
+  }
+}

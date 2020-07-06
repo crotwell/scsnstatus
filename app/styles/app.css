@@ -1,20 +1,30 @@
-path.seispath {
-     stroke: skyblue;
-     fill: none;
-}
-div.waveformplot {
-  position: "relative";
-    width: 90%;
-    height: 300px;
-}
+
+
 nav {
   padding: 3px;
   background-color: lightgrey;
   color: skyblue;
 }
-
 ul.horizontal > li {
   display: inline-block;
+}
+
+.latencygood {
+  color: black;
+}
+
+.latencyworry {
+  color:yellow;
+}
+
+.latencybad {
+  background-color:red;
+  color:white;
+}
+
+.latencybadbad {
+  background-color:red;
+  color:white;
 }
 
 .leaflet-container {
@@ -28,19 +38,14 @@ ul.horizontal > li {
   text-shadow: 1px 1px 0 dimgrey, -1px 1px 0 dimgrey, -2px 1px 0 dimgrey, -1px -1px 0 dimgrey, 0 -3px 0 dimgrey, 1px -1px 0 dimgrey, 2px 1px 0 dimgrey;
 }
 .inactiveStationMarker:after{
-    content: "\25B2"
+  content: "\25B2"
 }
-
 .stationMarker {
   color: crimson;
   font-size: large;
   z-index: 10;
   text-shadow: 1px 1px 0 dimgrey, -1px 1px 0 dimgrey, -2px 1px 0 dimgrey, -1px -1px 0 dimgrey, 0 -3px 0 dimgrey, 1px -1px 0 dimgrey, 2px 1px 0 dimgrey;
 }
-.stationMarker:after{
-    content: "\25B2"
-}
-
 
 .quakemap {
   width: 90%;

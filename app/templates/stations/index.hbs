@@ -1,5 +1,5 @@
 
-<h3>Network: {{model.network.networkCode}} {{model.network.description}}</h3>
+<h3>Network: {{@model.network.networkCode}} {{@model.network.description}}</h3>
 
 <LeafletMap @lat={{@model.center.latitude}} @lng={{@model.center.longitude}} @zoom=6 class="smallmap"  scrollWheelZoom=false as |layers| >
   <layers.tile @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"/>
@@ -35,7 +35,7 @@
 {{/each}}
 </ul>
 
-{{latency-table model=model.latency}}
+<LatencyTable/>
 
 </div>
 {{outlet}}

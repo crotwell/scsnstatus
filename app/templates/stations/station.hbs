@@ -1,0 +1,14 @@
+
+
+<h3>Station: {{@model.station.codes}} {{#link-to 'stations'}}Show All{{/link-to}}</h3>
+<ul>
+  <li>{{@model.station.name}}</li>
+  <li>{{@model.station.description}}</li>
+  <li>{{@model.station.startTime}}</li>
+  <li>{{@model.station.endTime}}</li>
+  <li>{{@model.station.latitudeFormatted}}</li>
+  <li>{{@model.station.longitudeFormatted}}</li>
+  <li>{{@model.station.elevation}}</li>
+</ul>
+
+{{outlet}}

@@ -5,14 +5,17 @@ import { inject as service } from '@ember/service';
 import { run } from '@ember/runloop';
 
 export default class IndexController extends Controller {
+  @service dataLatency;
 
-
-
-  @tracked updateInterval = 10000;
   @tracked refreshing = true;
   @action willTransition() {
     this.refreshing = false;
   }
+  @action updateLatency() {
+    console.log(`IndexController  @action updateLatency()`);
+    return this.dataLatency.queryLatency();
+  }
+
   startRefreshing(){
     this.set('refreshing', true);
     console.log("### startRefreshing");
@@ -26,9 +29,10 @@ export default class IndexController extends Controller {
       return;
     }
     this.send('updateLatency');
+    this.dataLatency.queryLatency();
     this.clearTimer();
 
-    if (this.updateInterval) {
+    if (this.dataLatency.updateInterval) {
       /*
        * NOTE: intentionally a setTimeout so tests do not block on it
        * as the run loop queue is never clear so tests will stay locked waiting
@@ -36,7 +40,7 @@ export default class IndexController extends Controller {
        */
       this.intervalTimer = setTimeout(() => {
         run(() => this.refresh());
-      }, parseInt(this.updateInterval, 10));
+      }, this.dataLatency.updateInterval);
     }
   }
 

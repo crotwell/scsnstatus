@@ -1,0 +1,11 @@
+<header class="h2 border">
+  <nav class="flex item-center bg-white">
+    <LinkTo @route="index" class="p2">Dashboard</LinkTo>
+    <LinkTo @route='stations' class="p2">Stations</LinkTo>
+    <LinkTo @route='quakes' class="p2">Quakes</LinkTo>
+    <LinkTo @route='global-quakes' class="p2">Global Quakes</LinkTo>
+    <LinkTo @route='resources' class="p2">Resources</LinkTo>
+  </nav>
+</header>
+
+{{yield}}

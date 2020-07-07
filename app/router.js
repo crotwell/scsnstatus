@@ -8,4 +8,9 @@ export default class Router extends EmberRouter {
 
 Router.map(function() {
   this.route('quakes');
+  this.route('resources');
+  this.route('stations', function() {
+    this.route('station', { path: '/:station_id' }, function() {});
+  });
+  this.route('global-quakes');
 });

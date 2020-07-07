@@ -7,18 +7,24 @@ import EmberObject from '@ember/object';
 import moment from 'moment';
 import {d3, seismogram, seismographconfig, seismograph, ringserverweb} from 'seisplotjs';
 
+const DEFAULT_UPDATE_INTERVAL=moment.duration(10, 'seconds');
+
 class LatencyData {
   @tracked latestData = A([]);
   @tracked accessTime = moment.utc('2000-01-01 00:00:00');
   @tracked pattern = '';
   @tracked networkCode = '';
-  @tracked updateInterval = 0;
+  @tracked updateInterval = DEFAULT_UPDATE_INTERVAL;
+  get updateIntervalSeconds() {
+    return this.updateInterval.asSeconds();
+  }
 }
+
 
 export default class DataLatencyService extends Service {
   networkCode = 'CO';
   @tracked latencyCache = new LatencyData();
-  updateInterval = 10;
+  updateInterval = DEFAULT_UPDATE_INTERVAL;
   inProgress = false;
 
   get latencyData() {
@@ -28,8 +34,11 @@ export default class DataLatencyService extends Service {
     if (this.inProgress) {
       return RSVP.hash(this.latencyCache);
     }
-    this.inProgress = true;
     const now = moment.utc();
+    if (now.diff(this.latencyCache.accessTime) < this.updateInterval.asMilliseconds()) {
+      return RSVP.hash(this.latencyCache);
+    }
+    this.inProgress = true;
     const networkCode = this.networkCode;
     const eeyore_host = "eeyore.seis.sc.edu";
     const cloud_host = "thecloud.seis.sc.edu";
@@ -41,6 +50,7 @@ export default class DataLatencyService extends Service {
     const accessTime = moment.utc();
     const mythis = this;
     return RSVP.all([irisStats, eeyoreStats, cloudStats]).then(statArray => {
+      mythis.inProgress = false;
       const lc = mythis.latencyCache;
       lc.latestData = this.cosolidateStats(statArray);
       lc.accessTime = accessTime;
@@ -48,10 +58,6 @@ export default class DataLatencyService extends Service {
       lc.networkCode = networkCode;
       lc.updateInterval = this.updateInterval;
       return lc;
-    }).then(hash => {
-      mythis.inProgress = false;
-      console.log(`queryLatency finished ${this.latencyCache.latestData.length}`);
-      return hash;
     }, reason => {
       console.error(`queryLatency Failed: ${reason}`);
       mythis.inProgress = false;

@@ -5,6 +5,9 @@ nav {
   background-color: lightgrey;
   color: skyblue;
 }
+nav a {
+  padding-right: 10px;
+}
 ul.horizontal > li {
   display: inline-block;
 }
@@ -14,7 +17,7 @@ ul.horizontal > li {
 }
 
 .latencyworry {
-  color:yellow;
+  color:orange;
 }
 
 .latencybad {
@@ -47,6 +50,13 @@ ul.horizontal > li {
   text-shadow: 1px 1px 0 dimgrey, -1px 1px 0 dimgrey, -2px 1px 0 dimgrey, -1px -1px 0 dimgrey, 0 -3px 0 dimgrey, 1px -1px 0 dimgrey, 2px 1px 0 dimgrey;
 }
 
+.stationMarker:after{
+  content: "\25B2"
+}
+.smallmap {
+  height: 200px;
+  width: 275px;
+}
 .quakemap {
   width: 90%;
   height: 500px;

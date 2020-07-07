@@ -21,8 +21,7 @@ ul.horizontal > li {
 }
 
 .latencybad {
-  background-color:red;
-  color:white;
+  color:red;
 }
 
 .latencybadbad {
@@ -60,4 +59,8 @@ ul.horizontal > li {
 .quakemap {
   width: 90%;
   height: 500px;
+}
+
+th.tabledivider {
+  padding-right: 50px;
 }

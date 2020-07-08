@@ -84,7 +84,7 @@ export default class DataLatencyService extends Service {
       lc.networkCode = networkCode;
       lc.updateInterval = this.updateInterval;
       */
-      this.calcLatencyAcceleration(plc, lc);
+      this.calcLatencyVelocity(plc, lc);
       return lc;
     }, reason => {
       console.error(`queryLatency Failed: ${reason}`);
@@ -121,13 +121,13 @@ export default class DataLatencyService extends Service {
       };
     });
   }
-  calcLatencyAcceleration(previousLatencyCache, latencyCache) {
+  calcLatencyVelocity(previousLatencyCache, latencyCache) {
     for (let stat of latencyCache.latestData) {
-      stat.acceleration = {};
+      stat.velocity = {};
       for (let prevStat of previousLatencyCache.latestData) {
         if (stat.key === prevStat.key) {
           for (let host of HOST_LIST) {
-            stat.acceleration[host] = (stat[host].end.diff(prevStat[host].end)) /
+            stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
                                       (stat[host].accessTime.diff(prevStat[host].accessTime));
           }
         }

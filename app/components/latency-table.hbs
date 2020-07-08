@@ -23,17 +23,17 @@
     <th>Station</th>
     <th>UTC</th>
     <th>Latency</th>
-    <th>Acc</th>
+    <th>Rate</th>
     <th></th>
 
     <th>UTC</th>
     <th>Latency</th>
-    <th>Acc</th>
+    <th>Rate</th>
     <th></th>
 
     <th>UTC</th>
     <th>Latency</th>
-    <th>Acc</th>
+    <th>Rate</th>
     <th></th>
   </tr>
   {{#each dataLatency.latencyData.latestData as |streamStat|}}
@@ -41,18 +41,18 @@
       <td><LinkTo @route='stations.station' @model={{streamStat.key}}>{{streamStat.key}}</LinkTo></td>
       <td class={{latency-seriousness streamStat.eeyore.end}}>{{moment-format streamStat.eeyore.end 'HH:mm:ss'}}</td>
       <td class={{latency-seriousness streamStat.eeyore.end}}>{{latency-as-text streamStat.eeyore.end  interval=10500}}</td>
-      <td>{{format-number streamStat.acceleration.eeyore 2}}</td>
-      <td>{{latency-acceleration-icon streamStat.acceleration.eeyore}}</td>
+      <td>{{format-number streamStat.velocity.eeyore 2}}</td>
+      <td>{{latency-velocity-icon streamStat.velocity.eeyore}}</td>
 
       <td class={{latency-seriousness streamStat.thecloud.end}}>{{moment-format streamStat.thecloud.end 'HH:mm:ss'}}</td>
       <td class={{latency-seriousness streamStat.thecloud.end}}>{{latency-as-text streamStat.thecloud.end  interval=10500}}</td>
-      <td>{{format-number streamStat.acceleration.thecloud 2}}</td>
-      <td>{{latency-acceleration-icon streamStat.acceleration.thecloud}}</td>
+      <td>{{format-number streamStat.velocity.thecloud 2}}</td>
+      <td>{{latency-velocity-icon streamStat.velocity.thecloud}}</td>
 
       <td class={{latency-seriousness streamStat.rtserve.end}}>{{moment-format streamStat.rtserve.end 'HH:mm:ss'}}</td>
       <td class={{latency-seriousness streamStat.rtserve.end}}>{{latency-as-text streamStat.rtserve.end  interval=10500}}</td>
-      <td>{{format-number streamStat.acceleration.rtserve 2}}</td>
-      <td>{{latency-acceleration-icon streamStat.acceleration.rtserve}}</td>
+      <td>{{format-number streamStat.velocity.rtserve 2}}</td>
+      <td>{{latency-velocity-icon streamStat.velocity.rtserve}}</td>
     </tr>
   {{/each}}
 </table>

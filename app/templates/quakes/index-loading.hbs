@@ -4,30 +4,9 @@
   <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
   <h5>Zoom: {{@model.zoomLevel}}</h5>
 
-<<<<<<< Updated upstream
-<h3>Earthquakes near South Carolina since 2009-06-01</h3>
-
-<LeafletMap @lat={{33.75}} @lng={{-81}} @zoom={{7}} @class="quakemap">
-  <TileLayer @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}" />
-
-</LeafletMap>
-
-<p>Events: <span>...loading</span></p>
-
-<table>
-  <tr>
-    <th>EventId</th>
-    <th>Time</th>
-    <th>Latitude/Longitude</th>
-    <th>Depth</th>
-    <th>Magnitude</th>
-  </tr>
-</table>
-{{outlet}}
-=======
   <ShowHide @divTitle="Map">
     <p>Map here</p>
-    <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.yearQuakes}} @center={{@model.center}} @zoomLevel=6 />
+    <QuakeStationMap class="smallmap"  @center={{@model.center}} @zoomLevel=6 />
   </ShowHide>
   <ShowHide @divTitle="Seismic Events in Last Year">
     <QuakeList @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>
@@ -36,4 +15,3 @@
     <QuakeList @quakes={{@model.oldQuakes}}></QuakeList>
   </ShowHide>
 </div>
->>>>>>> Stashed changes

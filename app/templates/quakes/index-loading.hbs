@@ -1,4 +1,10 @@
+<div class="quakeList">
+  <h1>Quakes</h1>
+  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
+  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
+  <h5>Zoom: {{@model.zoomLevel}}</h5>
 
+<<<<<<< Updated upstream
 <h3>Earthquakes near South Carolina since 2009-06-01</h3>
 
 <LeafletMap @lat={{33.75}} @lng={{-81}} @zoom={{7}} @class="quakemap">
@@ -18,3 +24,16 @@
   </tr>
 </table>
 {{outlet}}
+=======
+  <ShowHide @divTitle="Map">
+    <p>Map here</p>
+    <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.yearQuakes}} @center={{@model.center}} @zoomLevel=6 />
+  </ShowHide>
+  <ShowHide @divTitle="Seismic Events in Last Year">
+    <QuakeList @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>
+  </ShowHide>
+  <ShowHide @divTitle="Older Seismic Events">
+    <QuakeList @quakes={{@model.oldQuakes}}></QuakeList>
+  </ShowHide>
+</div>
+>>>>>>> Stashed changes

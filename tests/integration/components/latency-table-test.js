@@ -1,26 +1,26 @@
 import { module, test } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, find } from '@ember/test-helpers';
-import hbs from 'htmlbars-inline-precompile';
+import { render } from '@ember/test-helpers';
+import { hbs } from 'ember-cli-htmlbars';
 
-module('Integration | Component | latency table', function(hooks) {
+module('Integration | Component | latency-table', function(hooks) {
   setupRenderingTest(hooks);
 
   test('it renders', async function(assert) {
     // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+    // Handle any actions with this.set('myAction', function(val) { ... });
 
-    await render(hbs`{{latency-table}}`);
+    await render(hbs`<LatencyTable />`);
 
-    assert.dom('*').hasText('');
+    assert.equal(this.element.textContent.trim(), '');
 
     // Template block usage:
     await render(hbs`
-      {{#latency-table}}
+      <LatencyTable>
         template block text
-      {{/latency-table}}
+      </LatencyTable>
     `);
 
-    assert.dom('*').hasText('template block text');
+    assert.equal(this.element.textContent.trim(), 'template block text');
   });
 });

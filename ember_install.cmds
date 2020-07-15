@@ -1,4 +1,0 @@
-# while developing addon
-ember g ember-seisplotjs
-ember install ember-truth-helpers
-ember install ember-leaflet

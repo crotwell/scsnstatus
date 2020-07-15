@@ -9,7 +9,9 @@ export default class IndexController extends Controller {
 
   @tracked refreshing = true;
   @action willTransition() {
+    console.log(`IndexController  @action willTransition()`);
     this.refreshing = false;
+    return true;
   }
   @action updateLatency() {
     console.log(`IndexController  @action updateLatency()`);

@@ -22,14 +22,15 @@ class LatencyData {
 
 const HOST_LIST = [ 'eeyore', 'thecloud', 'rtserve'];
 
-const HISTORY_LENGTH = 6+1;
+const DEFAULT_HISTORY_LENGTH = 12;
 
 export default class DataLatencyService extends Service {
-  networkCode = 'CO';
+  @tracked networkCode = 'CO';
   @tracked latencyCache = new LatencyData();
   @tracked previousLatencyCache = new LatencyData();
+  @tracked historyLength = DEFAULT_HISTORY_LENGTH;
   latencyHistory = A([]);
-  updateInterval = DEFAULT_UPDATE_INTERVAL;
+  @tracked updateInterval = DEFAULT_UPDATE_INTERVAL;
   inProgress = false;
 
   get latencyData() {
@@ -64,7 +65,7 @@ export default class DataLatencyService extends Service {
       lc.updateInterval = this.updateInterval;
       mythis.latencyHistory.unshift(lc);
       mythis.latencyCache = lc;
-      if (mythis.latencyHistory.length > HISTORY_LENGTH) {
+      if (mythis.latencyHistory.length > this.historyLength) {
         mythis.previousLatencyCache = mythis.latencyHistory.pop();
       } else if (mythis.latencyHistory.length > 1) {
         mythis.previousLatencyCache = mythis.latencyHistory[mythis.latencyHistory.length-1];

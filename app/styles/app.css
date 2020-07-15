@@ -61,6 +61,11 @@ ul.horizontal > li {
   height: 500px;
 }
 
+.leaflet-container {
+  height: 400px;
+  width: 400px;
+}
+
 th.tabledivider {
   padding-right: 50px;
 }

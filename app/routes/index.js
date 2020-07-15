@@ -22,6 +22,11 @@ export default class IndexRoute extends Route {
     this.dataLatency.queryLatency();
   }
 
+  @action willTransition() {
+    console.log(`IndexRoute  @action willTransition()`);
+    this.get('controller').refreshing = false;
+    return true;
+  }
 
   setupController(controller, model) {
     console.log("### setupController IndexController");

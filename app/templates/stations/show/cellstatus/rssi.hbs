@@ -5,16 +5,16 @@
   <li>
     <button {{action "refresh"}} >Refresh</button>
   </li>
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params end=prevISO)}}Prev{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params end="now")}}Now{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params end=nextISO)}}Next{{/link-to}}</li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash end=prevISO}}>Prev</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash end="now"}}>Now</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash end=nextISO}}>Next</LinkTo></li>
 </ul>
 <ul class="horizontal">
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params days="3")}}3 Days{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params days="7")}}Week{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus.rssi" (query-params days="30")}}Month{{/link-to}}</li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash days="3"}}>3 Days</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash days="7"}}>Week</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @query={{hash days="30"}}>Month</LinkTo></li>
 </ul>
 
 <h3>RSSI</h3>
 
-{{cellstatus-plot statusData=model.cellstatus plotkeys='rssi' end=model.end start=model.start }}
+<CellstatusPlot @statusData={{model.cellstatus}} @plotkeys="rssi" @end={{model.end}} @start={{model.start}} />

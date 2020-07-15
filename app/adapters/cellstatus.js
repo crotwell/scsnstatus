@@ -1,10 +1,10 @@
-import DS from 'ember-data';
+import Adapter from '@ember-data/adapter';
 import { inject as service } from '@ember/service';
 
 const DEFAULT_HOST = 'eeyore.seis.sc.edu';
 const DEFAULT_PORT = 80;
 
-export default DS.Adapter.extend({
+export default Adapter.extend({
   ajax: service(),
   defaultSerializer: 'cellstatus',
   baseURL: 'http://eeyore.seis.sc.edu/earthworm/cell-stats/',

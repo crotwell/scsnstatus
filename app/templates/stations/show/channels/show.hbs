@@ -1,6 +1,6 @@
 <h3>Channel {{model.codes}}</h3>
 
-<p>{{#link-to "stations.show" model.station}}{{model.station.codes}}{{/link-to}}</p>
+<p><LinkTo @route="stations.show" @model={{model.station}}>{{model.station.codes}}</LinkTo></p>
 
 <table>
   <tbody>
@@ -20,7 +20,7 @@
   </tbody>
 </table>
 
-{{#ringserver-seismogram-display channel=model }}
-{{/ringserver-seismogram-display}}
+<RingserverSeismogramDisplay @channel={{model}}>
+</RingserverSeismogramDisplay>
 
 {{outlet}}

@@ -1,10 +1,10 @@
 
 <h3>Earthquakes near South Carolina since 2009-06-01</h3>
 
-{{#leaflet-map lat=33.75 lng=-81 zoom=7 class="quakemap" }}
-  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
+<LeafletMap @lat={{33.75}} @lng={{-81}} @zoom={{7}} @class="quakemap">
+  <TileLayer @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}" />
 
-{{/leaflet-map}}
+</LeafletMap>
 
 <p>Events: <span>...loading</span></p>
 

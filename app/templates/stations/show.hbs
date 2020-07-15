@@ -1,5 +1,5 @@
 
-<h3>Station: {{model.station.codes}} {{#link-to 'stations'}}Show All{{/link-to}}</h3>
+<h3>Station: {{model.station.codes}} <LinkTo @route="stations">Show All</LinkTo></h3>
 <ul>
   <li>{{model.station.name}}</li>
   <li>{{model.station.description}}</li>
@@ -20,11 +20,11 @@
 </select>
 
 <ul>
-  <li>{{#link-to 'stations.show.channels' model.station.id }}Channels{{/link-to}}</li>
-  <li>{{#link-to 'stations.show.helicorder' model.station.id }}Helicorder{{/link-to}}</li>
-  <li>{{#link-to 'stations.show.cellstatus.voltage' model.station.id }}Voltage Plots{{/link-to}}</li>
-  <li>{{#link-to 'stations.show.cellstatus.rssi' model.station.id }}Cell RSSI Plots{{/link-to}}</li>
-  <li>{{#link-to 'stations.show.cellstatus.latency' model.station.id }}Latency Plots{{/link-to}}</li>
+  <li><LinkTo @route="stations.show.channels" @model={{model.station.id}}>Channels</LinkTo></li>
+  <li><LinkTo @route="stations.show.helicorder" @model={{model.station.id}}>Helicorder</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.voltage" @model={{model.station.id}}>Voltage Plots</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.rssi" @model={{model.station.id}}>Cell RSSI Plots</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus.latency" @model={{model.station.id}}>Latency Plots</LinkTo></li>
   <li>Metadata in <a target="_blank" href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{model.station.networkCode}}&lookupcode={{model.station.stationCode}}">SIS</a></li>
   <li>Metadata published from SIS as
            <a href="http://files.anss-sis.scsn.org/production/dataless/{{model.station.networkCode}}/{{model.station.networkCode}}_{{model.station.stationCode}}.dataless">Dataless SEED</a>,

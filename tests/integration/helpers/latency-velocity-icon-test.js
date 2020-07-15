@@ -12,6 +12,6 @@ module('Integration | Helper | latency-velocity-icon', function(hooks) {
 
     await render(hbs`{{latency-velocity-icon inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('1234');
   });
 });

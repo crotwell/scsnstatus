@@ -1,9 +1,9 @@
 
 
-{{#leaflet-map lat=33.75 lng=-81 zoom=7 class="quakemap" scrollWheelZoom=false }}
-  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
+<LeafletMap @lat={{33.75}} @lng={{-81}} @zoom={{7}} @class="quakemap" @scrollWheelZoom={{false}}>
+  <TileLayer @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}" />
 
-{{/leaflet-map}}
+</LeafletMap>
 
 
 <table>

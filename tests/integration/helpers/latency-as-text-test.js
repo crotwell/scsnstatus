@@ -12,6 +12,6 @@ module('Integration | Helper | latency-as-text', function(hooks) {
 
     await render(hbs`{{latency-as-text inputValue}}`);
 
-    assert.equal(this.element.textContent.trim(), '1234');
+    assert.dom(this.element).hasText('1234');
   });
 });

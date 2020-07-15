@@ -4,6 +4,6 @@
 
 <p>from {{model.start}} to {{model.end}}</p>
 
-{{cellstatus-plot statusData=model.cellstatus plotkeys='latency' destination=model.destination end=model.end start=model.start }}
+<CellstatusPlot @statusData={{model.cellstatus}} @plotkeys="latency" @destination={{model.destination}} @end={{model.end}} @start={{model.start}} />
 
 {{outlet}}

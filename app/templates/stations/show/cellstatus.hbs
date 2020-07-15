@@ -1,8 +1,8 @@
 
 
 <h3>Cell Status Plots
-  {{#link-to 'stations'}}{{model.station.networkCode}}{{/link-to}}
-  {{#link-to 'stations.show' model.station }}{{model.station.stationCode}}{{/link-to}}</h3>
+  <LinkTo @route="stations">{{model.station.networkCode}}</LinkTo>
+  <LinkTo @route="stations.show" @model={{model.station}}>{{model.station.stationCode}}</LinkTo></h3>
 <h5>Days: {{days}} End: {{end}}</h5>
 
 
@@ -15,9 +15,9 @@
   <li><button {{action "goNow"}}>Now</button></li>
 </ul>
 <ul class="horizontal">
-  <li>{{#link-to "stations.show.cellstatus" (query-params days="3")}}3 Days{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus" (query-params days="7")}}Week{{/link-to}}</li>
-  <li>{{#link-to "stations.show.cellstatus" (query-params days="30")}}Month{{/link-to}}</li>
+  <li><LinkTo @route="stations.show.cellstatus" @query={{hash days="3"}}>3 Days</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus" @query={{hash days="7"}}>Week</LinkTo></li>
+  <li><LinkTo @route="stations.show.cellstatus" @query={{hash days="30"}}>Month</LinkTo></li>
 </ul>
 
 

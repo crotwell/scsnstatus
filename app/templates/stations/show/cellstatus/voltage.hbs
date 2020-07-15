@@ -4,4 +4,4 @@
 
 <h3>Voltage</h3>
 <h5>Min: {{model.minmax.volt.min}} Max: {{model.minmax.volt.max}}</h5>
-{{cellstatus-plot statusData=model.cellstatus plotkeys='volts' end=model.end start=model.start }}
+<CellstatusPlot @statusData={{model.cellstatus}} @plotkeys="volts" @end={{model.end}} @start={{model.start}} />

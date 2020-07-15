@@ -1,9 +1,9 @@
-import DS from 'ember-data';
+import Model, { attr } from '@ember-data/model';
 
-export default DS.Model.extend({
-  station: DS.attr('string'),
-  dayOfYear: DS.attr('number'),
-  year: DS.attr('number'),
-  values: DS.attr()
+export default Model.extend({
+  station: attr('string'),
+  dayOfYear: attr('number'),
+  year: attr('number'),
+  values: attr()
 
 });

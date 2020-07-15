@@ -1,33 +1,33 @@
 
 
-{{#leaflet-map lat=model.center.latitude lng=model.center.longitude zoom=7 class="quakemap" scrollWheelZoom=false }}
-  {{tile-layer url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"}}
+<LeafletMap @lat={{model.center.latitude}} @lng={{model.center.longitude}} @zoom={{7}} @class="quakemap" @scrollWheelZoom={{false}}>
+  <TileLayer @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}" />
 
   {{#each model.activeStations as |s|}}
-    {{#marker-layer lat=s.latitude lng=s.longitude  icon=(div-icon className='stationMarker' ) zIndexOffset=100 }}
-      {{#popup-layer}}
-        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
-      {{/popup-layer}}
-    {{/marker-layer}}
+    <MarkerLayer @lat={{s.latitude}} @lng={{s.longitude}} @icon=<DivIcon @className="stationMarker" /> @zIndexOffset={{100}}>
+      <PopupLayer>
+        <h3>Station: <LinkTo @route="stations.show" @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
+      </PopupLayer>
+    </MarkerLayer>
   {{/each}}
 
 {{#let model.quake as |q|}}
-  {{#circle-marker-layer lat=q.latitude lng=q.longitude radius=(magnitude-to-radius q.prefMagnitude.mag 10) }}
-    {{#popup-layer}}
-      <h3>Event: {{#link-to 'quakes.detail' q }}{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}{{/link-to}}</h3>
-    {{/popup-layer}}
-  {{/circle-marker-layer}}
+  <CircleMarkerLayer @lat={{q.latitude}} @lng={{q.longitude}} @radius={{magnitude-to-radius q.prefMagnitude.mag 10}}>
+    <PopupLayer>
+      <h3>Event: <LinkTo @route="quakes.detail" @model={{q}}>{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}</LinkTo></h3>
+    </PopupLayer>
+  </CircleMarkerLayer>
 {{/let}}
 
   {{#each model.inactiveStations as |s|}}
-    {{#marker-layer lat=s.latitude lng=s.longitude icon=(div-icon className='inactiveStationMarker')  zIndexOffset=-10 }}
-      {{#popup-layer}}
-        <h3>Station: {{#link-to 'stations.show' s.id }}{{s.codes }} {{s.latitude}} {{s.longitude}}{{/link-to}}</h3>
-      {{/popup-layer}}
-    {{/marker-layer}}
+    <MarkerLayer @lat={{s.latitude}} @lng={{s.longitude}} @icon=<DivIcon @className="inactiveStationMarker" /> @zIndexOffset={{-10}}>
+      <PopupLayer>
+        <h3>Station: <LinkTo @route="stations.show" @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
+      </PopupLayer>
+    </MarkerLayer>
   {{/each}}
 
-{{/leaflet-map}}
+</LeafletMap>
 
 
 {{#let model.quake as |q|}}
@@ -55,7 +55,7 @@
 </table>
 {{/let}}
 
-{{#seismogram-display chanTRList=model.chanTRList quake=model.quake channelMap=model.channelMap overlayPicks=true}}
-{{/seismogram-display}}
+<SeismogramDisplay @chanTRList={{model.chanTRList}} @quake={{model.quake}} @channelMap={{model.channelMap}} @overlayPicks={{true}}>
+</SeismogramDisplay>
 
 {{outlet}}

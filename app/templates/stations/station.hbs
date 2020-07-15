@@ -1,6 +1,6 @@
 
 
-<h3>Station: {{@model.station.codes}} {{#link-to 'stations'}}Show All{{/link-to}}</h3>
+<h3>Station: {{@model.station.codes}} <LinkTo @route="stations">Show All</LinkTo></h3>
 <ul>
   <li>{{@model.station.name}}</li>
   <li>{{@model.station.description}}</li>

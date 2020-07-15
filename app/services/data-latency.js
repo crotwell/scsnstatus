@@ -5,7 +5,13 @@ import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
 
 import moment from 'moment';
-import {d3, seismogram, seismographconfig, seismograph, ringserverweb} from 'seisplotjs';
+import {
+  d3,
+  seismogram,
+  seismographconfig,
+  seismograph,
+  ringserverweb
+} from 'seisplotjs';
 
 const DEFAULT_UPDATE_INTERVAL=moment.duration(10, 'seconds');
 

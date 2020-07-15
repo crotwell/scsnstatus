@@ -1,10 +1,10 @@
 
 <h3>Global Earthquakes of Magnitude 4.5 and Greater in last 30 Days</h3>
 
-{{#leaflet-map lat=0 lng=-180 zoom=2 class="quakemap" }}
-  {{tile-layer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"}}
+<LeafletMap @lat={{0}} @lng={{-180}} @zoom={{2}} @class="quakemap">
+  <TileLayer @url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" />
 
-{{/leaflet-map}}
+</LeafletMap>
 
 <p>Events: <span>...loading</span></p>
 

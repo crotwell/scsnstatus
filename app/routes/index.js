@@ -6,7 +6,13 @@ import { inject as service } from '@ember/service';
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
 import moment from 'moment';
-import {d3, seismogram, seismographconfig, seismograph, ringserverweb} from 'seisplotjs';
+import {
+  d3,
+  seismogram,
+  seismographconfig,
+  seismograph,
+  ringserverweb
+} from 'seisplotjs';
 
 export default class IndexRoute extends Route {
   @service dataLatency;
@@ -24,7 +30,7 @@ export default class IndexRoute extends Route {
 
   @action willTransition() {
     console.log(`IndexRoute  @action willTransition()`);
-    this.get('controller').refreshing = false;
+    this.controller.refreshing = false;
     return true;
   }
 

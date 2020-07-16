@@ -100,7 +100,7 @@ export default class QuakesQuakeRoute extends Route {
             let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(-1*preOrigin, 'second'),
                                                                 moment.utc(quake.time).add(postOrigin, 'second'));
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
-            let sdd = new seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+            let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
             chanTR.push(sdd);
         } else {
           console.log(`skipping ${c.codes}`);

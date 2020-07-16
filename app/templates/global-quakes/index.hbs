@@ -1,63 +1,18 @@
 
-<h3>Global Earthquakes of Magnitude 4.5 and Greater in last 30 Days</h3>
+<h3>Global Earthquakes of Magnitude 6 and Greater in last 30 Days</h3>
 
-<LeafletMap @lat={{model.center.latitude}} @lng={{model.center.longitude}} @zoom={{2}} @class="quakemap" @scrollWheelZoom={{false}}>
-  <TileLayer @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}" />
+<div class="quakeList">
+  <h1>Quakes</h1>
+  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
+  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
+  <h5>Zoom: {{@zoomLevel}}</h5>
 
-
-  {{#each model.activeStations as |s|}}
-    <MarkerLayer @lat={{s.latitude}} @lng={{s.longitude}} @icon=<DivIcon @className="stationMarker" /> @zIndexOffset={{100}}>
-      <PopupLayer>
-        <h3>Station: <LinkTo @route="stations.show" @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
-      </PopupLayer>
-    </MarkerLayer>
-  {{/each}}
-
-  {{#each model.inactiveStations as |s|}}
-    <MarkerLayer @lat={{s.latitude}} @lng={{s.longitude}} @icon=<DivIcon @className="inactiveStationMarker" /> @zIndexOffset={{-10}}>
-      <PopupLayer>
-        <h3>Station: <LinkTo @route="stations.show" @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
-      </PopupLayer>
-    </MarkerLayer>
-  {{/each}}
-
-
-
-  {{#each model.quakeList as |q|}}
-    <CircleMarkerLayer @lat={{q.latitude}} @lng={{q.longitude}} @radius={{magnitude-to-radius q.prefMagnitude.mag 2}}>
-      <PopupLayer>
-        <h3>Event: <LinkTo @route="global-quakes.detail" @model={{q.id}}>{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}</LinkTo></h3>
-      </PopupLayer>
-    </CircleMarkerLayer>
-  <!-- also plot with long < 0 for global wraparound -->
-      <CircleMarkerLayer @lat={{q.latitude}} @lng={{add q.longitude -360}} @radius={{magnitude-to-radius q.prefMagnitude.mag 2}}>
-        <PopupLayer>
-          <h3>Event: <LinkTo @route="global-quakes.detail" @model={{q.id}}>{{moment-format q.time }} {{q.quake.prefMagnitude.magFormatted}} {{q.quake.prefMagnitude.magType}}</LinkTo></h3>
-        </PopupLayer>
-      </CircleMarkerLayer>
-  {{/each}}
-</LeafletMap>
-
-<p>Earthquakes:</p>
-
-<table>
-  <tr>
-    <th>EventId</th>
-    <th>Time</th>
-    <th>Latitude/Longitude</th>
-    <th>Depth</th>
-    <th>Magnitude</th>
-  </tr>
-  {{#each model.quakeList as |q|}}
-  <tr>
-    <td><LinkTo @route="global-quakes.detail" @model={{q.id}}>{{q.eventId}}</LinkTo></td>
-    <td>{{moment-format q.time }}</td>
-    <td>{{q.latitude}}/{{q.longitude}}</td>
-    <td>{{q.depth}}</td>
-    <td>{{q.prefMagnitude.mag}}</td>
-  </tr>
-  {{/each}}
-</table>
-
+  <ShowHide @divTitle="Map">
+    <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quakeList}} @center={{@model.center}} @zoomLevel=1 />
+  </ShowHide>
+  <ShowHide @divTitle="Seismic Events ">
+    <QuakeList @thelink="global-quakes.quake" @quakes={{@model.quakeList}} @sortDefinition="time:desc"></QuakeList>
+  </ShowHide>
+</div>
 
 {{outlet}}

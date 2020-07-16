@@ -14,5 +14,8 @@ Router.map(function() {
   this.route('stations', function() {
     this.route('station', { path: '/:station_id' }, function() {});
   });
-  this.route('global-quakes');
+  this.route('global-quakes', function() {
+    this.route('quake', { path: '/:quake_id' }, function() {});
+    this.route('quake-loading');
+  });
 });

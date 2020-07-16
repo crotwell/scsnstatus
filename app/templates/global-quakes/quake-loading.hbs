@@ -1,16 +1,15 @@
 
-
 <ShowHide @divTitle="Map">
-  <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}} @center={{@model.center}} @zoomLevel=6 />
+  <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}} @center={{@model.center}} @zoomLevel=1 />
 </ShowHide>
 
 
-<ShowHide @divTitle="Info">
+
 {{#let model.quake as |q|}}
 <table>
   <tr>
     <th>EventId</th>
-    <td>{{q.eventId}}</td>
+    <td>{{q.eventid}}</td>
   </tr>
   <tr>
     <th>Time</th>
@@ -30,13 +29,12 @@
   </tr>
 </table>
 {{/let}}
-</ShowHide>
 
 <ShowHide @divTitle="Seismograms">
-{{#each model.chanTRList as |sdd| }}
-<SeismogramDisplay @seisDisplayData={{sdd}} @title={{sdd-channel-codes sdd}} @quake={{@model.quake}} @channelMap={{@model.channelMap}} @overlayPicks=true>
-</SeismogramDisplay>
-{{/each}}
+  {{#each model.chanTRList as |sdd| }}
+    <SeismogramDisplay @seisDisplayData={{sdd}} @title={{sdd-channel-codes sdd}} @quake={{@model.quake}} @channelMap={{@model.channelMap}} @overlayPicks=true>
+    </SeismogramDisplay>
+  {{/each}}
 </ShowHide>
 
 {{outlet}}

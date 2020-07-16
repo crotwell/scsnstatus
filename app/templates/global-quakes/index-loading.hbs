@@ -1,20 +1,18 @@
 
-<h3>Global Earthquakes of Magnitude 4.5 and Greater in last 30 Days</h3>
+<h3>Global Earthquakes of Magnitude 6 and Greater in last 30 Days</h3>
 
-<LeafletMap @lat={{0}} @lng={{-180}} @zoom={{2}} @class="quakemap">
-  <TileLayer @url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png" />
+<div class="quakeList">
+  <h1>Quakes</h1>
+  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
+  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
+  <h5>Zoom: {{@zoomLevel}}</h5>
 
-</LeafletMap>
+  <ShowHide @divTitle="Map">
+    <QuakeStationMap class="smallmap"  @center={{@model.center}} @zoomLevel=1 />
+  </ShowHide>
+  <ShowHide @divTitle="Seismic Events ">
+    <QuakeList @thelink="global-quakes/quake"  @sortDefinition="time:desc"></QuakeList>
+  </ShowHide>
+</div>
 
-<p>Events: <span>...loading</span></p>
-
-<table>
-  <tr>
-    <th>EventId</th>
-    <th>Time</th>
-    <th>Latitude/Longitude</th>
-    <th>Depth</th>
-    <th>Magnitude</th>
-  </tr>
-</table>
 {{outlet}}

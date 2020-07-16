@@ -9,9 +9,9 @@
     <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.yearQuakes}} @center={{@model.center}} @zoomLevel=6 />
   </ShowHide>
   <ShowHide @divTitle="Seismic Events in Last Year">
-    <QuakeList @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>
+    <QuakeList @thelink='quakes.quake' @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>
   </ShowHide>
   <ShowHide @divTitle="Older Seismic Events">
-    <QuakeList @quakes={{@model.oldQuakes}}></QuakeList>
+    <QuakeList @thelink='quakes.quake' @quakes={{@model.oldQuakes}}></QuakeList>
   </ShowHide>
 </div>

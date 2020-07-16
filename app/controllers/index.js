@@ -50,8 +50,8 @@ export default class IndexController extends Controller {
     clearTimeout(this.intervalTimer);
   }
 
-  destroy() {
+  willDestroy() {
+    this.super(...arguments);
     this.clearTimer();
-    this._super(...arguments);
   }
 }

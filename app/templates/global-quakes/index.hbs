@@ -1,11 +1,9 @@
 
-<h3>Global Earthquakes of Magnitude 6 and Greater in last 30 Days</h3>
+<h3>Global Seismic Events</h3>
+
+<h5>Global Earthquakes of Magnitude 6 and Greater in last 30 Days</h5>
 
 <div class="quakeList">
-  <h1>Quakes</h1>
-  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
-  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
-  <h5>Zoom: {{@zoomLevel}}</h5>
 
   <ShowHide @divTitle="Map">
     <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quakeList}} @center={{@model.center}} @zoomLevel=1 />

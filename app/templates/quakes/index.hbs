@@ -1,12 +1,11 @@
-<div class="quakeList">
-  <h1>Quakes</h1>
-  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
-  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
-  <h5>Zoom: {{@zoomLevel}}</h5>
 
+  <h3>Seismic Events in SC</h3>
+
+  <div class="quakeList">
   <ShowHide @divTitle="Map">
-    <p>Map here</p>
-    <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.yearQuakes}} @center={{@model.center}} @zoomLevel=6 />
+    <QuakeStationMap class="smallmap" @quakelink='quakes.quake'  @stationlink='stations.station' @quakeQueryBox={{@model.quakeQueryBox}} @stations={{@model.activeStations}} @quakes={{@model.yearQuakes}} @center={{@model.center}} @zoomLevel=7 >
+
+    </QuakeStationMap>
   </ShowHide>
   <ShowHide @divTitle="Seismic Events in Last Year">
     <QuakeList @thelink='quakes.quake' @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>

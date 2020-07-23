@@ -1,17 +1,15 @@
-<div class="quakeList">
-  <h1>Quakes</h1>
-  <h5>Found {{@model.quakeList.length}} {{@this.sortedQuakes.length}}</h5>
-  <h5>Center lat={{@model.center.latitude}} lng={{@model.center.longitude}}</h5>
-  <h5>Zoom: {{@model.zoomLevel}}</h5>
+
+  <h3>Seismic Events in SC...loading</h3>
+
+  <div class="quakeList">
 
   <ShowHide @divTitle="Map">
-    <p>Map here</p>
-    <QuakeStationMap class="smallmap"  @center={{@model.center}} @zoomLevel=6 />
+    <QuakeStationMap class="smallmap"  @center={{array 33.75 -81}} @zoomLevel=7 />
   </ShowHide>
   <ShowHide @divTitle="Seismic Events in Last Year">
-    <QuakeList @quakes={{@model.yearQuakes}} @sortDefinition="time:desc"></QuakeList>
+    <QuakeList @quakes={{array }} @sortDefinition="time:desc"></QuakeList>
   </ShowHide>
   <ShowHide @divTitle="Older Seismic Events">
-    <QuakeList @quakes={{@model.oldQuakes}}></QuakeList>
+    <QuakeList ></QuakeList>
   </ShowHide>
 </div>

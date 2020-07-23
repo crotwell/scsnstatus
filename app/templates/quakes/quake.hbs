@@ -1,7 +1,7 @@
 
 
 <ShowHide @divTitle="Map">
-  <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}} @center={{@model.center}} @zoomLevel=6 />
+  <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}}  @quakelink='quakes.quake'  @stationlink='stations.station' @quakeQueryBox={{@model.quakeQueryBox}} @center={{@model.center}} @zoomLevel=7 />
 </ShowHide>
 
 

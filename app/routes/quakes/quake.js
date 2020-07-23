@@ -15,6 +15,12 @@ export default class QuakesQuakeRoute extends Route {
     let appModel = this.modelFor('application');
     return RSVP.hash({
       appModel: appModel,
+      center: appModel.SCCenter,
+      quakeQueryBox: [ { lat: appModel.SCBoxArea.minLat, lng: appModel.SCBoxArea.minLon},
+                       { lat: appModel.SCBoxArea.maxLat, lng: appModel.SCBoxArea.minLon},
+                       { lat: appModel.SCBoxArea.maxLat, lng: appModel.SCBoxArea.maxLon},
+                       { lat: appModel.SCBoxArea.minLat, lng: appModel.SCBoxArea.maxLon},
+      ],
       quake: this.store.findRecord('quake', params.quake_id),
       stationList: this.store.findRecord('network', appModel.networkCode)
         .then(net => net.stations),
@@ -36,7 +42,6 @@ export default class QuakesQuakeRoute extends Route {
         let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
         let netHash = RSVP.all(hash.stationList.map( s => s.network));
         hash.staTonet = netHash;
-        hash.center = hash.appModel.SCCenter;
         hash.chanList = chanList;
         hash.ttList = ttList;
         hash._mag = hash._mag;

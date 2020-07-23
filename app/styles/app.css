@@ -12,6 +12,10 @@ ul.horizontal > li {
   display: inline-block;
 }
 
+.latency-conn-failure {
+  color: red;
+}
+
 .latencygood {
   color: black;
 }
@@ -63,7 +67,7 @@ ul.horizontal > li {
 
 .leaflet-container {
   height: 400px;
-  width: 400px;
+  width: 600px;
 }
 
 th.tabledivider {

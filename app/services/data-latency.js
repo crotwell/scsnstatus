@@ -26,6 +26,20 @@ class LatencyData {
   }
 }
 
+class StatsFailures {
+  @tracked eeyore;
+  @tracked rtserve;
+  @tracked thecloud;
+  constructor() {
+    this.eeyore = 0;
+    this.rtserve = 0;
+    this.thecloud = 0;
+  }
+}
+
+const eeyore_host = "eeyore.seis.sc.edu";
+const cloud_host = "thecloud.seis.sc.edu";
+
 const HOST_LIST = [ 'eeyore', 'thecloud', 'rtserve'];
 
 const DEFAULT_HISTORY_LENGTH = 12;
@@ -38,6 +52,13 @@ export default class DataLatencyService extends Service {
   latencyHistory = A([]);
   @tracked updateInterval = DEFAULT_UPDATE_INTERVAL;
   inProgress = false;
+  @tracked statsFailures = new StatsFailures();
+
+
+  isConnectionFailure(host) {
+    console.log(`isConnectionFailure  ${host}`);
+    return ! this.statsFailures[host] || this.statsFailures[shortHost] > 0;
+  }
 
   get latencyData() {
     return this.latencyCache;
@@ -52,8 +73,6 @@ export default class DataLatencyService extends Service {
     }
     this.inProgress = true;
     const networkCode = this.networkCode;
-    const eeyore_host = "eeyore.seis.sc.edu";
-    const cloud_host = "thecloud.seis.sc.edu";
 
     const pattern = `^${networkCode}.*_H.Z.*`;
     const irisStats = this.createStreamStats(ringserverweb.IRIS_HOST, 80, pattern);
@@ -64,7 +83,7 @@ export default class DataLatencyService extends Service {
     return RSVP.all([irisStats, eeyoreStats, cloudStats]).then(statArray => {
       mythis.inProgress = false;
       let lc = new LatencyData();
-      lc.latestData = this.cosolidateStats(statArray);
+      lc.latestData = this.cosolidateStats(statArray, mythis.latencyCache);
       lc.accessTime = accessTime;
       lc.pattern = pattern;
       lc.networkCode = networkCode;
@@ -77,20 +96,6 @@ export default class DataLatencyService extends Service {
         mythis.previousLatencyCache = mythis.latencyHistory[mythis.latencyHistory.length-1];
       }
       let plc = mythis.previousLatencyCache;
-      /*
-      const plc = mythis.previousLatencyCache;
-      const lc = mythis.latencyCache;
-      plc.latestData = lc.latestData;
-      plc.accessTime = lc.accessTime;
-      plc.pattern = lc.pattern;
-      plc.networkCode = lc.networkCode;
-      plc.updateInterval = lc.updateInterval;
-      lc.latestData = this.cosolidateStats(statArray);
-      lc.accessTime = accessTime;
-      lc.pattern = pattern;
-      lc.networkCode = networkCode;
-      lc.updateInterval = this.updateInterval;
-      */
       this.calcLatencyVelocity(plc, lc);
       return lc;
     }, reason => {
@@ -99,7 +104,7 @@ export default class DataLatencyService extends Service {
       return mythis.latencyCache;
     });
   }
-  cosolidateStats(hostStats) {
+  cosolidateStats(hostStats, prevLC) {
     const out = new Map();
     for (const hs of hostStats) {
       for (const s of hs.stats) {
@@ -112,25 +117,56 @@ export default class DataLatencyService extends Service {
         s['accessTime'] = hs.accessTime;
       }
     }
+    if (prevLC && prevLC.latestData) {
+      // if current doesn't have station or station-host, use prev value
+      for (let pvalue of prevLC.latestData) {
+        const pkey = pvalue['key'];
+        if ( out.has(pkey)) {
+          for (let host of HOST_LIST) {
+            if (! out.get(pkey)[host] && pvalue[host]) {
+              out.get(pkey)[host] = pvalue[host];
+            }
+          }
+        } else {
+          // didn't find, reuse
+          const clonePValue = new seisplotjs.ringserveweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
+          clonePValue.accessTime = moment.utc();
+          out.set(pkey, clonePValue);
+        }
+      }
+    }
     return A(Array.from(out.values()));
   }
   createStreamStats(host, port, pattern) {
+    const mythis = this;
     const shortHost = host.split('.')[0];
     const conn = new ringserverweb.RingserverConnection(host, port);
+    conn.timeout(this.updateInterval.asSeconds());
+    const out = {
+      'host': shortHost,
+      'fullhost': host,
+      'pattern': pattern,
+      'accessTime': moment.utc(),
+      'stats': []
+    };
     return conn.pullStreams(pattern).then(streamStats => {
+      mythis.statsFailures[shortHost] = 0;
       const stationStats = ringserverweb.stationsFromStreams(streamStats.streams);
-      return {
-        'host': shortHost,
-        'fullhost': host,
-        'pattern': pattern,
-        'accessTime': streamStats.accessTime,
-        'stats': stationStats
-      };
+      out.stats = stationStats;
+      return out;
+    }, reason => {
+      // connection failure, return with empty stats
+      mythis.statsFailures[shortHost] += 1;
+console.log(`statsFailure ${shortHost} ${mythis.statsFailures[shortHost]}`)
+      return out;
     });
   }
   calcLatencyVelocity(previousLatencyCache, latencyCache) {
     for (let stat of latencyCache.latestData) {
       stat.velocity = {};
+      for (let host of HOST_LIST) {
+        stat.velocity[host] = 0; // just in case we don't find the stream at all
+      }
       for (let prevStat of previousLatencyCache.latestData) {
         if (stat.key === prevStat.key) {
           for (let host of HOST_LIST) {

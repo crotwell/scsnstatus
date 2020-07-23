@@ -1,20 +1,40 @@
-<h3>Latency for {{dataLatency.networkCode}} {{dataLatency.latencyData.latestData.length}}</h3>
-
+<h3>Latency for {{dataLatency.networkCode}}</h3>
 
 <table>
   <tr>
     <th></th>
-    <th>Eeyore</th>
+    {{#let 'eeyore' as |host|}}
+      <th class={{if (gt (get dataLatency.statsFailures host) 0) "latency-conn-failure"}} >
+        {{capitalize (host-to-short-name host)}}
+        {{#if (gt (get dataLatency.statsFailures host) 0)}}
+          ({{get dataLatency.statsFailures host}} failures)
+        {{/if}}
+      </th>
+    {{/let}}
     <th></th>
     <th></th>
     <th class="tabledivider"></th>
 
-    <th>Cloud</th>
+    {{#let 'thecloud' as |host|}}
+      <th class={{if (gt (get dataLatency.statsFailures host) 0) "latency-conn-failure"}} >
+        {{capitalize (host-to-short-name host)}}
+        {{#if (gt (get dataLatency.statsFailures host) 0)}}
+          ({{get dataLatency.statsFailures host}} failures)
+        {{/if}}
+      </th>
+    {{/let}}
     <th></th>
     <th></th>
     <th class="tabledivider"></th>
 
-    <th>Iris</th>
+    {{#let 'rtserve' as |host|}}
+      <th class={{if (gt (get dataLatency.statsFailures host) 0) "latency-conn-failure"}} >
+        {{capitalize (host-to-short-name host)}}
+        {{#if (gt (get dataLatency.statsFailures host) 0)}}
+          ({{get dataLatency.statsFailures host}} failures)
+        {{/if}}
+      </th>
+    {{/let}}
     <th></th>
     <th></th>
     <th class="tabledivider"></th>

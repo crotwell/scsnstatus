@@ -11,8 +11,8 @@ import {convertToSeisplotjs, convertQuakeToSPjS} from 'ember-seisplotjs/utils/co
 export default class GlobalQuakesQuakeRoute extends Route {
 
     model(params) {
-      let preOrigin = 30;
-      let postOrigin = 600;
+      let preP = 30;
+      let postS = 600;
       if ( ! params.quake_id) {throw new Error("no quake_id in params");}
       let appModel = this.modelFor('application');
       return RSVP.hash({
@@ -22,9 +22,6 @@ export default class GlobalQuakesQuakeRoute extends Route {
           .then(net => net.stations),
         }).then(hash => {
           let m = hash.quake.preferredMagnitude.get('mag');
-          console.log(`m  ${m}`);
-          // console.log(`magnitude: ${hash.quake.preferredMagnitude.mag} ${hash.quake.preferredMagnitude}  ${hash.quake.preferredMagnitude.id}`);
-          console.log(`hash.quake lat/lon ${hash.quake.latitude} ${hash.quake.longitude}`);
           let activeStations = hash.stationList.filter(s => s.activeAt(hash.quake.time));
           let inactiveStations = hash.stationList.filter(s => ! s.activeAt(hash.quake.time));
           let staCodes = activeStations.map( s => s.stationCode).join();
@@ -32,7 +29,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
             networkCode: appModel.networkCode,
             stationCode: staCodes,
             locationCode: "00",
-            channelCode: "HHZ,HNZ",
+            channelCode: "LHZ,LNZ",
           });
 
           let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
@@ -47,29 +44,25 @@ export default class GlobalQuakesQuakeRoute extends Route {
           hash.inactiveStations = inactiveStations;
           return RSVP.hash(hash);
         }).then(hash => {
-          console.log(`found ${hash.chanList.length} channels`);
-          console.log(`quake has ${hash.quake.pickList.length} picks`);
           let channelMap = new Map();
           hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
           hash.channelMap = channelMap;
-          hash.seisDisplayList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
+          hash.seisDisplayList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preP, postS);
           return RSVP.hash(hash);
         });
     }
-    loadSeismograms(chanList, quake, ttList, preOrigin, postOrigin) {
-      console.log(`loadSeismograms found ${chanList.length} channels ${Array.isArray(chanList)}`);
+    loadSeismograms(chanList, quake, ttList, preP, postS) {
       let shortChanList = chanList;
       //let shortChanList = chanList.filter((c, index, self) => c.activeAt(quake.time) && c.channelCode.endsWith('Z'));
       //shortChanList = shortChanList.slice(0, 1); // testing just one
-      console.log(`loadSeismograms shortChanList ${shortChanList.length} channels ${Array.isArray(shortChanList)}`);
 
       if (quake.time.isAfter(moment.utc('2019-06-01T00:00:00Z'))) {
-        return this.loadSeismogramsEeyore(shortChanList, quake, ttList, preOrigin, postOrigin);
+        return this.loadSeismogramsEeyore(shortChanList, quake, ttList, preP, postS);
       } else {
-        return this.loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin);
+        return this.loadSeismogramsIRIS(shortChanList, quake, ttList, preP, postS);
       }
     }
-    loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin) {
+    loadSeismogramsIRIS(shortChanList, quake, ttList, preP, postS) {
       let query = new seisplotjs.fdsndataselect.DataSelectQuery();
       let chanTimeList = shortChanList.map(c => {
         let staCode = c.get('station').get('stationCode');
@@ -78,20 +71,26 @@ export default class GlobalQuakesQuakeRoute extends Route {
         let pAndS = firstPS(ttime);
         let pArrival = pAndS.firstP;
         let sArrival = pAndS.firstS;
-        let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(-1*preOrigin, 'second'),
-                                                            moment.utc(quake.time).add(postOrigin, 'second'));
+        let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preP, 'second'),
+                                                            moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
         const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
         let sdd = new seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
         sdd.addQuake(convertQuakeToSPjS(quake));
+        let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
+        phaseMarkers.push({
+          markertype: 'predicted',
+          name: "origin",
+          time: seisplotjs.moment.utc(quakeList[0].time)
+        });
+        sdd.addMarkers(phaseMarkers)
         return sdd;
       });
       return query.postQuerySeismograms(chanTimeList);
     }
-    loadSeismogramsEeyore(shortChanList, quake, ttList, preOrigin, postOrigin) {
+    loadSeismogramsEeyore(shortChanList, quake, ttList, preP, postS) {
         let pArray = [];
         let chanTR = [];
         shortChanList.forEach(c => {
-          console.log(`try ${c.codes}`);
           if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
 
               let staCode = c.get('station').get('stationCode');
@@ -100,11 +99,18 @@ export default class GlobalQuakesQuakeRoute extends Route {
               let pAndS = firstPS(ttime);
               let pArrival = pAndS.firstP;
               let sArrival = pAndS.firstS;
-              let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(-1*preOrigin, 'second'),
-                                                                  moment.utc(quake.time).add(postOrigin, 'second'));
+              let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preP, 'second'),
+                                                                  moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
               const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
               let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
               sdd.addQuake(convertQuakeToSPjS(quake));
+              let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
+              phaseMarkers.push({
+                markertype: 'predicted',
+                name: "origin",
+                time: seisplotjs.moment.utc(quake.time)
+              });
+              sdd.addMarkers(phaseMarkers)
               chanTR.push(sdd);
           } else {
             console.log(`skipping ${c.codes}`);
@@ -136,7 +142,6 @@ export default class GlobalQuakesQuakeRoute extends Route {
         let baseUrl = protocol+"//"+host+portStr+'/mseed';
         let pattern = "%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H";
 
-        console.log("baseUrl: "+baseUrl);
         let mseedArchive = new seisplotjs.mseedarchive.MSeedArchive(baseUrl, pattern);
         return mseedArchive;
     }

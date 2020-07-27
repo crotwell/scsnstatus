@@ -5,7 +5,7 @@ import moment from 'moment';
 import seisplotjs from 'seisplotjs';
 import travelTime from 'ember-seisplotjs/utils/travel-time';
 import firstPS from 'ember-seisplotjs/utils/first-p-s';
-import convertToSeisplotjs from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import {convertToSeisplotjs, convertQuakeToSPjS} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 export default class QuakesQuakeRoute extends Route {
   model(params) {
@@ -55,7 +55,7 @@ export default class QuakesQuakeRoute extends Route {
         let channelMap = new Map();
         hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
         hash.channelMap = channelMap;
-        hash.chanTRList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
+        hash.seisDisplayList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
         return RSVP.hash(hash);
       });
   }
@@ -85,6 +85,7 @@ export default class QuakesQuakeRoute extends Route {
                                                           moment.utc(quake.time).add(postOrigin, 'second'));
       const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
       let sdd = new seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+      sdd.addQuake(convertQuakeToSPjS(quake));
       return sdd;
     });
     return query.postQuerySeismograms(chanTimeList);
@@ -106,6 +107,7 @@ export default class QuakesQuakeRoute extends Route {
                                                                 moment.utc(quake.time).add(postOrigin, 'second'));
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
             let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+            sdd.addQuake(convertQuakeToSPjS(quake));
             chanTR.push(sdd);
         } else {
           console.log(`skipping ${c.codes}`);

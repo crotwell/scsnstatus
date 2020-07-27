@@ -32,11 +32,10 @@
 {{/let}}
 </ShowHide>
 
+
 <ShowHide @divTitle="Seismograms">
-{{#each model.chanTRList as |sdd| }}
-<SeismogramDisplay @seisDisplayData={{sdd}} @title={{sdd-channel-codes sdd}} @quake={{@model.quake}} @channelMap={{@model.channelMap}} @overlayPicks=true>
-</SeismogramDisplay>
-{{/each}}
+  <SeismogramDisplayList @seisDisplayList={{@model.seisDisplayList}} @sortDefinition='distaz.distanceKm'>
+  </SeismogramDisplayList>
 </ShowHide>
 
 {{outlet}}

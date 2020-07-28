@@ -1,0 +1,44 @@
+
+<h3></h3>
+
+<ShowHide @divTitle="Map">
+  <QuakeStationMap class="smallmap"  @center={{array 33.75 -81}} @zoomLevel=7 />
+</ShowHide>
+
+
+<ShowHide @divTitle="Info">
+<table>
+  <tr>
+    <th>Desc</th>
+    <td>{{q.description}}</td>
+  </tr>
+  <tr>
+    <th>EventId</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>Time</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>Latitude/Longitude</th>
+    <td>/</td>
+  </tr>
+  <tr>
+    <th>Depth</th>
+    <td> km</td>
+  </tr>
+  <tr>
+    <th>Magnitude</th>
+    <td></td>
+  </tr>
+</table>
+</ShowHide>
+
+
+<ShowHide @divTitle="Seismograms">
+  <SeismogramDisplayList @seisDisplayList={{array }} @sortDefinition='distaz.distanceKm'>
+  </SeismogramDisplayList>
+</ShowHide>
+
+{{outlet}}

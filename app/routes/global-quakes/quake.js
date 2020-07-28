@@ -15,9 +15,10 @@ export default class GlobalQuakesQuakeRoute extends Route {
       let postS = 600;
       if ( ! params.quake_id) {throw new Error("no quake_id in params");}
       let appModel = this.modelFor('application');
+      let peekQuake = this.store.peekRecord('quake', params.quake_id);
       return RSVP.hash({
         appModel: appModel,
-        quake: this.store.findRecord('quake', params.quake_id),
+        quake: peekQuake ? peekQuake : this.store.findRecord('quake', params.quake_id),
         stationList: this.store.findRecord('network', appModel.networkCode)
           .then(net => net.stations),
         }).then(hash => {

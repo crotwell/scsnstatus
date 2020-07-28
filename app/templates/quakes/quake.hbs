@@ -1,4 +1,5 @@
 
+<h3>{{model.quake.description}}</h3>
 
 <ShowHide @divTitle="Map">
   <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}}  @quakelink='quakes.quake'  @stationlink='stations.station' @quakeQueryBox={{@model.quakeQueryBox}} @center={{@model.center}} @zoomLevel=7 />
@@ -8,6 +9,10 @@
 <ShowHide @divTitle="Info">
 {{#let model.quake as |q|}}
 <table>
+  <tr>
+    <th>Desc</th>
+    <td>{{q.description}}</td>
+  </tr>
   <tr>
     <th>EventId</th>
     <td>{{q.eventId}}</td>
@@ -22,7 +27,7 @@
   </tr>
   <tr>
     <th>Depth</th>
-    <td>{{q.preferredOrigin.depth}} m</td>
+    <td>{{m-to-km q.preferredOrigin.depth}} km</td>
   </tr>
   <tr>
     <th>Magnitude</th>

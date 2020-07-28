@@ -13,7 +13,13 @@ Router.map(function() {
   });
   this.route('resources');
   this.route('stations', function() {
-    this.route('station', { path: '/:station_id' }, function() {});
+    this.route('station', { path: '/:station_id' }, function() {
+      this.route('voltage');
+      this.route('channels');
+      this.route('helicorder');
+      this.route('latency');
+      this.route('rssi');
+    });
   });
   this.route('global-quakes', function() {
     this.route('quake', { path: '/:quake_id' }, function() {});

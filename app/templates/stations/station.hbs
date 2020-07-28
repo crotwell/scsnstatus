@@ -1,6 +1,24 @@
 
 
 <h3>Station: {{@model.station.codes}} <LinkTo @route="stations">Show All</LinkTo></h3>
+<p>PlotType: {{plotType}}</p>
+
+
+<ShowHide @divTitle="Map">
+  <QuakeStationMap class="smallmap"  @stationlink='stations.station'  @stations={{array @model.station}}  @center={{@model.center}} @zoomLevel=7 >
+
+  </QuakeStationMap>
+</ShowHide>
+
+<span>Choose Station: </span>
+<select onchange={{action 'changeStation'  value="target.value"}}>
+  {{#each model.stationList as |sta|}}
+    {{#if sta.isActive}}
+      <option value={{sta.id}} selected={{eq sta model.station}}>{{sta.stationCode}}</option>
+    {{/if}}
+  {{/each}}
+</select>
+
 <ul>
   <li>{{@model.station.name}}</li>
   <li>{{@model.station.description}}</li>
@@ -10,5 +28,14 @@
   <li>{{@model.station.longitudeFormatted}}</li>
   <li>{{@model.station.elevation}}</li>
 </ul>
+
+
+<span>Choose Plot: </span>
+<select onchange={{action 'changePlot'  value="target.value"}}>
+  {{#each model.plotTypes as |plot|}}
+      <option value={{plot}} selected={{eq plot plotType}}>{{plot}}</option>
+  {{/each}}
+</select>
+
 
 {{outlet}}

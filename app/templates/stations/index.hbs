@@ -1,26 +1,12 @@
 
 <h3>Network: {{@model.network.networkCode}} {{@model.network.description}}</h3>
 
-<LeafletMap @lat={{@model.center.latitude}} @lng={{@model.center.longitude}} @zoom=6 class="smallmap" scrollWheelZoom=false as |layers| >
-  <layers.tile @url="https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"/>
 
-  {{#each model.activeStations as |s|}}
-    <layers.marker @lat={{s.latitude}} @lng={{s.longitude}} @icon={{div-icon className="stationMarker"}}  @zIndexOffset=100 as |marker| >
-      <marker.popup>
-        <h3>Station: <LinkTo @route='stations.station' @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
-      </marker.popup>
-    </layers.marker>
-  {{/each}}
+<ShowHide @divTitle="Map">
+  <QuakeStationMap class="smallmap"  @stationlink='stations.station'  @stations={{@model.activeStations}}  @center={{@model.center}} @zoomLevel=7 >
 
-  {{#each model.inactiveStations as |s|}}
-    <layers.marker @lat={{s.latitude}} @lng={{s.longitude}} @icon={{div-icon className="inactiveStationMarker"}}  @zIndexOffset=-10 as |marker| >
-      <marker.popup>
-        <h3>Station: <LinkTo @route='stations.station' @model={{s.id}}>{{s.codes }} {{s.latitude}} {{s.longitude}}</LinkTo></h3>
-      </marker.popup>
-    </layers.marker>
-  {{/each}}
-
-</LeafletMap>
+  </QuakeStationMap>
+</ShowHide>
 
 <div class="stationList">
 <h1>Stations</h1>

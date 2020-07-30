@@ -6,7 +6,7 @@
 <div class="quakeList">
 
   <ShowHide @divTitle="Map">
-    <QuakeStationMap class="widemap" @stations={{@model.activeStations}} @quakes={{@model.quakeList}} @center={{@model.center}} @zoomLevel=1 />
+    <QuakeStationMap class="widemap" @quakelink="global-quakes.quake" @stations={{@model.activeStations}} @quakes={{@model.quakeList}} @center={{@model.center}} @zoomLevel=1 />
   </ShowHide>
   <ShowHide @divTitle="Seismic Events ">
     <QuakeList @thelink="global-quakes.quake" @quakes={{@model.quakeList}} @sortDefinition="time:desc"></QuakeList>

@@ -1,38 +1,39 @@
 
-<h3></h3>
 
 <ShowHide @divTitle="Map">
-  <QuakeStationMap class="smallmap"  @center={{array 33.75 -81}} @zoomLevel=7 />
-</ShowHide>
-
-
-<ShowHide @divTitle="Info">
-<table>
-  <tr>
-    <th>Desc</th>
-    <td>{{q.description}}</td>
-  </tr>
-  <tr>
-    <th>EventId</th>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Time</th>
-    <td></td>
-  </tr>
-  <tr>
-    <th>Latitude/Longitude</th>
-    <td>/</td>
-  </tr>
-  <tr>
-    <th>Depth</th>
-    <td> km</td>
-  </tr>
-  <tr>
-    <th>Magnitude</th>
-    <td></td>
-  </tr>
-</table>
+  <div class="horizontal">
+    <div>
+      <QuakeStationMap class="smallmap"  @center={{array 33.75 -81}} @zoomLevel=7 />
+    </div>
+    <div>
+      <table>
+        <tr>
+          <th>Desc</th>
+          <td>{{q.description}}</td>
+        </tr>
+        <tr>
+          <th>EventId</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>Time</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>Latitude/Longitude</th>
+          <td>/</td>
+        </tr>
+        <tr>
+          <th>Depth</th>
+          <td> km</td>
+        </tr>
+        <tr>
+          <th>Magnitude</th>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </ShowHide>
 
 

@@ -1,34 +1,38 @@
 
 <ShowHide @divTitle="Map">
-  <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}} @center={{@model.center}} @zoomLevel=1 />
+  <div class="horizontal">
+    <div>
+      <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}} @center={{@model.center}} @zoomLevel=1 />
+    </div>
+    <div>
+
+      {{#let model.quake as |q|}}
+      <table>
+        <tr>
+          <th>EventId</th>
+          <td>{{q.eventid}}</td>
+        </tr>
+        <tr>
+          <th>Time</th>
+          <td>{{moment-format q.time }}</td>
+        </tr>
+        <tr>
+          <th>Latitude/Longitude</th>
+          <td>{{q.preferredOrigin.latitude}}/{{q.preferredOrigin.longitude}}</td>
+        </tr>
+        <tr>
+          <th>Depth</th>
+          <td>{{q.preferredOrigin.depth}} km</td>
+        </tr>
+        <tr>
+          <th>Magnitude</th>
+          <td>{{q.preferredMagnitude.mag}} {{q.preferredMagnitude.magType}}</td>
+        </tr>
+      </table>
+      {{/let}}
+    </div>
+  </div>
 </ShowHide>
-
-
-
-{{#let model.quake as |q|}}
-<table>
-  <tr>
-    <th>EventId</th>
-    <td>{{q.eventid}}</td>
-  </tr>
-  <tr>
-    <th>Time</th>
-    <td>{{moment-format q.time }}</td>
-  </tr>
-  <tr>
-    <th>Latitude/Longitude</th>
-    <td>{{q.preferredOrigin.latitude}}/{{q.preferredOrigin.longitude}}</td>
-  </tr>
-  <tr>
-    <th>Depth</th>
-    <td>{{q.preferredOrigin.depth}} km</td>
-  </tr>
-  <tr>
-    <th>Magnitude</th>
-    <td>{{q.preferredMagnitude.mag}} {{q.preferredMagnitude.magType}}</td>
-  </tr>
-</table>
-{{/let}}
 
 <ShowHide @divTitle="Seismograms">
   {{#each model.chanTRList as |sdd| }}

@@ -12,6 +12,10 @@ ul.horizontal > li {
   display: inline-block;
 }
 
+div.horizontal > div {
+  display: inline-block;
+}
+
 .latency-conn-failure {
   color: red;
 }
@@ -33,10 +37,6 @@ ul.horizontal > li {
   color:white;
 }
 
-.leaflet-container {
-  width: 90%;
-}
-
 .inactiveStationMarker {
   color: darkgrey;
   font-size: large;
@@ -56,11 +56,15 @@ ul.horizontal > li {
 .stationMarker:after{
   content: "\25B2"
 }
-.smallmap {
+.leaflet-container.smallmap {
   height: 200px;
   width: 275px;
 }
-.quakemap {
+.leaflet-container.largemap {
+  height: 500px;
+  width: 500px;
+}
+.widemap {
   width: 90%;
   height: 500px;
 }

@@ -1,5 +1,17 @@
+{{#let  'volts'  'Volts' as |plotkeys plotTitle| }}
 
-<ShowHide @divTitle="Voltage">
+<ShowHide @divTitle={{plotTitle}}>
+
+  <CellStatusLoader @duration='P7D'  @station={{@model.station}} as |loader| >
+    {{#if loader.isRunning}}
+      <p>Loading...</p>
+    {{else}}
+      <CellStatusPlot @title={{plotTitle}} @start={{loader.start}} @end={{loader.end}} @cellStatusData={{loader.cellStatusData}} @plotkeys={{plotkeys}} >
+      </CellStatusPlot>
+    {{/if}}
+  </CellStatusLoader>
 </ShowHide>
+
+{{/let}}
 
 {{outlet}}

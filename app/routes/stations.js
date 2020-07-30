@@ -22,14 +22,5 @@ export default class StationsRoute extends Route {
     console.log("station.index afterModel");
     model.activeStations = model.stationList.filter(s => s.activeAt());
     model.inactiveStations = model.stationList.filter(s => ! s.activeAt());
-    let out = RSVP.hash({
-      stationHash: model.network.get('stations'),
-      latency: this.dataLatency.queryLatency()
-    });
-    return out.then(hash => {
-      console.log("afterModel RSVP hash "+model.network.get('stations'));
-        console.log("afterModel RSVP hash "+model.network.get('stations').get('length'));
-      return hash;
-    });
   }
 }

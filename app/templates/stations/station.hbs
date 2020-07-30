@@ -1,15 +1,6 @@
 
 
 <h3>Station: {{@model.station.codes}} <LinkTo @route="stations">Show All</LinkTo></h3>
-<p>PlotType: {{plotType}}</p>
-
-
-<ShowHide @divTitle="Map">
-  <QuakeStationMap class="smallmap"  @stationlink='stations.station'  @stations={{array @model.station}}  @center={{@model.center}} @zoomLevel=7 >
-
-  </QuakeStationMap>
-</ShowHide>
-
 <span>Choose Station: </span>
 <select onchange={{action 'changeStation'  value="target.value"}}>
   {{#each model.stationList as |sta|}}
@@ -19,16 +10,26 @@
   {{/each}}
 </select>
 
-<ul>
-  <li>{{@model.station.name}}</li>
-  <li>{{@model.station.description}}</li>
-  <li>{{@model.station.startTime}}</li>
-  <li>{{@model.station.endTime}}</li>
-  <li>{{@model.station.latitudeFormatted}}</li>
-  <li>{{@model.station.longitudeFormatted}}</li>
-  <li>{{@model.station.elevation}}</li>
-</ul>
+<ShowHide @divTitle="Map">
+  <div class="horizontal">
+    <div>
+      <QuakeStationMap class="smallmap"  @stationlink='stations.station'  @stations={{array @model.station}}  @center={{@model.center}} @zoomLevel=7 >
 
+      </QuakeStationMap>
+    </div>
+    <div>
+      <ul>
+        <li>Name: {{@model.station.name}}</li>
+        <li>Desc: {{@model.station.description}}</li>
+        <li>Start: {{@model.station.startTime}}</li>
+        <li>End: {{@model.station.endTime}}</li>
+        <li>Lat: {{@model.station.latitudeFormatted}}</li>
+        <li>Lon: {{@model.station.longitudeFormatted}}</li>
+        <li>Elev: {{@model.station.elevation}}</li>
+      </ul>
+    </div>
+  </div>
+</ShowHide>
 
 <span>Choose Plot: </span>
 <select onchange={{action 'changePlot'  value="target.value"}}>

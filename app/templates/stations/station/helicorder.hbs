@@ -4,7 +4,7 @@
   <span>Choose Channel: </span>
   <select onchange={{action 'changeChannel'  value="target.value"}}>
     {{#each model.activeChannelList as |ch|}}
-        <option value={{ch.id}} selected={{eq ch.id selectedChannel.id}}>{{ch.codes}}</option>
+        <option value={{ch.id}} selected={{eq ch.id selectedChannel.id}}>{{ch.codes}} - {{equipment-description ch.sensor}}</option>
     {{/each}}
   </select>
 

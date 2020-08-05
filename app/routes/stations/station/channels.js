@@ -15,8 +15,8 @@ export default class StationsStationChannelsRoute extends Route {
       channelList: stationModel.station.channels
     }).then(hash => {
       const now = moment.utc();
-      hash.activeStations = hash.channelList.filter(c => c.activeAt(now));
-      hash.inactiveStations = hash.channelList.filter(c => ! c.activeAt(now));
+      hash.activeChannels = hash.channelList.filter(c => c.activeAt(now));
+      hash.inactiveChannels = hash.channelList.filter(c => ! c.activeAt(now));
       return RSVP.hash(hash);
     });
   }

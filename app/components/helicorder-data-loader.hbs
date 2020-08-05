@@ -1,0 +1,25 @@
+
+<ul class="horizontal">
+  <li>
+    <button {{action "refresh"}} >Refresh</button>
+  </li>
+  <li><button {{action "goPrev"}}>Prev</button></li>
+  <li><button {{action "goNext"}}>Next</button></li>
+  <li><button {{action "goNow"}}>Now</button></li>
+  <li><button {{action "zoomIn"}}>ZoomIn</button></li>
+  <li><button {{action "zoomOut"}}>ZoomOut</button></li>
+</ul>
+<h5>{{@channel.codes}}</h5>
+<h5>From {{format-iso-date start format='yyyy-MM-DD'}} to {{format-iso-date end format='yyyy-MM-DD'}},  duration of {{moment-duration duration}}</h5>
+<div {{did-insert this.doLoad}} {{did-update this.doUpdate @channel @start @end}}>
+
+{{yield (hash
+      isRunning=fetchData.isRunning
+      helicorderData=helicorderData
+      start=start
+      end=end
+      duration=duration
+      channel=@channel
+    )
+}}
+</div>

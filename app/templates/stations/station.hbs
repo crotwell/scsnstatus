@@ -13,7 +13,11 @@
 <ShowHide @divTitle="Map">
   <div class="horizontal">
     <div>
-      <QuakeStationMap class="smallmap"  @stationlink='stations.station'  @stations={{array @model.station}}  @center={{@model.center}} @zoomLevel=7 >
+      <QuakeStationMap class="smallmap"
+          @stationlink='stations.station'
+          @stations={{array @model.station}}
+          @center={{@model.center}}
+          @zoomLevel=6 >
 
       </QuakeStationMap>
     </div>

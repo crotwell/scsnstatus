@@ -9,10 +9,13 @@ export default class StationsStationRoute extends Route {
     return RSVP.hash({
       station: this.store.findRecord('station', params.station_id),
       stationList: stationsModel.stationList,
-      network: stationsModel.networkCode,
+      networkCode: stationsModel.networkCode,
       center: appModel.SCCenter,
       appModel: appModel,
       plotTypes: ['channels', 'helicorder', 'latency', 'rssi', 'voltage']
+    }).then(hash => {
+      hash.network = hash.station.network;
+      return RSVP.hash(hash);
     });
   }
 }

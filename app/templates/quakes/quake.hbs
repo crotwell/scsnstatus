@@ -2,7 +2,14 @@
 <ShowHide @divTitle="Map">
   <div class="horizontal">
     <div>
-      <QuakeStationMap class="smallmap" @stations={{@model.activeStations}} @quakes={{@model.quake}}  @quakelink='quakes.quake'  @stationlink='stations.station' @quakeQueryBox={{@model.quakeQueryBox}} @center={{@model.center}} @zoomLevel=7 />
+      <QuakeStationMap class="smallmap"
+        @stations={{@model.activeStations}}
+        @quakes={{@model.quake}}
+        @quakelink='quakes.quake'
+        @stationlink='stations.station'
+        @quakeQueryBox={{@model.quakeQueryBox}}
+        @center={{@model.center}}
+        @zoomLevel=6 />
     </div>
     <div>
       {{#let model.quake as |q|}}

@@ -1,6 +1,27 @@
 
 <ShowHide @divTitle="Helicorder">
-  <h3>...not yet implemented</h3>
+
+  <span>Choose Channel: </span>
+  <select onchange={{action 'changeChannel'  value="target.value"}}>
+    {{#each model.activeChannelList as |ch|}}
+        <option value={{ch.id}} selected={{eq ch.id selectedChannel.id}}>{{ch.codes}}</option>
+    {{/each}}
+  </select>
+
+    <HelicorderDataLoader @channel={{selectedChannel}} @duration='P0Y0M1D' as |loader| >
+      {{#if loader.isRunning}}
+        <p>Loading...</p>
+      {{else}}
+          <h3>HeliData: {{loader.helicorderData}} s={{loader.start}} @end={{loader.end}} @duration={{loader.duration}}</h3>
+          <HelicorderDisplay @start={{loader.start}} @end={{loader.end}} @helicorderData={{loader.helicorderData}}>
+          </HelicorderDisplay>
+      {{/if}}
+    </HelicorderDataLoader>
+
 </ShowHide>
+
+
+
+
 
 {{outlet}}

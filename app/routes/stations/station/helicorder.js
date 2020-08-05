@@ -16,7 +16,10 @@ export default class StationsStationHelicorderRoute extends Route {
       return RSVP.hash(hash);
     }).then(hash => {
       const now = moment.utc();
-      hash.activeChannelList = hash.channelList.filter(c => c.activeAt(now));
+      hash.activeChannelList = hash.channelList
+        .filter(c => c.activeAt(now))
+        .filter(c => c.channelCode !== 'OCF')
+        .filter(c => c.channelCode !== 'ACE');
       hash.inactiveChannelList = hash.channelList.filter(c => ! c.activeAt(now));
       hash.staFromChan = hash.channelList.map(c => c.station);
       return RSVP.hash(hash);

@@ -18,6 +18,7 @@ export default class StationsStationHelicorderRoute extends Route {
       const now = moment.utc();
       hash.activeChannelList = hash.channelList
         .filter(c => c.activeAt(now))
+        .filter(c => c.channelCode !== 'LOG')
         .filter(c => c.channelCode !== 'OCF')
         .filter(c => c.channelCode !== 'ACE');
       hash.inactiveChannelList = hash.channelList.filter(c => ! c.activeAt(now));

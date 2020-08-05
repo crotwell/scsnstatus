@@ -12,7 +12,6 @@
       {{#if loader.isRunning}}
         <p>Loading...</p>
       {{else}}
-          <h3>HeliData: {{loader.helicorderData}} s={{loader.start}} @end={{loader.end}} @duration={{loader.duration}}</h3>
           <HelicorderDisplay @start={{loader.start}} @end={{loader.end}} @helicorderData={{loader.helicorderData}}>
           </HelicorderDisplay>
       {{/if}}

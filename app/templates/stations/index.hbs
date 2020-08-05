@@ -3,7 +3,7 @@
 
 
 <ShowHide @divTitle="Map">
-  <QuakeStationMap class="largemap"  @stationlink='stations.station'  @stations={{@model.activeStations}}  @center={{@model.center}} @zoomLevel=7 >
+  <QuakeStationMap class="largemap"  @stationlink='stations.station.helicorder'  @stations={{@model.activeStations}}  @center={{@model.center}} @zoomLevel=7 >
 
   </QuakeStationMap>
 </ShowHide>
@@ -13,7 +13,7 @@
 <ul>
 {{#each model.activeStations as |sta|}}
 <li>
-  <LinkTo @route='stations.station' @model={{sta.id}}>
+  <LinkTo @route='stations.station.helicorder' @model={{sta.id}}>
     {{sta.codes}} - {{sta.name}}
   </LinkTo>
 

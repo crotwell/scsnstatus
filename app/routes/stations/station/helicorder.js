@@ -30,6 +30,28 @@ export default class StationsStationHelicorderRoute extends Route {
   }
   setupController(controller, model) {
     super.setupController(controller, model);
-    controller.selectedChannel = model.activeChannelList[0];
+    let bestChannel = model.activeChannelList.find(c => c.channelCode === 'HHZ');
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode === 'HNZ');
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode.startsWith('H') && c.channelCode.endsWith('Z'))[0];
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode.startsWith('B') && c.channelCode.endsWith('Z'))[0];
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode.startsWith('L') && c.channelCode.endsWith('Z'))[0];
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode.startsWith('S') && c.channelCode.endsWith('Z'))[0];
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList.find(c => c.channelCode.startsWith('E') && c.channelCode.endsWith('Z'))[0];
+    }
+    if ( ! bestChannel) {
+      bestChannel = model.activeChannelList[0];
+    }
+    controller.selectedChannel = bestChannel;
   }
 }

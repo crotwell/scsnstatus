@@ -14,6 +14,10 @@ const moment = seisplotjs.moment;
 const MINMAX_URL = "http://eeyore.seis.sc.edu/minmax";
 const MSEED_URL = "http://eeyore.seis.sc.edu/mseed";
 
+function roundTime(time, unit) {
+  return seisplotjs.moment.utc(time).endOf(unit).add(1, 'millisecond');
+}
+
 export default class HelicorderDataLoaderComponent extends Component {
   @service store;
   @tracked channel;
@@ -91,12 +95,14 @@ export default class HelicorderDataLoaderComponent extends Component {
     } else if ( ! (this.args.start && this.args.end)) {
       duration = seisplotjs.moment.duration(2, 'days');
     }
-    const sed = new seisplotjs.util.StartEndDuration(this.args.start, this.args.end, duration);
+    let roundedEnd = this.args.end ? this.args.end : roundTime(seisplotjs.moment.utc(), 'hour');
+    const sed = new seisplotjs.util.StartEndDuration(this.args.start, roundedEnd, duration);
     this.duration = sed.duration;
     this.start = sed.start;
     this.end = sed.end;
 
   }
+
   @action doLoad() {
     this.fetchData.perform();
   }
@@ -120,7 +126,11 @@ export default class HelicorderDataLoaderComponent extends Component {
     this.fetchData.perform();
   }
   @action goNow() {
-    this.end = moment.utc();
+    if (this.duration.asHours() > 6) {
+      this.end = roundTime(moment.utc(), 'hour');
+    } else {
+      this.end = moment.utc();
+    }
     this.start = moment.utc(this.end).subtract(this.duration);
     this.fetchData.perform();
   }
@@ -137,6 +147,18 @@ export default class HelicorderDataLoaderComponent extends Component {
     this.duration = moment.duration(this.duration.asMilliseconds()*2);
     this.start = moment.utc(this.start).subtract(shift);
     this.end = moment.utc(this.end).add(shift);
+    this.fetchData.perform();
+  }
+  @action zoomDay() {
+    this.duration = moment.duration(24, 'hour');
+    this.start = null;
+    this.end = roundTime(this.end, 'hour');
+    this.fetchData.perform();
+  }
+  @action zoom12Day() {
+    this.duration = moment.duration(12, 'day');
+    this.start = null;
+    this.end = roundTime(this.end, 'day');
     this.fetchData.perform();
   }
 }

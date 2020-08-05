@@ -11,7 +11,7 @@
   <li><button {{action "zoomDay"}}>Zoom Day</button></li>
   <li><button {{action "zoom12Day"}}>Zoom 12 Days</button></li>
 </ul>
-<h5>{{@channel.codes}}</h5>
+<h5>{{@channel.codes}} - {{equipment-description @channel.sensor}}</h5>
 <h5>From {{format-iso-date start format='yyyy-MM-DD'}} to {{format-iso-date end format='yyyy-MM-DD'}},  duration of {{moment-duration duration}}</h5>
 <div {{did-insert this.doLoad}} {{did-update this.doUpdate @channel @start @end}}>
 

@@ -20,6 +20,7 @@ function roundTime(time, unit) {
 
 export default class HelicorderDataLoaderComponent extends Component {
   @service store;
+  @service cachingMseedarchive;
   @tracked channel;
   @tracked helicorderData;
   @tracked start;
@@ -33,37 +34,21 @@ export default class HelicorderDataLoaderComponent extends Component {
     console.log(`in heli load task: ${c}  ${c.constructor.name}`)
     console.log(`in heli load task: ${c.get('codes')}  ${c.get('station')}`)
 
-    const convertChannel = convertToSeisplotjs(c.station.get('network'), c.station, c);
     const startEnd = new seisplotjs.util.StartEndDuration(this.start, this.end, this.duration);
-    let fake;
-    let mseedArchUrl = MSEED_URL;
-    if (convertChannel.channelCode.charAt(0) === 'H') {
-      const minMaxInstCode = convertChannel.channelCode.charAt(1) === 'H' ? 'X' : 'Y';
-      let chanCode = "L"+minMaxInstCode+convertChannel.channelCode.charAt(2);
-      fake = new seisplotjs.stationxml.Channel(convertChannel.station, chanCode, convertChannel.locationCode);
-      fake.sampleRate = 2;
-      mseedArchUrl = MINMAX_URL;
-    } else {
-      fake = convertChannel;
-    }
-    let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(fake, startEnd);
-
-    let minMaxQ = new seisplotjs.mseedarchive.MSeedArchive(
-      mseedArchUrl,
-      "%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H");
-    yield minMaxQ.loadSeismograms([sdd]).then( heliData => {
-      // hd should be same as passed in array, so one element eq to sdd
-      console.log(`got helidata: ${heliData[0]}`);
-      let nowMarker = { markertype: 'predicted', name: "now", time: moment.utc() };
-      for (let h of heliData) {
-        h.addMarkers(nowMarker);
-      }
-      mythis.helicorderData = heliData[0];
-      mythis.duration = startEnd.duration;
-      mythis.start = startEnd.start;
-      mythis.end = startEnd.end;
-      return heliData[0];
-    });
+    yield this.cachingMseedarchive.loadForHelicorder(c, startEnd)
+      .then( heliData => {
+        // hd should be same as passed in array, so one element eq to sdd
+        console.log(`got helidata: ${heliData[0]}`);
+        let nowMarker = { markertype: 'predicted', name: "now", time: moment.utc() };
+        for (let h of heliData) {
+          h.addMarkers(nowMarker);
+        }
+        mythis.helicorderData = heliData[0];
+        mythis.duration = startEnd.duration;
+        mythis.start = startEnd.start;
+        mythis.end = startEnd.end;
+        return heliData[0];
+      });
   })) fetchData;
 
   //tagName = '';

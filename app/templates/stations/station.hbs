@@ -32,9 +32,9 @@
         <li>Elev: {{@model.station.elevation}}</li>
         <li>Metadata in <a target="_blank" href="https://anss-sis.scsn.org/sis/sites/findsite/?net={{@model.station.networkCode}}&lookupcode={{@model.station.stationCode}}">SIS</a></li>
 <li>Metadata published from SIS as
-         <a href="http://files.anss-sis.scsn.org/production/dataless/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}.dataless">Dataless SEED</a>,
-         <a href="http://files.anss-sis.scsn.org/production/FDSNStationXML1.1/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}.xml">StationXML</a>,
-         or <a href="http://files.anss-sis.scsn.org/production/Extended-XML/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}_ext.xml">Extended StationXML</a>.</li>
+         <a target="_blank" href="http://files.anss-sis.scsn.org/production/dataless/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}.dataless">Dataless SEED</a>,
+         <a target="_blank" href="http://files.anss-sis.scsn.org/production/FDSNStationXML1.1/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}.xml">StationXML</a>,
+         or <a target="_blank" href="http://files.anss-sis.scsn.org/production/Extended-XML/{{@model.station.networkCode}}/{{@model.station.networkCode}}_{{@model.station.stationCode}}_ext.xml">Extended StationXML</a>.</li>
 <li><a target="_blank" href="https://{{@model.station.stationCode}}.seis.sc.edu:9443">ACEManager</a> (if RV50)</li>
 <li><a target="_blank" href="http://ds.iris.edu/mda/{{@model.station.networkCode}}/{{@model.station.stationCode}}">IRIS MDA</a></li>
 <li><a target="_blank" href="http://service.iris.edu/fdsnws/station/1/query?net={{@model.station.networkCode}}&sta={{@model.station.stationCode}}&level=response&nodata=404">IRIS published StationXML</a></li>

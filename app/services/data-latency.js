@@ -47,7 +47,7 @@ const DEFAULT_HISTORY_LENGTH = 12;
 export default class DataLatencyService extends Service {
   @tracked networkCode = 'CO';
   @tracked latencyCache = new LatencyData();
-  @tracked previousLatencyCache = new LatencyData();
+  @tracked previousLatencyCache = null;
   @tracked historyLength = DEFAULT_HISTORY_LENGTH;
   latencyHistory = A([]);
   @tracked updateInterval = DEFAULT_UPDATE_INTERVAL;
@@ -81,16 +81,21 @@ export default class DataLatencyService extends Service {
     const accessTime = moment.utc();
     const mythis = this;
     return RSVP.all([irisStats, eeyoreStats, cloudStats]).then(statArray => {
-      mythis.inProgress = false;
       let lc = new LatencyData();
       lc.latestData = this.cosolidateStats(statArray, mythis.latencyCache);
       lc.accessTime = accessTime;
       lc.pattern = pattern;
       lc.networkCode = networkCode;
       lc.updateInterval = this.updateInterval;
-      mythis.latencyHistory.unshift(lc);
       mythis.latencyCache = lc;
-      if (mythis.latencyHistory.length > this.historyLength) {
+      mythis.inProgress = false;
+      // clean up any too old latency results
+      while (mythis.latencyHistory.length > 0
+              && accessTime.diff(mythis.latencyHistory[0].accessTime) > (1+mythis.historyLength)*mythis.updateInterval.asMilliseconds()) {
+        mythis.latencyHistory.pop();
+      }
+      mythis.latencyHistory.unshift(lc);
+      if (mythis.latencyHistory.length > mythis.historyLength) {
         mythis.previousLatencyCache = mythis.latencyHistory.pop();
       } else if (mythis.latencyHistory.length > 1) {
         mythis.previousLatencyCache = mythis.latencyHistory[mythis.latencyHistory.length-1];
@@ -129,7 +134,7 @@ export default class DataLatencyService extends Service {
           }
         } else {
           // didn't find, reuse
-          const clonePValue = new seisplotjs.ringserveweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
+          const clonePValue = new ringserveweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
           clonePValue.accessTime = moment.utc();
           out.set(pkey, clonePValue);
         }
@@ -167,11 +172,17 @@ console.log(`statsFailure ${shortHost} ${mythis.statsFailures[shortHost]}`)
       for (let host of HOST_LIST) {
         stat.velocity[host] = 0; // just in case we don't find the stream at all
       }
-      for (let prevStat of previousLatencyCache.latestData) {
-        if (stat.key === prevStat.key) {
-          for (let host of HOST_LIST) {
-            stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
-                                      (stat[host].accessTime.diff(prevStat[host].accessTime));
+      if (previousLatencyCache) {
+        for (let prevStat of previousLatencyCache.latestData) {
+          if (stat.key === prevStat.key) {
+            for (let host of HOST_LIST) {
+              stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
+                                        (stat[host].accessTime.diff(prevStat[host].accessTime));
+              if (stat.velocity[host] < 0) {
+                console.log(`negative velocity: (${stat[host].end} .diff(${prevStat[host].end})) /
+                                          (${stat[host].accessTime}.diff(${prevStat[host].accessTime})`)
+              }
+            }
           }
         }
       }

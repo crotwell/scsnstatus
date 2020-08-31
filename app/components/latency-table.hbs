@@ -79,7 +79,11 @@
 
 <h5>Access at {{moment-format (utc dataLatency.latencyData.accessTime) 'YYYY-MM-DD HH:mm:ss'}} UTC,
    {{moment-from-now dataLatency.latencyData.accessTime  interval=10500}}</h5>
-<h5>Rate averaged over last {{moment-diff dataLatency.previousLatencyCache.accessTime dataLatency.latencyData.accessTime precision='seconds'}} seconds.</h5>
+<h5>Rate averaged over last {{#if dataLatency.previousLatencyCache}}
+  {{moment-diff dataLatency.previousLatencyCache.accessTime dataLatency.latencyData.accessTime precision='seconds'}}
+  {{else}}
+  -
+  {{/if}} seconds.</h5>
 <h5>Update Interval: {{dataLatency.latencyData.updateIntervalSeconds}} seconds</h5>
 <h5>UTC: {{moment-format (utc (now interval=2000)) 'YYYY-MM-DD HH:mm:ss'}}</h5>
 <h5>Local: {{moment-format (now interval=2000) 'YYYY-MM-DD HH:mm:ss'}}</h5>

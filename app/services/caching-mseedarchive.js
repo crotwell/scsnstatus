@@ -15,8 +15,12 @@ export default class CachingMseedarchiveService extends Service {
   pattern = PATTERN;
   cache = [];
   maxCacheLength = 100;
-  constructor(mseedUrl, minmaxUrl, pattern) {
+  constructor() {
     super(...arguments);
+    this.configureUrls();
+  }
+
+  configureUrls(mseedUrl, minmaxUrl, pattern) {
     if (pattern) {this.pattern = pattern;}
     if (minmaxUrl) {
       this.minmaxUrl = minmaxUrl;

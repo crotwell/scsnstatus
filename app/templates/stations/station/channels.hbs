@@ -1,6 +1,9 @@
 
-<ShowHide @divTitle="Channels">
-  <ChannelTable @channels={{@model.channelList}}/>
+<ShowHide @divTitle="Active Channels">
+  <ChannelTable @channels={{@model.activeChannels}}/>
 </ShowHide>
 
+<ShowHide @divTitle="Historical Channels">
+  <ChannelTable @channels={{@model.inactiveChannels}}/>
+</ShowHide>
 {{outlet}}

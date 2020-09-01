@@ -34,6 +34,8 @@ export default class CellStatusPlotComponent extends Component {
         allData = allData.concat(cellStatus.values);
       }
     }
+    d3.select(element).select('svg').remove();
+    
     if (allData.length == 0) {
       let svg = d3.select(element).append('svg');
       svg.append('g').text("No Data");

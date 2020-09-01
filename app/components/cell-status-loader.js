@@ -21,7 +21,9 @@ export default class CellStatusLoaderComponent extends Component {
     const cellStatusData = [];
     const sed = new seisplotjs.util.StartEndDuration(this.start, this.end, this.duration);
     let d = moment.utc(sed.start).startOf('day');
-    while (d.isSameOrBefore(sed.end)) {
+    const today = moment.utc().endOf('day');
+    const endOrNow = today.isSameOrBefore(sed.end) ? today : sed.end;
+    while (d.isSameOrBefore(endOrNow)) {
       let daycellStatusData = yield this.cellStatus.queryCellStatus(this.args.station.stationCode, d.year(), d.dayOfYear());
       cellStatusData.push(daycellStatusData);
       d=moment.utc(d).add(1, 'day');

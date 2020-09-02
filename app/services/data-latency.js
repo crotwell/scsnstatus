@@ -134,7 +134,7 @@ export default class DataLatencyService extends Service {
           }
         } else {
           // didn't find, reuse
-          const clonePValue = new ringserveweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
+          const clonePValue = new ringserverweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
           clonePValue.accessTime = moment.utc();
           out.set(pkey, clonePValue);
         }

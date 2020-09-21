@@ -40,7 +40,7 @@ export default class QuakesQuakeRoute extends Route {
           networkCode: appModel.networkCode,
           stationCode: staCodes,
           locationCode: "00",
-          channelCode: "HHZ,HNZ",
+          channelCode: "HH?,HN?",
         });
 
         let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
@@ -59,7 +59,15 @@ export default class QuakesQuakeRoute extends Route {
         let channelMap = new Map();
         hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
         hash.channelMap = channelMap;
-        hash.seisDisplayList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
+        // seisDisplayList does not have waveform loaded yet
+        hash.seisDataList = this.createSeismogramsDisplayData(hash.chanList, hash.quake, hash.ttList, preOrigin, postOrigin);
+        hash.seismographConfig = new seisplotjs.seismographconfig.SeismographConfig();
+        hash.seismographConfig.title = seisplotjs.seismographconfig.DEFAULT_TITLE;
+        hash.seismographConfig.linkedAmpScale = new seisplotjs.seismographconfig.LinkedAmpScale();
+        hash.seismographConfig.linkedTimeScale = new seisplotjs.seismographconfig.LinkedTimeScale();
+        hash.seismographConfig.wheelZoom = false;
+        hash.seismographConfig.margin.top = 5;
+        hash.seismographConfig.minHeigh = 200;
         return RSVP.hash(hash);
       });
   }
@@ -76,6 +84,38 @@ export default class QuakesQuakeRoute extends Route {
       return this.loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin);
     }
   }
+  createSeismogramsDisplayData(shortChanList, quake, ttList, preOrigin, postOrigin) {
+    let originMarker = {
+      markertype: 'predicted',
+      name: "origin",
+      time: seisplotjs.moment.utc(quake.time)
+    };
+    let sddList = [];
+    shortChanList.forEach(c => {
+      console.log(`try ${c.codes}  ${c.activeAt(quake.time)}`);
+      if (c.activeAt(quake.time)) {
+          let staCode = c.get('station').get('stationCode');
+          let netCode = c.get('station').get('network').get('networkCode');
+          let ttime = this.getTTime(ttList, staCode, netCode);
+          let pAndS = firstPS(ttime);
+          let pArrival = pAndS.firstP;
+          let sArrival = pAndS.firstS;
+          let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(-1*preOrigin, 'second'),
+                                                              moment.utc(quake.time).add(postOrigin, 'second'));
+          const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
+          let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+          sdd.addQuake(convertQuakeToSPjS(quake));
+          sdd.addTravelTimes(ttime.traveltime);
+          let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
+          phaseMarkers.push(originMarker);
+          sdd.addMarkers(phaseMarkers);
+          sddList.push(sdd);
+      } else {
+        console.log(`skipping ${c.codes}`);
+      }
+    });
+    return sddList;
+  }
   loadSeismogramsIRIS(shortChanList, quake, ttList, preOrigin, postOrigin) {
     let query = new seisplotjs.fdsndataselect.DataSelectQuery();
     let chanTimeList = shortChanList.map(c => {
@@ -88,8 +128,9 @@ export default class QuakesQuakeRoute extends Route {
       let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(-1*preOrigin, 'second'),
                                                           moment.utc(quake.time).add(postOrigin, 'second'));
       const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
-      let sdd = new seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+      let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
       sdd.addQuake(convertQuakeToSPjS(quake));
+      sdd.addTravelTimes(ttime.traveltime);
       return sdd;
     });
     return query.postQuerySeismograms(chanTimeList);
@@ -112,6 +153,7 @@ export default class QuakesQuakeRoute extends Route {
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
             let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
             sdd.addQuake(convertQuakeToSPjS(quake));
+            sdd.addTravelTimes(ttime.traveltime);
             chanTR.push(sdd);
         } else {
           console.log(`skipping ${c.codes}`);

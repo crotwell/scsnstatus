@@ -25,6 +25,14 @@ export default class GlobalQuakesQuakeRoute extends Route {
         stationList: this.store.findRecord('network', appModel.networkCode)
           .then(net => net.stations),
         }).then(hash => {
+          let distaz = seisplotjs.distaz.distaz(hash.appModel.SCCenter.latitude,
+            hash.appModel.SCCenter.longitude,
+            hash.quake.latitude,
+            hash.quake.longitude);
+          let chanCodeList = "LHZ,LNZ";
+          if (distaz.delta < 5) {
+            chanCodeList = "HHZ,HNZ";
+          }
           let m = hash.quake.preferredMagnitude.get('mag');
           let activeStations = hash.stationList.filter(s => s.activeAt(hash.quake.time));
           let inactiveStations = hash.stationList.filter(s => ! s.activeAt(hash.quake.time));
@@ -33,7 +41,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
             networkCode: appModel.networkCode,
             stationCode: staCodes,
             locationCode: "00",
-            channelCode: "LHZ,LNZ",
+            channelCode: chanCodeList,
           });
 
           let ttList = RSVP.all(activeStations.map( s => travelTime(hash.quake, s, [])));
@@ -51,9 +59,48 @@ export default class GlobalQuakesQuakeRoute extends Route {
           let channelMap = new Map();
           hash.chanList.forEach(c => { channelMap.set(c.codes, c);});
           hash.channelMap = channelMap;
-          hash.seisDisplayList = this.loadSeismograms(hash.chanList, hash.quake, hash.ttList, preP, postS);
+          hash.seisDataList = this.createSeismogramsDisplayData(hash.chanList, hash.quake, hash.ttList, preP, postS);
+          hash.seismographConfig = new seisplotjs.seismographconfig.SeismographConfig();
+          hash.seismographConfig.title = seisplotjs.seismographconfig.DEFAULT_TITLE;
+          hash.seismographConfig.linkedAmpScale = new seisplotjs.seismographconfig.LinkedAmpScale();
+          hash.seismographConfig.linkedTimeScale = new seisplotjs.seismographconfig.LinkedTimeScale();
+          hash.seismographConfig.wheelZoom = false;
+          hash.seismographConfig.margin.top = 5;
+          hash.seismographConfig.minHeigh = 200;
           return RSVP.hash(hash);
         });
+    }
+    createSeismogramsDisplayData(shortChanList, quake, ttList, preOrigin, postOrigin) {
+      let originMarker = {
+        markertype: 'predicted',
+        name: "origin",
+        time: seisplotjs.moment.utc(quake.time)
+      };
+      let sddList = [];
+      shortChanList.forEach(c => {
+        console.log(`try ${c.codes}  ${c.activeAt(quake.time)}`);
+        if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
+            let staCode = c.get('station').get('stationCode');
+            let netCode = c.get('station').get('network').get('networkCode');
+            let ttime = this.getTTime(ttList, staCode, netCode);
+            let pAndS = firstPS(ttime);
+            let pArrival = pAndS.firstP;
+            let sArrival = pAndS.firstS;
+            let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preP, 'second'),
+                                                                moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
+            const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
+            let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
+            sdd.addQuake(convertQuakeToSPjS(quake));
+            sdd.addTravelTimes(ttime.traveltime);
+            let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
+            phaseMarkers.push(originMarker);
+            sdd.addMarkers(phaseMarkers);
+            sddList.push(sdd);
+        } else {
+          console.log(`skipping ${c.codes}`);
+        }
+      });
+      return sddList;
     }
     loadSeismograms(chanList, quake, ttList, preP, postS) {
       let shortChanList = chanList;

@@ -44,9 +44,19 @@
   </div>
 </ShowHide>
 
+<h5>SDD len: {{@model.seisDataList.length}}</h5>
 
-<ShowHide @divTitle="Seismograms">
-  <SeismogramDisplayList @seisDisplayList={{@model.seisDisplayList}} @sortDefinition='distaz.distanceKm'>
+<ShowHide @divTitle="Organized Seismograms">
+  <SeismogramDisplayList @seismographConfig={{@model.seismographConfig}} @seisDisplayList={{@model.seisDataList}} sortDefinition='distaz.distanceKm' as |sddList|>
+    {{#each sddList.organizedDisplayList as |org|}}
+      <SeismogramLoader @seisDataList={{org.seisData}}  as |loader| >
+        {{#if loader.isRunning}}
+          <h5>Loading...</h5>
+        {{else}}
+          <OrganizedDisplay @organized={{org}} />
+        {{/if}}
+      </SeismogramLoader>
+    {{/each}}
   </SeismogramDisplayList>
 </ShowHide>
 

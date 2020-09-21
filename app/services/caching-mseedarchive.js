@@ -75,6 +75,10 @@ export default class CachingMseedarchiveService extends Service {
     return this._internalLoadSeismograms([sdd], this.mseedQ);
   }
 
+  loadForSeisDispList(sddList) {
+    return this._internalLoadSeismograms(sddList, this.mseedQ);
+  }
+
   _internalLoadSeismograms(sddList, query) {
     let out = [];
     const mythis = this;

@@ -1,0 +1,9 @@
+<div {{did-insert this.doLoad}} {{did-update this.doUpdate @seisDataList}}>
+
+{{yield (hash
+      isRunning=fetchData.isRunning
+      seisDataList=seisDataList
+    )
+  }}
+
+</div>

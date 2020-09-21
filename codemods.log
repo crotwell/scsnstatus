@@ -1,1 +1,9 @@
 2020-07-15T20:49:32.475Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/show.hbs
+2020-09-21T17:55:25.785Z [warn] WARNING: {{m-to-km}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/global-quakes/quake.hbs
+2020-09-21T17:55:25.865Z [warn] WARNING: {{m-to-km}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/quakes/quake.hbs
+2020-09-21T17:55:25.879Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/station/helicorder.hbs
+2020-09-21T17:55:25.879Z [warn] WARNING: {{equipment-description}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/station/helicorder.hbs
+2020-09-21T17:55:25.929Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/station.hbs
+2020-09-21T17:55:25.979Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/show.hbs
+2020-09-21T17:55:25.931Z [warn] WARNING: {{eq}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/stations/station.hbs
+2020-09-21T17:55:25.979Z [warn] WARNING: {{sdd-channel-codes}} was not converted as it has positional parameters which can't be automatically converted. Source: app/templates/global-quakes/quake-loading.hbs

@@ -5,7 +5,10 @@ import moment from 'moment';
 import seisplotjs from 'seisplotjs';
 import travelTime from 'ember-seisplotjs/utils/travel-time';
 import firstPS from 'ember-seisplotjs/utils/first-p-s';
-import {convertToSeisplotjs, convertQuakeToSPjS} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import {
+  convertToSeisplotjs,
+  convertQuakeToSPjS
+} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 
 export default class GlobalQuakesQuakeRoute extends Route {

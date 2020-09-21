@@ -1,7 +1,10 @@
 import Service from '@ember/service';
 import RSVP from 'rsvp';
 import seisplotjs from 'seisplotjs';
-import {convertToSeisplotjs, convertQuakeToSPjS} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import {
+  convertToSeisplotjs,
+  convertQuakeToSPjS
+} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 const MINMAX_URL = "http://eeyore.seis.sc.edu/minmax";
 const MSEED_URL = "http://eeyore.seis.sc.edu/mseed";

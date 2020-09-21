@@ -14,7 +14,6 @@ export default class IndexController extends Controller {
     return true;
   }
   @action updateLatency() {
-    console.log(`IndexController  @action updateLatency()`);
     return this.dataLatency.queryLatency();
   }
 

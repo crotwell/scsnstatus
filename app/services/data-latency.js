@@ -176,11 +176,13 @@ console.log(`statsFailure ${shortHost} ${mythis.statsFailures[shortHost]}`)
         for (let prevStat of previousLatencyCache.latestData) {
           if (stat.key === prevStat.key) {
             for (let host of HOST_LIST) {
-              stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
-                                        (stat[host].accessTime.diff(prevStat[host].accessTime));
-              if (stat.velocity[host] < 0) {
-                console.log(`negative velocity: (${stat[host].end} .diff(${prevStat[host].end})) /
-                                          (${stat[host].accessTime}.diff(${prevStat[host].accessTime})`)
+              if (stat[host] && prevStat[host]) {
+                stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
+                                          (stat[host].accessTime.diff(prevStat[host].accessTime));
+                if (stat.velocity[host] < 0) {
+                  console.log(`negative velocity: (${stat[host].end} .diff(${prevStat[host].end})) /
+                                            (${stat[host].accessTime}.diff(${prevStat[host].accessTime})`)
+                }
               }
             }
           }

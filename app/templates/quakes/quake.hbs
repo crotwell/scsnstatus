@@ -44,8 +44,6 @@
   </div>
 </ShowHide>
 
-<h5>SDD len: {{@model.seisDataList.length}}</h5>
-
 <ShowHide @divTitle="Organized Seismograms">
   <SeismogramDisplayList @seismographConfig={{@model.seismographConfig}} @seisDisplayList={{@model.seisDataList}} sortDefinition='distaz.distanceKm' as |sddList|>
     {{#each sddList.organizedDisplayList as |org|}}

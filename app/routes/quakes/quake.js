@@ -92,7 +92,6 @@ export default class QuakesQuakeRoute extends Route {
     };
     let sddList = [];
     shortChanList.forEach(c => {
-      console.log(`try ${c.codes}  ${c.activeAt(quake.time)}`);
       if (c.activeAt(quake.time)) {
           let staCode = c.get('station').get('stationCode');
           let netCode = c.get('station').get('network').get('networkCode');
@@ -110,8 +109,6 @@ export default class QuakesQuakeRoute extends Route {
           phaseMarkers.push(originMarker);
           sdd.addMarkers(phaseMarkers);
           sddList.push(sdd);
-      } else {
-        console.log(`skipping ${c.codes}`);
       }
     });
     return sddList;

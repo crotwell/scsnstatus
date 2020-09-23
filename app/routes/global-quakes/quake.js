@@ -29,9 +29,9 @@ export default class GlobalQuakesQuakeRoute extends Route {
             hash.appModel.SCCenter.longitude,
             hash.quake.latitude,
             hash.quake.longitude);
-          let chanCodeList = "LHZ,LNZ";
+          let chanCodeList = "LH?,LN?,HH?,HN?";
           if (distaz.delta < 5) {
-            chanCodeList = "HHZ,HNZ";
+            chanCodeList = "HH?,HN?,LH?,LN?";
           }
           let m = hash.quake.preferredMagnitude.get('mag');
           let activeStations = hash.stationList.filter(s => s.activeAt(hash.quake.time));
@@ -70,7 +70,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
           return RSVP.hash(hash);
         });
     }
-    createSeismogramsDisplayData(shortChanList, quake, ttList, preOrigin, postOrigin) {
+    createSeismogramsDisplayData(shortChanList, quake, ttList, preFirstPhase, postSecondPhase) {
       let originMarker = {
         markertype: 'predicted',
         name: "origin",
@@ -79,15 +79,15 @@ export default class GlobalQuakesQuakeRoute extends Route {
       let sddList = [];
       shortChanList.forEach(c => {
         console.log(`try ${c.codes}  ${c.activeAt(quake.time)}`);
-        if (c.activeAt(quake.time) && c.channelCode.endsWith('Z')) {
+        if (c.activeAt(quake.time) ) {
             let staCode = c.get('station').get('stationCode');
             let netCode = c.get('station').get('network').get('networkCode');
             let ttime = this.getTTime(ttList, staCode, netCode);
             let pAndS = firstPS(ttime);
             let pArrival = pAndS.firstP;
             let sArrival = pAndS.firstS;
-            let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preP, 'second'),
-                                                                moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
+            let startEnd = new seisplotjs.util.StartEndDuration(moment.utc(quake.time).add(pArrival.time, 'second').add(-1*preFirstPhase, 'second'),
+                                                                moment.utc(quake.time).add(sArrival.time, 'second').add(postSecondPhase, 'second'));
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
             let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
             sdd.addQuake(convertQuakeToSPjS(quake));

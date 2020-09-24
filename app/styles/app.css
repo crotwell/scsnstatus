@@ -16,6 +16,10 @@ div.horizontal > div {
   display: inline-block;
 }
 
+table.latencytable tr td.station {
+  height: 24px;  
+}
+
 .latency-conn-failure {
   color: red;
 }

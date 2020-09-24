@@ -1,6 +1,6 @@
 <h3>Latency for {{dataLatency.networkCode}}</h3>
 
-<table>
+<table class="latencytable">
   <tr>
     <th></th>
     {{#let 'eeyore' as |host|}}
@@ -58,7 +58,7 @@
   </tr>
   {{#each dataLatency.latencyData.latestData as |streamStat|}}
     <tr>
-      <td><LinkTo @route='stations.station' @model={{streamStat.key}}>{{streamStat.key}}</LinkTo></td>
+      <td class="station"><LinkTo @route='stations.station' @model={{streamStat.key}}>{{streamStat.key}}</LinkTo></td>
       <td class={{latency-seriousness streamStat.eeyore.end}}>{{moment-format streamStat.eeyore.end 'HH:mm:ss'}}</td>
       <td class={{latency-seriousness streamStat.eeyore.end}}>{{latency-as-text streamStat.eeyore.end  interval=10500}}</td>
       <td>{{format-number streamStat.velocity.eeyore 2}}</td>

@@ -13,7 +13,7 @@ const moment = seisplotjs.moment;
 
 const MINMAX_URL = "http://eeyore.seis.sc.edu/minmax";
 const MSEED_URL = "http://eeyore.seis.sc.edu/mseed";
-
+const LOAD_IRIS_TIME = moment.utc().subtract(1, 'year');
 function roundTime(time, unit) {
   return seisplotjs.moment.utc(time).endOf(unit).add(1, 'millisecond');
 }
@@ -35,18 +35,23 @@ export default class SeismogramLoaderComponent extends Component {
       dataArray = A( [ mythis.args.seisDataList ] );
     }
     dataArray = dataArray.map(sdd => {
-      if ( sdd.hasSeismogram()) {
+      if ( sdd.hasSeismogram) {
         mythis.seisDataList.pushObject(sdd);
         return sdd;
       } else {
-        return this.cachingMseedarchive.loadForSeisDispList(dataArray)
-          .then( seisData => {
-            console.log(`got ${seisData.length} seismograms`);
-            seisData.forEach(sdd => {
-              mythis.seisDataList.pushObject(sdd);
+        if (sdd.timeWindow.startTime.isBefore(LOAD_IRIS_TIME)) {
+          let dataselectQuery = new seisplotjs.fdsndataselect.DataSelectQuery();
+          return dataselectQuery.postQuerySeismograms([sdd]);
+        } else {
+          return this.cachingMseedarchive.loadForSeisDispList(dataArray)
+            .then( seisData => {
+              console.log(`got ${seisData.length} seismograms`);
+              seisData.forEach(sdd => {
+                mythis.seisDataList.pushObject(sdd);
+              });
+              return seisData;
             });
-            return seisData;
-          });
+        }
       }
     });
     yield RSVP.all(dataArray);

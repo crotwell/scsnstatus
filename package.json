@@ -1,6 +1,6 @@
 {
   "name": "scsn-status",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Small description for scsn-status goes here",
   "repository": "",
@@ -18,6 +18,9 @@
     "start": "ember serve",
     "test": "npm-run-all lint:* test:*",
     "test:ember": "ember test"
+  },
+  "dependencies": {
+  "seisplotjs": "^2.1.0-alpha.0"
   },
   "devDependencies": {
     "@ember/optional-features": "^2.0.0",
@@ -46,7 +49,7 @@
     "ember-moment": "^8.0.0",
     "ember-qunit": "^4.6.0",
     "ember-resolver": "^8.0.2",
-    "ember-seisplotjs": "~0.2.0",
+    "ember-seisplotjs": "~0.3.0",
     "ember-source": "^3.21.1",
     "ember-template-lint": "^2.11.0",
     "ember-truth-helpers": "^2.1.0",
@@ -57,8 +60,7 @@
     "leaflet": "^1.6.0",
     "loader.js": "^4.7.0",
     "npm-run-all": "^4.1.5",
-    "qunit-dom": "^1.4.0",
-    "seisplotjs": "^2.0.1"
+    "qunit-dom": "^1.4.0"
   },
   "engines": {
     "node": "10.* || >= 12"

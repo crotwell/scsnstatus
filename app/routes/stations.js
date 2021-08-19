@@ -5,14 +5,12 @@ import { inject as service } from '@ember/service';
 export default class StationsRoute extends Route {
   @service dataLatency;
   model(params) {
+    let appModel = this.modelFor('application');
     let { networkCode } = this.modelFor('application');
 
     return RSVP.hash({
-      network: this.store.findRecord('network', networkCode),
-      center: {
-        latitude: 33.75,
-        longitude: -81,
-      }
+      network: this.store.findRecord('network', appModel.networkCode),
+      center: appModel.SCCenter
     }).then(function(hash) {
       hash.stationList = hash.network.get('stations');
       return RSVP.hash(hash);

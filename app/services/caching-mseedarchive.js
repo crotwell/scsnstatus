@@ -5,6 +5,7 @@ import {
   convertToSeisplotjs,
   convertQuakeToSPjS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import dataHost from '../utils/data-host';
 
 const MINMAX_URL = "http://eeyore.seis.sc.edu/minmax";
 const MSEED_URL = "http://eeyore.seis.sc.edu/mseed";
@@ -28,12 +29,12 @@ export default class CachingMseedarchiveService extends Service {
     if (minmaxUrl) {
       this.minmaxUrl = minmaxUrl;
     } else {
-      this.minmaxUrl = MINMAX_URL;
+      this.minmaxUrl = MINMAX_URL.replace('eeyore.seis.sc.edu', dataHost());
     }
     if (mseedUrl) {
       this.mseedUrl = mseedUrl;
     } else {
-      this.mseedUrl = MSEED_URL;
+      this.mseedUrl = MSEED_URL.replace('eeyore.seis.sc.edu', dataHost());
     }
     this.minMaxQ = new seisplotjs.mseedarchive.MSeedArchive(
       this.minmaxUrl,

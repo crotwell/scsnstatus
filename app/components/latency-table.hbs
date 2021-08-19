@@ -58,7 +58,7 @@
   </tr>
   {{#each dataLatency.latencyData.latestData as |streamStat|}}
     <tr>
-      <td class="station"><LinkTo @route='stations.station' @model={{streamStat.key}}>{{streamStat.key}}</LinkTo></td>
+      <td class="station"><LinkTo @route='stations.station.helicorder' @model={{streamStat.key}}>{{streamStat.key}}</LinkTo></td>
 
       <td class={{latency-seriousness streamStat.eeyore.end}}>
         {{#if streamStat.eeyore.end}}{{moment-format streamStat.eeyore.end 'HH:mm:ss'}}{{else}} - {{/if}}

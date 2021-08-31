@@ -11,6 +11,7 @@ import {
   convertToSeisplotjs,
   convertQuakeToSPjS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import isInSC from '../utils/is-in-sc';
 
 const moment = seisplotjs.moment;
 
@@ -110,9 +111,19 @@ export default class HelicorderDataLoaderComponent extends Component {
 
   }
   markersForQuake(quake) {
-    let spjs_station = convertToSeisplotjs(this.channel.station.get('network'), this.channel.station, this.channel);
+    let spjs_channel = convertToSeisplotjs(this.channel.station.get('network'), this.channel.station, this.channel);
     let spjs_quake = convertQuakeToSPjS(quake);
-    return seisplotjs.seismograph.createFullMarkersForQuakeAtStation(spjs_quake, spjs_station);
+    let markers = seisplotjs.seismograph.createFullMarkersForQuakeAtChannel(spjs_quake, spjs_channel);
+    if (isInSC(quake.latitude, quake.longitude)) {
+      markers.forEach(m => {
+        m.link = `/quakes/${quake.id}`
+      });
+    } else {
+      markers.forEach(m => {
+        m.link = `/global-quakes/${quake.id}`
+      });
+    }
+    return markers;
   }
 
   @action doLoad() {

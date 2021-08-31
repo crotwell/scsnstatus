@@ -20,7 +20,7 @@
         </tr>
         <tr>
           <th>EventId</th>
-          <td>{{q.eventId}}</td>
+          <td>{{q.eventId}} <a target="_blank" href="https://earthquake.usgs.gov/earthquakes/eventpage/{{q.eventId}}/executive">USGS Page</a></td>
         </tr>
         <tr>
           <th>Time</th>
@@ -28,7 +28,7 @@
         </tr>
         <tr>
           <th>Latitude/Longitude</th>
-          <td>{{q.preferredOrigin.latitude}}/{{q.preferredOrigin.longitude}}</td>
+          <td>{{format-number q.preferredOrigin.latitude 4}}/{{format-number q.preferredOrigin.longitude 4}}</td>
         </tr>
         <tr>
           <th>Depth</th>

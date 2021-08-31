@@ -7,7 +7,7 @@ import travelTime from 'ember-seisplotjs/utils/travel-time';
 import firstPS from 'ember-seisplotjs/utils/first-p-s';
 import {
   convertToSeisplotjs,
-  convertQuakeToSPjS
+  convertQuakeToSPJS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 
@@ -90,7 +90,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
                                                                 moment.utc(quake.time).add(sArrival.time, 'second').add(postSecondPhase, 'second'));
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
             let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
-            sdd.addQuake(convertQuakeToSPjS(quake));
+            sdd.addQuake(convertQuakeToSPJS(quake));
             sdd.addTravelTimes(ttime.traveltime);
             let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
             phaseMarkers.push(originMarker);
@@ -126,7 +126,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
                                                             moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
         const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
         let sdd = new seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
-        sdd.addQuake(convertQuakeToSPjS(quake));
+        sdd.addQuake(convertQuakeToSPJS(quake));
         let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
         phaseMarkers.push({
           markertype: 'predicted',
@@ -154,7 +154,7 @@ export default class GlobalQuakesQuakeRoute extends Route {
                                                                   moment.utc(quake.time).add(sArrival.time, 'second').add(postS, 'second'));
               const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
               let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
-              sdd.addQuake(convertQuakeToSPjS(quake));
+              sdd.addQuake(convertQuakeToSPJS(quake));
               let phaseMarkers = seisplotjs.seismograph.createMarkersForTravelTimes(quake, ttime.traveltime);
               phaseMarkers.push({
                 markertype: 'predicted',

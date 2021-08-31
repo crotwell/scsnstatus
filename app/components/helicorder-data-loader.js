@@ -9,7 +9,7 @@ import RSVP from 'rsvp';
 import seisplotjs from 'seisplotjs';
 import {
   convertToSeisplotjs,
-  convertQuakeToSPjS
+  convertQuakeToSPJS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 import isInSC from '../utils/is-in-sc';
 
@@ -112,7 +112,7 @@ export default class HelicorderDataLoaderComponent extends Component {
   }
   markersForQuake(quake) {
     let spjs_channel = convertToSeisplotjs(this.channel.station.get('network'), this.channel.station, this.channel);
-    let spjs_quake = convertQuakeToSPjS(quake);
+    let spjs_quake = convertQuakeToSPJS(quake);
     let markers = seisplotjs.seismograph.createFullMarkersForQuakeAtChannel(spjs_quake, spjs_channel);
     if (isInSC(quake.latitude, quake.longitude)) {
       markers.forEach(m => {

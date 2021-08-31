@@ -7,7 +7,7 @@ import travelTime from 'ember-seisplotjs/utils/travel-time';
 import firstPS from 'ember-seisplotjs/utils/first-p-s';
 import {
   convertToSeisplotjs,
-  convertQuakeToSPjS
+  convertQuakeToSPJS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 export default class QuakesQuakeRoute extends Route {
@@ -81,7 +81,7 @@ export default class QuakesQuakeRoute extends Route {
     }
   }
   createSeismogramsDisplayData(shortChanList, quake, ttList, preOrigin, postOrigin) {
-    let convertedQuake = convertQuakeToSPjS(quake);
+    let convertedQuake = convertQuakeToSPJS(quake);
     let originMarker = seisplotjs.seismograph.createMarkerForOriginTime(convertedQuake);
     let sddList = [];
     shortChanList.forEach(c => {
@@ -121,7 +121,7 @@ export default class QuakesQuakeRoute extends Route {
                                                           moment.utc(quake.time).add(postOrigin, 'second'));
       const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
       let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
-      sdd.addQuake(convertQuakeToSPjS(quake));
+      sdd.addQuake(convertQuakeToSPJS(quake));
       sdd.addTravelTimes(ttime.traveltime);
       return sdd;
     });
@@ -143,7 +143,7 @@ export default class QuakesQuakeRoute extends Route {
                                                                 moment.utc(quake.time).add(postOrigin, 'second'));
             const convertChannel = convertToSeisplotjs(c.get('station').get('network'), c.get('station'), c);
             let sdd = seisplotjs.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(convertChannel, startEnd);
-            sdd.addQuake(convertQuakeToSPjS(quake));
+            sdd.addQuake(convertQuakeToSPJS(quake));
             sdd.addTravelTimes(ttime.traveltime);
             chanTR.push(sdd);
         } else {

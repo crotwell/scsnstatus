@@ -2,8 +2,7 @@ import Service from '@ember/service';
 import RSVP from 'rsvp';
 import seisplotjs from 'seisplotjs';
 import {
-  convertToSeisplotjs,
-  convertQuakeToSPjS
+  convertToSeisplotjs
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 import dataHost from '../utils/data-host';
 

@@ -7,7 +7,7 @@ import { tracked } from '@glimmer/tracking';
 import RSVP from 'rsvp';
 //import moment from 'moment';
 import seisplotjs from 'seisplotjs';
-import {convertToSeisplotjs, convertQuakeToSPjS} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
+import {convertToSeisplotjs} from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 
 const moment = seisplotjs.moment;
 

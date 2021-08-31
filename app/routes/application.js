@@ -15,6 +15,17 @@ export default class ApplicationRoute extends Route {
         longitude: -81,
       },
       startTime: '2009-06-01T00:00:00',
+      quakeQueryParams: {
+        global: {
+          minMag: 6
+        },
+        regional: {
+
+        },
+        local: {
+
+        }
+      }
     };
   }
 }

@@ -12,7 +12,7 @@
       {{#if loader.isRunning}}
         <p>Loading...</p>
       {{else}}
-          <HelicorderDisplay @start={{loader.start}} @end={{loader.end}} @helicorderData={{loader.helicorderData}}>
+          <HelicorderDisplay @start={{loader.start}} @end={{loader.end}} @duration={{loader.duration}} @helicorderData={{loader.helicorderData}}>
           </HelicorderDisplay>
       {{/if}}
     </HelicorderDataLoader>

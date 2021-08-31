@@ -1,9 +1,12 @@
 import Route from '@ember/routing/route';
 import RSVP from 'rsvp';
 import moment from 'moment';
+import { inject as service } from '@ember/service';
 
 
 export default class QuakesIndexRoute extends Route {
+
+  @service cachingQuake;
   model(params) {
     let appModel = this.modelFor('application');
     let quakeQueryParams = {
@@ -19,7 +22,7 @@ export default class QuakesIndexRoute extends Route {
                                     { networkCode: appModel.networkCode}),
       appModel: appModel,
       quakeQueryParams: quakeQueryParams,
-      quakeList: this.store.query('quake', quakeQueryParams),
+      quakeList: this.cachingQuake.loadLocal(),
       center: appModel.SCCenter,
       quakeQueryBox: [ { lat: appModel.SCBoxArea.minLat, lng: appModel.SCBoxArea.minLon},
                        { lat: appModel.SCBoxArea.maxLat, lng: appModel.SCBoxArea.minLon},

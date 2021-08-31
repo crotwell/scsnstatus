@@ -18,12 +18,15 @@ const MINMAX_URL = "http://eeyore.seis.sc.edu/minmax";
 const MSEED_URL = "http://eeyore.seis.sc.edu/mseed";
 
 function roundTime(time, unit) {
-  return seisplotjs.moment.utc(time).endOf(unit).add(1, 'millisecond');
+  let t = seisplotjs.moment.utc(time);
+  t.endOf(unit).add(1, 'millisecond');
+  return t;
 }
 
 export default class HelicorderDataLoaderComponent extends Component {
   @service store;
   @service cachingMseedarchive;
+  @service cachingQuake;
   @tracked channel;
   @tracked helicorderData;
   @tracked start;
@@ -40,11 +43,27 @@ export default class HelicorderDataLoaderComponent extends Component {
     const startEnd = new seisplotjs.util.StartEndDuration(this.start, this.end, this.duration);
     yield this.cachingMseedarchive.loadForHelicorder(c, startEnd)
       .then( heliData => {
+        return RSVP.hash({
+          heliData: heliData,
+          quakes: this.cachingQuake.load(startEnd.start, startEnd.end)
+        });
+      }).then( hash => {
+        hash.globalQuakeList = hash.quakes.globalQuakeList,
+        hash.regionalQuakeList = hash.quakes.regionalQuakeList,
+        hash.localQuakeList = hash.quakes.localQuakeList
+        return RSVP.hash(hash);
+      }).then( hash => {
+        let heliData = hash.heliData;
         // hd should be same as passed in array, so one element eq to sdd
         console.log(`got helidata: ${heliData[0]}`);
         let nowMarker = { markertype: 'predicted', name: "now", time: moment.utc() };
+        let markerList = [ nowMarker ];
+        hash.globalQuakeList.forEach(q => this.markersForQuake(q).forEach(m => markerList.push(m)));
+        hash.regionalQuakeList.forEach(q => this.markersForQuake(q).forEach(m => markerList.push(m)));
+        hash.localQuakeList.forEach(q => this.markersForQuake(q).forEach(m => markerList.push(m)));
+        markerList.forEach(m => console.log(`heli marker: ${m.name}  ${m.time}`));
         for (let h of heliData) {
-          h.addMarkers(nowMarker);
+          h.addMarkers(markerList);
         }
         mythis.helicorderData = heliData[0];
         mythis.duration = startEnd.duration;
@@ -89,6 +108,11 @@ export default class HelicorderDataLoaderComponent extends Component {
     this.start = sed.start;
     this.end = sed.end;
 
+  }
+  markersForQuake(quake) {
+    let spjs_station = convertToSeisplotjs(this.channel.station.get('network'), this.channel.station, this.channel);
+    let spjs_quake = convertQuakeToSPjS(quake);
+    return seisplotjs.seismograph.createFullMarkersForQuakeAtStation(spjs_quake, spjs_station);
   }
 
   @action doLoad() {
@@ -139,14 +163,14 @@ export default class HelicorderDataLoaderComponent extends Component {
   }
   @action zoomDay() {
     this.duration = moment.duration(24, 'hour');
-    this.start = null;
     this.end = roundTime(this.end, 'hour');
+    this.start = null;
     this.fetchData.perform();
   }
   @action zoom12Day() {
+    this.end = roundTime(this.end, 'day');
     this.duration = moment.duration(12, 'day');
     this.start = null;
-    this.end = roundTime(this.end, 'day');
     this.fetchData.perform();
   }
 }

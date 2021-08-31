@@ -16,8 +16,14 @@ import {
 
 export default class IndexRoute extends Route {
   @service dataLatency;
+  @service cachingQuake;
   model() {
-    return this.dataLatency.queryLatency();
+    let appModel = this.modelFor('application');
+    this.cachingQuake.appModel = appModel;
+    return RSVP.hash({
+      center: appModel.SCCenter,
+      latency: this.dataLatency.queryLatency()
+    });
   }
   async afterModel() {
     //this.startRefreshing();

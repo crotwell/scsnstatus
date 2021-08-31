@@ -3,43 +3,48 @@ import { A } from '@ember/array';
 import RSVP from 'rsvp';
 import moment from 'moment';
 import seisplotjs from 'seisplotjs';
+import { inject as service } from '@ember/service';
 
 export default class GlobalQuakesIndexRoute extends Route {
 
+    @service cachingQuake;
     model(params) {
       let appModel = this.modelFor('application');
-      let globalQuakeQueryParams = {
-        minMag: 6,
-        startTime: moment.utc().subtract(30, 'days'),
-        format: 'xml',
-      };
-      let regionalQuakeQueryParams = {
-        latitude: appModel.SCCenter.latitude,
-        longitude: appModel.SCCenter.longitude,
-        maxRadius: 10,
-        minMag: 4.5,
-        startTime: moment.utc().subtract(30, 'days'),
-        format: 'xml',
-      };
-      return RSVP.hash({
-        stationList: this.store.query('station',
-                                      { networkCode: appModel.networkCode}),
-        appModel: appModel,
-        globalQuakeQueryParams: globalQuakeQueryParams,
-        regionalQuakeQueryParams: regionalQuakeQueryParams,
-        globalQuakeList: this.store.query('quake', globalQuakeQueryParams),
-        regionalQuakeList: this.store.query('quake', regionalQuakeQueryParams),
-        center: appModel.SCCenter,
-        regionalQuakeQueryCircle: {
+      return RSVP.hash(appModel)
+      .then(appModel => {
+        let globalQuakeQueryParams = {
+          minMag: appModel.quakeQueryParams.global.minMag,
+          startTime: moment.utc().subtract(30, 'days'),
+          format: 'xml',
+        };
+        let regionalQuakeQueryParams = {
+          latitude: appModel.SCCenter.latitude,
+          longitude: appModel.SCCenter.longitude,
+          maxRadius: 10,
+          minMag: 4.5,
+          startTime: moment.utc().subtract(30, 'days'),
+          format: 'xml',
+        };
+        return RSVP.hash({
+          stationList: this.store.query('station',
+                                        { networkCode: appModel.networkCode}),
+          appModel: appModel,
+          globalQuakeQueryParams: globalQuakeQueryParams,
+          regionalQuakeQueryParams: regionalQuakeQueryParams,
+          quakeHash: this.cachingQuake.load(),
           center: appModel.SCCenter,
-          circleOptions: {
-            radius: seisplotjs.distaz.degtokm(regionalQuakeQueryParams.maxRadius)*1000
+          regionalQuakeQueryCircle: {
+            center: appModel.SCCenter,
+            circleOptions: {
+              radius: seisplotjs.distaz.degtokm(regionalQuakeQueryParams.maxRadius)*1000
+            }
           }
-        }
+        });
       }).then(hash => {
         hash.quakeList = A([]);
-        hash.quakeList.addObjects(hash.regionalQuakeList);
-        hash.quakeList.addObjects(hash.globalQuakeList);
+        hash.quakeList.addObjects(hash.quakeHash.regionalQuakeList);
+        hash.quakeList.addObjects(hash.quakeHash.globalQuakeList);
+        console.log(`qualeList len: ${hash.quakeList.length}`);
         return RSVP.hash(hash);
       });
     }

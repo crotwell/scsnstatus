@@ -12,6 +12,7 @@ import {
   convertQuakeToSPJS
 } from 'ember-seisplotjs/utils/convert-to-seisplotjs';
 import isInSC from '../utils/is-in-sc';
+import config from 'scsn-status/config/environment';
 
 const moment = seisplotjs.moment;
 
@@ -116,11 +117,11 @@ export default class HelicorderDataLoaderComponent extends Component {
     let markers = seisplotjs.seismograph.createFullMarkersForQuakeAtChannel(spjs_quake, spjs_channel);
     if (isInSC(quake.latitude, quake.longitude)) {
       markers.forEach(m => {
-        m.link = `/quakes/${quake.id}`
+        m.link = `${config.rootURL}/quakes/${quake.id}`
       });
     } else {
       markers.forEach(m => {
-        m.link = `/global-quakes/${quake.id}`
+        m.link = `${config.rootURL}/global-quakes/${quake.id}`
       });
     }
     return markers;

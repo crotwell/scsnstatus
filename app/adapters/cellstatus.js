@@ -7,7 +7,7 @@ const DEFAULT_PORT = 80;
 export default Adapter.extend({
   ajax: service(),
   defaultSerializer: 'cellstatus',
-  baseURL: 'http://eeyore.seis.sc.edu/earthworm/cell-stats/',
+  baseURL: 'http://eeyore.seis.sc.edu/scsn/cell-stats/',
   findRecord(store, type, id, snapshot) {
 
       console.log("cell-status adapter findRecord "+id);

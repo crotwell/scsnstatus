@@ -35,7 +35,7 @@ export default class CellStatusPlotComponent extends Component {
       }
     }
     d3.select(element).select('svg').remove();
-    
+
     if (allData.length == 0) {
       let svg = d3.select(element).append('svg');
       svg.append('g').text("No Data");
@@ -107,6 +107,20 @@ export default class CellStatusPlotComponent extends Component {
           .attr("dy", ".71em")
           .style("text-anchor", "end")
           .text(plotConfig.yAxisLabel);
+
+      // horizontal grid lines
+      svg.append("g").classed("gridlines", true)
+        .selectAll("line.horizontalGrid").data(plotConfig.yScale.ticks()).enter()
+        .append("line")
+        .classed("horizontalGrid",true)
+        .attr("x1", margin.left)
+        .attr("x2", margin.left+width)
+        .attr("y1", function(d){ return margin.top+plotConfig.yScale(d);})
+        .attr("y2", function(d){ return margin.top+plotConfig.yScale(d);})
+        .attr("fill", "none")
+        .attr("shape-rendering", "crispEdges")
+        .attr("stroke", "lightgrey")
+        .attr("stroke-width", "1px");
 
       // draw dots
       const dotKeys = [];

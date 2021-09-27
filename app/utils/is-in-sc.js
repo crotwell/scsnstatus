@@ -7,5 +7,5 @@ const SCBoxArea = {
 
 export default function isInSC(lat, lon) {
   return SCBoxArea.minLat <= lat && lat <= SCBoxArea.maxLat &&
-    SCBoxArea.minLon <= lon && long <= SCBoxArea.maxLon;
+    SCBoxArea.minLon <= lon && lon <= SCBoxArea.maxLon;
 }

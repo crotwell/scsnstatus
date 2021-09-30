@@ -15,7 +15,7 @@ import {
 
 export default class CellStatusService extends Service {
 
-  baseURL = 'http://eeyore.seis.sc.edu/earthworm/cell-stats/';
+  baseURL = 'http://eeyore.seis.sc.edu/scsn/cell-stats/';
   cache = [];
   maxCacheLength = 100;
 

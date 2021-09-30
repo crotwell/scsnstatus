@@ -7,8 +7,11 @@ import moment from 'moment';
 const d3 = seisplotjs.d3;
 const DEFAULT_WIDTH=760;
 const DEFAULT_HEIGHT=400;
+const DEFAULT_DEST_LIST=[ "eeyore", "thecloud", "iris"];
 const DEFAULT_DESTINATION="eeyore";
 const CLIP_PREFIX = "PLOT_CLIP";
+const KEY_Y_SHIFT = 20;
+const KEY_X_SHIFT = 20;
 
 export default class CellStatusPlotComponent extends Component {
 
@@ -41,19 +44,28 @@ export default class CellStatusPlotComponent extends Component {
       svg.append('g').text("No Data");
       return;
     } else {
-
+      // only keep values within plot time window
+      allData = allData.filter(d => {
+        const dtime = moment.utc(d.time);
+        return start.isSameOrBefore(dtime) && end.isSameOrAfter(dtime);
+      });
+      //only keep values that have the plotkey
       if (plotkeys === 'volts') {
         allData = allData.filter( d => d.volt && d.volt != 0);
       } else if (plotkeys === 'rssi') {
         allData = allData.filter( d => d.netrssi && d.netrssi != -200);
       } else if (plotkeys.startsWith('latency')) {
-        const latencyDest = this.destination ? this.destination : DEFAULT_DESTINATION;
-        allData = allData.filter( d => d.latency && d.latency[latencyDest]);
+        allData = allData.filter( d => d.latency);
+        let tmpAllData = [];
+        allData.forEach(d => {
+          DEFAULT_DEST_LIST.forEach(dest => {
+            if (d.latency[dest]) {
+              tmpAllData.push({ time: d.time, dest: dest, latency: d.latency[dest]});
+            }
+          });
+        });
+        allData = tmpAllData;
       }
-      allData = allData.filter(d => {
-        const dtime = moment.utc(d.time);
-        return start.isSameOrBefore(dtime) && end.isSameOrAfter(dtime);
-      });
     }
     // setup x
     let xValue = function(d) { return moment.utc(d.time).toDate();}; // data -> value
@@ -121,6 +133,25 @@ export default class CellStatusPlotComponent extends Component {
         .attr("shape-rendering", "crispEdges")
         .attr("stroke", "lightgrey")
         .attr("stroke-width", "1px");
+      // key
+      let keyG = svg.append("g").classed("key", true)
+      keyG.selectAll(".keytext")
+        .data(DEFAULT_DEST_LIST)
+        .enter().append("text")
+          .attr("class", "keytext")
+          .attr("x", function(d,i) {return margin.left+KEY_X_SHIFT +10;} )
+          .attr("y", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1) +5;} )
+          .style("fill", function(d) { return plotConfig.color(d);})
+          .text(function(d){return d;});
+
+      keyG.selectAll(".dot")
+            .data(DEFAULT_DEST_LIST)
+            .enter().append("circle")
+              .attr("class", "dot")
+              .attr("r", 3.5)
+              .attr("cx", function(d,i) {return margin.left+KEY_X_SHIFT;} )
+              .attr("cy", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1);} )
+              .style("fill", function(d) { return plotConfig.color(d);})
 
       // draw dots
       const dotKeys = [];
@@ -165,12 +196,12 @@ export default class CellStatusPlotComponent extends Component {
       out.yScale.domain([d3.min(allData, out.yValue)-5, d3.max(allData, out.yValue)+5]);
     } else if (plotkey.startsWith('latency')) {
       // setup y latency
-      let latencyDest = this.destination ? this.destination : DEFAULT_DESTINATION;
-      out.yValue = function(d) { return (d.latency && d.latency[latencyDest]) ? d.latency[latencyDest] : Number.NaN;}; // data -> value
+      out.cValue = function(d) { return d.dest;}
+      out.yValue = function(d) { return d.latency; }; // data -> value
       //out.yScale.domain([d3.min(allData, out.yValue), d3.max(allData, out.yValue)]);
       let maxLatency = d3.max(allData, out.yValue);
       if (maxLatency <= 0) { maxLatency = 1;}
-      out.yScale.domain([0, maxLatency*1.05]);
+      out.yScale.domain([maxLatency*(-0.025), maxLatency*1.05]);
     } else {
       throw new Error("unknown plotkey: "+plotkey);
     }

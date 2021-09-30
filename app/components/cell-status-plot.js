@@ -133,26 +133,28 @@ export default class CellStatusPlotComponent extends Component {
         .attr("shape-rendering", "crispEdges")
         .attr("stroke", "lightgrey")
         .attr("stroke-width", "1px");
+
+      if (plotkeys.startsWith('latency')) {
       // key
-      let keyG = svg.append("g").classed("key", true)
-      keyG.selectAll(".keytext")
-        .data(DEFAULT_DEST_LIST)
-        .enter().append("text")
-          .attr("class", "keytext")
-          .attr("x", function(d,i) {return margin.left+KEY_X_SHIFT +10;} )
-          .attr("y", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1) +5;} )
-          .style("fill", function(d) { return plotConfig.color(d);})
-          .text(function(d){return d;});
+        let keyG = svg.append("g").classed("key", true)
+        keyG.selectAll(".keytext")
+          .data(DEFAULT_DEST_LIST)
+          .enter().append("text")
+            .attr("class", "keytext")
+            .attr("x", function(d,i) {return margin.left+KEY_X_SHIFT +10;} )
+            .attr("y", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1) +5;} )
+            .style("fill", function(d) { return plotConfig.color(d);})
+            .text(function(d){return d;});
 
-      keyG.selectAll(".dot")
-            .data(DEFAULT_DEST_LIST)
-            .enter().append("circle")
-              .attr("class", "dot")
-              .attr("r", 3.5)
-              .attr("cx", function(d,i) {return margin.left+KEY_X_SHIFT;} )
-              .attr("cy", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1);} )
-              .style("fill", function(d) { return plotConfig.color(d);})
-
+        keyG.selectAll(".dot")
+              .data(DEFAULT_DEST_LIST)
+              .enter().append("circle")
+                .attr("class", "dot")
+                .attr("r", 3.5)
+                .attr("cx", function(d,i) {return margin.left+KEY_X_SHIFT;} )
+                .attr("cy", function(d,i) {return margin.top+KEY_Y_SHIFT*(i+1);} )
+                .style("fill", function(d) { return plotConfig.color(d);})
+      }
       // draw dots
       const dotKeys = [];
       if (plotkeys.startsWith('latency')) {

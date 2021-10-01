@@ -135,6 +135,18 @@ export default class CellStatusPlotComponent extends Component {
         .attr("stroke-width", "1px");
 
       if (plotkeys.startsWith('latency')) {
+        // no data line
+        let lineG = svg.append("g").classed("nodataline", true);
+        lineG.selectAll("line")
+        .data(xScale.ticks())
+        .enter()
+        .append("line")
+        .attr("stroke", "lightgrey")
+        .attr("x1", function(d,i) {return margin.left+xScale(moment(d).add(plotConfig.yScale.domain()[0], 'seconds').toDate());})
+        .attr("x2", function(d,i) {return margin.left+xScale(moment(d).add(plotConfig.yScale.domain()[1], 'seconds').toDate());})
+        .attr("y1", function(d,i) {return margin.top+plotConfig.yScale(plotConfig.yScale.domain()[0]);})
+        .attr("y2", function(d,i) {return margin.top+plotConfig.yScale(plotConfig.yScale.domain()[1]);});
+
       // key
         let keyG = svg.append("g").classed("key", true)
         keyG.selectAll(".keytext")

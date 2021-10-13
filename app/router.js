@@ -19,6 +19,7 @@ Router.map(function() {
       this.route('helicorder');
       this.route('latency');
       this.route('rssi');
+      this.route('year-voltage');
     });
   });
   this.route('global-quakes', function() {

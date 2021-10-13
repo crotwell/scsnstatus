@@ -12,7 +12,7 @@ export default class StationsStationRoute extends Route {
       networkCode: stationsModel.networkCode,
       center: appModel.SCCenter,
       appModel: appModel,
-      plotTypes: ['channels', 'helicorder', 'latency', 'rssi', 'voltage']
+      plotTypes: ['channels', 'helicorder', 'latency', 'rssi', 'voltage', 'year-voltage']
     }).then(hash => {
       hash.network = hash.station.network;
       return RSVP.hash(hash);

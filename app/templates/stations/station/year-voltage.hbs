@@ -1,0 +1,11 @@
+{{#let  'volts'  'Volts' as |plotkeys plotTitle| }}
+
+<ShowHide @divTitle={{plotTitle}}>
+
+      <YearVoltPlot @title={{plotTitle}} @voltData={{model.voltData}}  >
+      </YearVoltPlot>
+</ShowHide>
+
+{{/let}}
+
+{{outlet}}

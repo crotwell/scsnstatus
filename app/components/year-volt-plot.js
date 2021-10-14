@@ -28,6 +28,7 @@ export default class CellStatusPlotComponent extends Component {
     let width= DEFAULT_WIDTH - margin.left - margin.right;
     let height= DEFAULT_HEIGHT - margin.top - margin.bottom;
     let voltData = this.args.voltData;
+    let prevVoltData = this.args.prevVoltData;
     d3.select(element).select('svg').remove();
 
     // setup x
@@ -110,7 +111,31 @@ export default class CellStatusPlotComponent extends Component {
         .attr("stroke", "lightgrey")
         .attr("stroke-width", "1px");
 
-      // draw dots
+      // draw dots prev year
+
+      let pdotsG = svgG.append("g").classed(`year_${year-1}`, true);
+      pdotsG.attr("style", "clip-path: url(#"+CLIP_ID+")")
+      pdotsG.selectAll(".dot")
+          .data(prevVoltData.volt)
+        .enter().append("circle")
+          .attr("class", "dot")
+          .attr("r", 3.5)
+          .attr("cx", xMap)
+          .attr("cy", plotConfig.yMap)
+          .style("fill", "lightblue")
+      let maxpdotsG = svgG.append("g").classed(`year_${year-1}`, true);
+      maxpdotsG.attr("style", "clip-path: url(#"+CLIP_ID+")")
+      maxpdotsG.selectAll(".dot")
+          .data(prevVoltData.volt)
+        .enter().append("circle")
+          .attr("class", "dot")
+          .attr("r", 3.5)
+          .attr("cx", xMap)
+          .attr("cy", plotMaxConfig.yMap)
+          .style("fill", "lightpink");
+
+
+      // draw dots curr year
       let dotsG = svgG.append("g").classed(`year_${year}`, true);
       dotsG.attr("style", "clip-path: url(#"+CLIP_ID+")")
       dotsG.selectAll(".dot")

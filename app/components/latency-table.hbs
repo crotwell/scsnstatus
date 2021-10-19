@@ -15,7 +15,7 @@
     <th></th>
     <th class="tabledivider"></th>
 
-    {{#let 'thecloud' as |host|}}
+    {{#let 'cloud' as |host|}}
       <th class={{if (gt (get dataLatency.statsFailures host) 0) "latency-conn-failure"}} >
         {{capitalize (host-to-short-name host)}}
         {{#if (gt (get dataLatency.statsFailures host) 0)}}
@@ -27,7 +27,7 @@
     <th></th>
     <th class="tabledivider"></th>
 
-    {{#let 'rtserve' as |host|}}
+    {{#let 'iris' as |host|}}
       <th class={{if (gt (get dataLatency.statsFailures host) 0) "latency-conn-failure"}} >
         {{capitalize (host-to-short-name host)}}
         {{#if (gt (get dataLatency.statsFailures host) 0)}}
@@ -67,19 +67,19 @@
       <td>{{format-number streamStat.velocity.eeyore 2}}</td>
       <td>{{latency-velocity-icon streamStat.velocity.eeyore}}</td>
 
-      <td class={{latency-seriousness streamStat.thecloud.end}}>
-        {{#if streamStat.thecloud.end}}{{moment-format streamStat.thecloud.end 'HH:mm:ss'}}{{else}} - {{/if}}
+      <td class={{latency-seriousness streamStat.cloud.end}}>
+        {{#if streamStat.cloud.end}}{{moment-format streamStat.cloud.end 'HH:mm:ss'}}{{else}} - {{/if}}
       </td>
-      <td class={{latency-seriousness streamStat.thecloud.end}}>{{latency-as-text streamStat.thecloud.end  interval=10500}}</td>
-      <td>{{format-number streamStat.velocity.thecloud 2}}</td>
-      <td>{{latency-velocity-icon streamStat.velocity.thecloud}}</td>
+      <td class={{latency-seriousness streamStat.cloud.end}}>{{latency-as-text streamStat.cloud.end  interval=10500}}</td>
+      <td>{{format-number streamStat.velocity.cloud 2}}</td>
+      <td>{{latency-velocity-icon streamStat.velocity.cloud}}</td>
 
-      <td class={{latency-seriousness streamStat.rtserve.end}}>
-        {{#if streamStat.rtserve.end}}{{moment-format streamStat.rtserve.end 'HH:mm:ss'}}{{else}} - {{/if}}
+      <td class={{latency-seriousness streamStat.iris.end}}>
+        {{#if streamStat.iris.end}}{{moment-format streamStat.iris.end 'HH:mm:ss'}}{{else}} - {{/if}}
       </td>
-      <td class={{latency-seriousness streamStat.rtserve.end}}>{{latency-as-text streamStat.rtserve.end  interval=10500}}</td>
-      <td>{{format-number streamStat.velocity.rtserve 2}}</td>
-      <td>{{latency-velocity-icon streamStat.velocity.rtserve}}</td>
+      <td class={{latency-seriousness streamStat.iris.end}}>{{latency-as-text streamStat.iris.end  interval=10500}}</td>
+      <td>{{format-number streamStat.velocity.iris 2}}</td>
+      <td>{{latency-velocity-icon streamStat.velocity.iris}}</td>
     </tr>
   {{/each}}
 </table>

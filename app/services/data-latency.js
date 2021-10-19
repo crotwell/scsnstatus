@@ -3,6 +3,7 @@ import { A } from '@ember/array';
 import { tracked } from '@glimmer/tracking';
 import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
+import hostToShortName  from '../utils/host-to-short-name';
 
 import moment from 'moment';
 import {
@@ -28,19 +29,20 @@ class LatencyData {
 
 class StatsFailures {
   @tracked eeyore;
-  @tracked rtserve;
-  @tracked thecloud;
+  @tracked iris;
+  @tracked cloud;
   constructor() {
     this.eeyore = 0;
-    this.rtserve = 0;
-    this.thecloud = 0;
+    this.iris = 0;
+    this.cloud = 0;
   }
 }
 
 const eeyore_host = "eeyore.seis.sc.edu";
-const cloud_host = "thecloud.seis.sc.edu";
+const cloud_host = "li1043-95.members.linode.com";
+const cloud_cname_host = "thecloud.seis.sc.edu";
 
-const HOST_LIST = [ 'eeyore', 'thecloud', 'rtserve'];
+const HOST_LIST = [ 'eeyore', 'cloud', 'iris'];
 
 const DEFAULT_HISTORY_LENGTH = 12;
 
@@ -144,9 +146,9 @@ export default class DataLatencyService extends Service {
   }
   createStreamStats(host, port, pattern) {
     const mythis = this;
-    const shortHost = host.split('.')[0];
+    const shortHost = hostToShortName(host);
     const conn = new ringserverweb.RingserverConnection(host, port);
-    conn.timeout(this.updateInterval.asSeconds());
+    conn.timeout(this.updateInterval.asSeconds()/2);
     const out = {
       'host': shortHost,
       'fullhost': host,

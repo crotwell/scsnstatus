@@ -87,23 +87,40 @@ export default class CellStatusLoaderComponent extends Component {
     this.fetchData.perform();
   }
   @action goNow() {
-    this.end = moment.utc();
+    // go 5% past now
+    const littleBitPast = moment.duration(this.duration.asMilliseconds()/20.0);
+    this.end = moment.utc().add(littleBitPast);
     this.start = moment.utc(this.end).subtract(this.duration);
     this.fetchData.perform();
   }
 
   @action zoomIn() {
+    // shift 1/4 original
+    const shift = moment.duration(this.duration.asMilliseconds()/4);
+    // to zoom in on middle 1/2 original
     this.duration = moment.duration(this.duration.asMilliseconds()/2);
-    const shift = moment.duration(this.duration.asMilliseconds()/2); // 1/4 original
-    this.start = moment.utc(this.start).add(shift);
-    this.end = moment.utc(this.end).subtract(shift);
-    this.fetchData.perform();
+    if (this.end.isAfter(moment.utc()) && this.start.isBefore(moment.utc())) {
+      // if time range includes now, keep now as right hand side
+      this.goNow();
+    } else {
+      // zoom to middle 50% of time window
+      this.start = moment.utc(this.start).add(shift);
+      this.end = moment.utc(this.start).add(this.duration);
+      this.fetchData.perform();
+    }
+    console.log(`zoomIn: ${this.duration}`)
   }
+
   @action zoomOut() {
     const shift = moment.duration(this.duration.asMilliseconds()/2); // 1/2 original
     this.duration = moment.duration(this.duration.asMilliseconds()*2);
     this.start = moment.utc(this.start).subtract(shift);
     this.end = moment.utc(this.end).add(shift);
+    if (this.end.isAfter(moment.utc())) {
+      const littleBitPast = moment.duration(this.duration.asMilliseconds()/20);
+      this.end = moment.utc().add(littleBitPast);
+      this.start = moment.utc(this.end).subtract(this.duration);
+    }
     this.fetchData.perform();
   }
 }

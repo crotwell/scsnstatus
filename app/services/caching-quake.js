@@ -17,7 +17,7 @@ export default class CachingQuakeService extends Service {
   updateInterval = moment.duration(5, "minutes");
   lagDays = 30;
   netStart = moment.utc('2009-06-01T00:00:00');
-  oldLocalEnd = moment.utc('2021-09-30T00:00:00');
+  oldLocalEnd = moment.utc('2021-10-30T00:00:00');
   appModel = {
     networkCode: 'CO',
     SCBoxArea: {

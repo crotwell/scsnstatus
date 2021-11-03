@@ -3,8 +3,9 @@ import { A } from '@ember/array';
 import { tracked } from '@glimmer/tracking';
 import RSVP from 'rsvp';
 import EmberObject from '@ember/object';
-
+import dataHost from '../utils/data-host';
 import moment from 'moment';
+
 import {
   d3,
   seismogram,
@@ -15,7 +16,8 @@ import {
 
 export default class CellStatusService extends Service {
 
-  baseURL = 'http://eeyore.seis.sc.edu/scsn/cell-stats/';
+  relativeURL = '/scsn/cell-stats/';
+  baseURL = 'http://eeyore.seis.sc.edu'+this.relativeURL;
   cache = [];
   maxCacheLength = 100;
 
@@ -37,7 +39,7 @@ export default class CellStatusService extends Service {
         });
       }
     }
-    let url = `${this.baseURL}${year}/${dayofyear}/${station}.json`;
+    let url = `http://${dataHost()}${this.relativeURL}${year}/${dayofyear}/${station}.json`;
     return util.doFetchWithTimeout(url, null, 10)
       .then(out => {
         return out.json();

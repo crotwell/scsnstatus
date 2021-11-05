@@ -51,9 +51,11 @@ export default class CachingQuakeService extends Service {
     const end = moment.utc();
     return this.loadOldLocal().then(oldLocal => {
       if (this.cache.updateTime === null || moment.utc().subtract(this.updateInterval).isAfter(this.cache.updateTime)) {
+        let latestQuake = oldLocal.reduce((prev, curr) => {return (prev && prev.time.isAfter(curr.time)) ? prev : curr });
+        let latest = moment.utc(latestQuake.time).add(1, 'second');
         return RSVP.hash({
           oldLocal: oldLocal,
-          recentLocal: this.store.query('quake', this.createLocalQueryParams(this.oldLocalEnd, end))
+          recentLocal: this.store.query('quake', this.createLocalQueryParams(latest, end))
         }).then(hash => {
           const out = Ember.A();
           hash.oldLocal.forEach(q => out.push(q));
@@ -164,7 +166,10 @@ export default class CachingQuakeService extends Service {
       }).then(function(rawXmlText) {
         return new DOMParser().parseFromString(rawXmlText, seisplotjs.util.XML_MIME);
       }).then(function(rawXml) {
-        return seisplotjs.quakeml.parseQuakeML(rawXml, data_host);
+        // local quakeml file on datahost is from USGS, so need to use
+        // USGS as host to correctly parse eventid
+        // see https://github.com/FDSN/fdsnws-event/issues/3
+        return seisplotjs.quakeml.parseQuakeML(rawXml, seisplotjs.quakeml.USGS_HOST);
       }).then(function(quake_array) {
         let fdsnEventSerializer = new FdsnEventSerializer();
         let cacheoldLocal = [];

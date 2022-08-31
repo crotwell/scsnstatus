@@ -8,12 +8,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/luxon": "^2.3.2",
-    "typescript": "^4.5.4",
-    "vite": "^2.9.9"
+    "@types/d3-scale": "^4.0.2",
+    "@types/luxon": "^3.0.0",
+    "typescript": "^4.8.2",
+    "vite": "^3.0.9"
   },
   "dependencies": {
-    "luxon": "^2.4.0",
-    "seisplotjs": "^2.0.1"
+    "luxon": "^3.0.3",
+    "seisplotjs": "^3.0.0-alpha.0"
   }
 }

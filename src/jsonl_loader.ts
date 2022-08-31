@@ -8,7 +8,7 @@ export interface CellSOH {
   rssi: number;
   rsrq: number;
   rsrp: number;
-  boardTemprature: number;
+  boardTemperature: number;
   netChannel: number;
   cellularBytesSent: number;
   cellularBytesRecvd: number;
@@ -16,17 +16,27 @@ export interface CellSOH {
   powerIn: number;
 }
 
-export function loadStats(stationList: Array<string>, start: DateTime, end: DateTime): Promise<Array<CellSOH>> {
+export function loadCellStats(stationList: Array<string>, start: DateTime, end: DateTime): Promise<Array<CellSOH>> {
+  const chan = "CEL";
+  return loadStats(stationList, chan, start, end)
+    .then(jsonTextList => {
+      const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
+            let statObj = json_fix_types(JSON.parse(line));
+            return statObj;
+      });
+      return preprocess_stats(allStats.filter(x=> !!x));
+    });
+}
+
+export function loadStats(stationList: Array<string>, chan: string, start: DateTime, end: DateTime): Promise<Array<string>> {
   const net = "CO";
   const loc = "SH";
-  const chan = "CEL";
   const one_hour = Duration.fromObject({hours: 1});
   let root = "http://eeyore.seis.sc.edu/scsn";
   let pattern = "jsonl/%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H.jsonl";
   let msArchive = new sp.mseedarchive.MSeedArchive(root, pattern);
   let promiseList = [];
   for(const sta of stationList) {
-    console.log(`get for ${sta}`)
     let time = start;
     while (time <= end) {
       let basePattern = msArchive.fillBasePattern(net, sta, loc, chan);
@@ -37,34 +47,19 @@ export function loadStats(stationList: Array<string>, start: DateTime, end: Date
         } else {
           return "";
         }
-      }).then(jsonText => {
-        const jsonLines = jsonText.trim().split('\n');
-        //console.log(`jsonl: ${jsonLines.length}  first: "${jsonLines[0]}"`)
-        const out = [];
-        jsonLines.forEach( line => {
-          if (line.length > 2) {
-            let statObj = json_fix_types(JSON.parse(line));
-            out.push(statObj);
-          }
-        });
-        return out;
       }));
       time = time.plus(one_hour);
     }
   }
-  return Promise.all(promiseList).then(listOfList => {
-    let all = [];
-    for (let l of listOfList) {
-      all = all.concat(l);
+  return Promise.all(promiseList).then((listOfList: Array<string>) => {
+    let all: Array<string> = [];
+    for (let s of listOfList) {
+      for (let l of s.trim().split('\n')) {
+        all.push(l);
+      }
     }
     return all;
   }).then(allStats => {
-    return preprocess_stats(allStats);
-  }).then(allStats => {
-    allStats.slice(0,5).forEach(stat => {
-      console.log(`stat: ${stat.station} ${stat.byterate} ${stat.cellularBytesSent} ${stat.cellularBytesRecvd}`);
-      console.log(`    ${JSON.stringify(stat)}`);
-    });
     return allStats;
   });
 }
@@ -73,16 +68,20 @@ export const mib_floats = ['sinr', 'powerIn', ];
 export const mib_ints = ['rssi',
                           'rsrq',
                           'rsrp',
-                          'boardTemprature',
+                          'boardTemperature',
                           'netChannel',
                           'cellularBytesSent',
                           'cellularBytesRecvd',
                         ];
 
-export function json_fix_types(json: Object): CellSOH {
+export function json_fix_types(json: any): CellSOH {
+  if ('station' in json === false) { throw new Error("No station in json object");}
+  if ('time' in json === false) { throw new Error("No time in json object");}
+  const station = json['station'] as string;
+  const time = sp.util.isoToDateTime(json['time'] as string);
   const out = {
-    station: json['station'] as string,
-    time: sp.util.isoToDateTime(json['time'] as string),
+    station: station,
+    time: time,
     networkServiceType: json['networkServiceType'] as string,
     cellBand: json['cellBand'] as string,
     networkState: json['networkState'] as string,
@@ -93,7 +92,7 @@ export function json_fix_types(json: Object): CellSOH {
     rssi: parseInt(json['rssi']),
     rsrq: parseInt(json['rsrq']),
     rsrp: parseInt(json['rsrp']),
-    boardTemprature: parseInt(json['boardTemprature']),
+    boardTemperature: parseInt(json['boardTemprature']), // mispell in mib
     netChannel: parseInt(json['netChannel']),
     cellularBytesSent: parseInt(json['cellularBytesSent']),
     cellularBytesRecvd: parseInt(json['cellularBytesRecvd']),
@@ -113,9 +112,6 @@ export function preprocess_stats(allStats: Array<CellSOH>) {
     } else {
       stat.byterate = 0;
     }
-    // console.log(`bytes:   ${stat['cellularBytesSent']-prev['cellularBytesSent']}`)
-    // console.log(`seconds: ${stat['time'].diff(prev['time']).toMillis()/1000}`)
-    // console.log(`rate: ${stat['byterate']}`)
     prevMap.set(stat.station, stat);
   }
   return sortStats;

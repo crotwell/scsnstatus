@@ -1,27 +1,23 @@
 import * as seisplotjs from 'seisplotjs';
-import {loadStats, CellSOH} from './jsonl_loader.js';
+import {loadCellStats, CellSOH} from './jsonl_loader.js';
 import {scatterplot} from './scatterplot.js';
 import { DateTime} from 'luxon';
 
 export function grab(stationList: Array<string>, start: DateTime, end: DateTime) {
-  return loadStats(stationList, start, end)
+  return loadCellStats(stationList, start, end)
   .then(allStats => {
-    // for (const stat of allStats) {
-    //   console.log(`${station}: ${stat['powerIn']}`)
-    // }
     return allStats;
   });
 }
 
 
 
-console.log(`seisplotjs: ${seisplotjs.version}`)
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
   <h5 id="nowtime">Now!</h5>
   <div>
-    <time-range-chooser duration="P0DT5M"></time-range-chooser>
+    <sp-timerange duration="P0DT120M"></sp-timerange>
     <button id="loadNow">Now</button>
   </div>
   <div class="plot"></div>
@@ -37,11 +33,13 @@ const allStations = ["JSC", 'CASEE', 'HODGE']
 
 let selectedStations = allStations.slice();
 
-function doPlot(selector, allStats, key) {
-  console.log(`doPlot stations: ${selectedStations}`)
-  let filtered = allStats.filter(stat => selectedStations.findIndex(s => s === stat.station) !== -1);
+function doPlot(selector: string, allStats: Array<CellSOH>, key: string) {
+  let filtered = allStats.filter((stat: CellSOH) => selectedStations.findIndex(s => s === stat.station) !== -1);
   let plotDiv = document.querySelector<HTMLDivElement>(selector);
-  while (plotDiv.firstChild) {
+  if (!plotDiv) {
+    throw new Error(`Can't find element for selector '${selector}'`);
+  }
+  while (plotDiv.lastChild) {
     plotDiv.removeChild(plotDiv.lastChild);
   }
   if (filtered.length > 0) {
@@ -52,36 +50,40 @@ function doPlot(selector, allStats, key) {
   }
 }
 
-let start = seisplotjs.luxon.DateTime.fromISO("2022-05-15");
-let end = start.plus(seisplotjs.luxon.Duration.fromObject({hours: 0, minutes: 5}));
-let timeChooser = document.querySelector<seisplotjs.datachooser.TimeRangeChooser>('time-range-chooser');
-if (timeChooser) {
-  const timerange = timeChooser.getTimeRange();
-  start = timerange.start;
-  end = timerange.end;
-}
-let nowButton = document.querySelector<HTMLButton>('#loadNow');
-nowButton.onclick = (e) => {
-  timeChooser.end = seisplotjs.luxon.DateTime.utc();
-};
-
-function handleData(allStats) {
-  //console.log(`got allStats: ${allStats.length}`);
-  //
+function handleData(allStats: Array<CellSOH>) {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
   doPlot("div.plot", allStats, curKey);
   return allStats;
 }
-let dataPromise = grab(allStations, start, end).then(handleData);
-timeChooser.updateCallback = (timerange => {
-  dataPromise = grab(selectedStations, timerange.start, timerange.end).then(handleData);
-})
 
-function createKeyCheckbox(stat) {
-  let keyDiv = document.querySelector<HTMLDivElement>('div.datakeys');
-  console.log(`${JSON.stringify(stat)}`)
+let start = seisplotjs.luxon.DateTime.fromISO("2022-05-15");
+let end = start.plus(seisplotjs.luxon.Duration.fromObject({hours: 0, minutes: 5}));
+const timeChooser = document.querySelector<seisplotjs.datechooser.TimeRangeChooser>(seisplotjs.datechooser.TIMERANGE_ELEMENT);
+if (timeChooser) {
+  const timerange = timeChooser.getTimeRange();
+  start = timerange.start;
+  end = timerange.end;
+  let nowButton = document.querySelector<HTMLButtonElement>('#loadNow');
+  if (nowButton) {
+    nowButton.onclick = () => {
+      timeChooser.end = seisplotjs.luxon.DateTime.utc();
+    };
+  }
+  timeChooser.updateCallback = (timerange => {
+    dataPromise = grab(selectedStations, timerange.start, timerange.end).then(handleData);
+  });
+}
+
+let dataPromise = grab(allStations, start, end).then(handleData);
+
+function createKeyCheckbox(stat: CellSOH) {
+  const selector = 'div.datakeys';
+  let keyDiv = document.querySelector<HTMLDivElement>(selector);
+  if (!keyDiv) {
+    throw new Error(`Can't find element for selecotor: ${selector}`);
+  }
   for(const key in stat) {
     if (key === 'time' || key === 'station' || key === 'sysDescr') {
       continue;
@@ -93,9 +95,9 @@ function createKeyCheckbox(stat) {
       cb.setAttribute('type','radio');
       cb.setAttribute('name', 'radiokey');
       if (curKey === key) {
-        cb.setAttribute('checked', true);
+        cb.setAttribute('checked', "true");
       }
-      cb.addEventListener('click', event => {
+      cb.addEventListener('click', () => {
         curKey = key;
         dataPromise.then(allStats => {
           doPlot("div.plot", allStats, key);
@@ -108,13 +110,11 @@ function createKeyCheckbox(stat) {
 
 }
 
-const stationCallback = function(sta, checked) {
+const stationCallback = function(sta: string, checked: boolean) {
   dataPromise.then(allStats => {
     if (checked) {
-      console.log(`checked ${sta}`)
       selectedStations.push(sta);
     } else {
-      console.log(`unchecked ${sta}`)
       selectedStations = selectedStations.filter(s => s !== sta);
     }
     return allStats;
@@ -122,8 +122,11 @@ const stationCallback = function(sta, checked) {
     doPlot("div.plot", allStats, curKey);
   });
 }
-let stationsDiv = document.querySelector<HTMLDivElement>('div.stations');
-
+const staSelector = 'div.stations';
+const stationsDiv = document.querySelector<HTMLDivElement>(staSelector);
+if (! stationsDiv) {
+  throw new Error(`Can't find element with selector: ${staSelector}`)
+}
 let styleText = "";
 allStations.forEach((sta, idx) => {
   const div = stationsDiv.appendChild(document.createElement('span'));
@@ -132,7 +135,8 @@ allStations.forEach((sta, idx) => {
   cb.setAttribute('checked','true');
   cb.setAttribute('name', sta);
   cb.addEventListener('click', event => {
-    stationCallback(sta, event.target.checked);
+    const checkbox = event.target as HTMLInputElement;
+    stationCallback(sta, checkbox && checkbox.checked);
   });
   const nlabel = div.appendChild(document.createElement('label'));
   nlabel.setAttribute('class', sta);
@@ -143,7 +147,10 @@ allStations.forEach((sta, idx) => {
   }
   `;
 });
-const stationStyle = document.querySelector<HTMLElement>('head').appendChild(document.createElement('style'));
+
+const headEl = document.querySelector<HTMLElement>('head');
+if (! headEl) { throw new Error(`Can't find head element`);}
+const stationStyle = headEl.appendChild(document.createElement('style'));
 stationStyle.appendChild(document.createTextNode(styleText));
 
 const nowEl = document.querySelector<HTMLDivElement>("#nowtime");

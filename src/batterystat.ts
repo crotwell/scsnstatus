@@ -93,7 +93,7 @@ createStationCheckboxes(allStations, stationCallback, lineColors);
 createUpdatingClock();
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
-  dataPromise = loadKilovaultStats(selectedStations, timeRange).then(handleData);
+  dataPromise = loadKilovaultStats(selectedStations, timerange).then(handleData);
 }));
 
 let timerange = timeChooser.toInterval();

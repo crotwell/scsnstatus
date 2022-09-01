@@ -1,7 +1,12 @@
 import * as sp from 'seisplotjs';
 const d3 = sp.d3;
 
-export function scatterplot(selector: string, data: Array<any>, key: string, allStations: Array<string>, lineColors: Array<string>) {
+export function scatterplot(selector: string,
+                            data: Array<Type>,
+                            keyFn: (Type)=> string | (Type)=> number,
+                            allStations: Array<string>,
+                            lineColors: Array<string>
+                          ) {
 
 // set the dimensions and margins of the graph
 const div_element = document.querySelector(selector);
@@ -26,21 +31,31 @@ let start = data[0]['time'];
 let end = data[0]['time'];
 let min = 99999999;
 let max = -99999999;
-let numberData = data.length > 1 && sp.util.isDef(data[1][key]) && typeof data[1][key] === 'number' ;
+let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
+let numberData = data.length > 0 && sp.util.isDef(keyFn(dataWithKey)) && typeof keyFn(dataWithKey) === 'number' ;
 let allOrdinalVals: Array<string> = [];
 if (numberData) {
+  console.log(`is numberData`)
   data.forEach(d => {
-    if (d[key] < min) { min = d[key];}
-    if (d[key] > max) { max = d[key];}
-    if (d['time'] < start) { start = d['time'];}
-    if (d['time'] > end) { end = d['time'];}
+    const v = keyFn(d);
+    if (v) {
+      if (v < min) { min = v;}
+      if (v > max) { max = v;}
+      if (d['time'] < start) { start = d['time'];}
+      if (d['time'] > end) { end = d['time'];}
+    }
   });
 } else {
+  console.log(`is string Data`)
   let valList = new Set<string>();
   data.forEach(d => {
-    valList.add(`${d[key]}`);
-    if (d['time'] < start) { start = d['time'];}
-    if (d['time'] > end) { end = d['time'];}
+    const v = keyFn(d);
+    console.log(v)
+    if (v) {
+      valList.add(`${v}`);
+      if (d['time'] < start) { start = d['time'];}
+      if (d['time'] > end) { end = d['time'];}
+    }
   });
   allOrdinalVals = Array.from(valList.values())
   min = 0;
@@ -112,7 +127,7 @@ if (numberData) {
     .append("circle")
       .attr("class", function (d) { return "dot " + d.station } )
       .attr("cx", function (d) { return x(d['time'].toJSDate()); } )
-      .attr("cy", function (d) { return y(d[key]); } )
+      .attr("cy", function (d) { return y(keyFn(d)) })
       .attr("r", 5)
       .style("fill", function (d) { return color(d.station) } )
     .on("mouseover", highlight)

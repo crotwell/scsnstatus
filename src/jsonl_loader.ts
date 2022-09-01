@@ -1,9 +1,12 @@
 import * as sp from 'seisplotjs';
-import {Duration, DateTime} from 'luxon';
+import {Duration, DateTime, Interval} from 'luxon';
 
-export interface CellSOH {
+export interface DataSOHType {
   station: string;
   time: DateTime;
+}
+
+export interface CellSOH extends DataSOHType {
   byterate: number;
   rssi: number;
   rsrq: number;
@@ -16,9 +19,18 @@ export interface CellSOH {
   powerIn: number;
 }
 
-export function loadCellStats(stationList: Array<string>, start: DateTime, end: DateTime): Promise<Array<CellSOH>> {
+export interface KilovaultSOC extends DataSOHType {
+    soc: Array<{
+        id: string,
+        name: string,
+        address: string,
+        percentCharge: number,
+      }>;
+}
+
+export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
   const chan = "CEL";
-  return loadStats(stationList, chan, start, end)
+  return loadStats(stationList, chan, interval)
     .then(jsonTextList => {
       const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
             let statObj = json_fix_types(JSON.parse(line));
@@ -27,8 +39,26 @@ export function loadCellStats(stationList: Array<string>, start: DateTime, end: 
       return preprocess_stats(allStats.filter(x=> !!x));
     });
 }
+export function loadKilovaultStats(stationList: Array<string>, interval: Interval): Promise<Array<KilovaultSOC>> {
+  const chan = "KVSOC";
+  return loadStats(stationList, chan, interval)
+    .then(jsonTextList => {
+      const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
+            let statJson = JSON.parse(line);
+            if ('station' in statJson === false) { throw new Error("No station in json object");}
+            if ('time' in statJson === false) { throw new Error("No time in json object");}
+            const station = statJson['station'] as string;
+            statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
+            statJson.soc.forEach( s => {
+              s.percentCharge = parseFloat(s.percentCharge);
+            });
+            return statJson;
+      });
+      return allStats.filter(x=> !!x);
+    });
+}
 
-export function loadStats(stationList: Array<string>, chan: string, start: DateTime, end: DateTime): Promise<Array<string>> {
+export function loadStats(stationList: Array<string>, chan: string, interval: Interval): Promise<Array<string>> {
   const net = "CO";
   const loc = "SH";
   const one_hour = Duration.fromObject({hours: 1});
@@ -37,8 +67,8 @@ export function loadStats(stationList: Array<string>, chan: string, start: DateT
   let msArchive = new sp.mseedarchive.MSeedArchive(root, pattern);
   let promiseList = [];
   for(const sta of stationList) {
-    let time = start;
-    while (time <= end) {
+    let time = interval.start;
+    while (time <= interval.end) {
       let basePattern = msArchive.fillBasePattern(net, sta, loc, chan);
       let url = msArchive.rootUrl + "/" + msArchive.fillTimePattern(basePattern, time);
       promiseList.push(sp.util.doFetchWithTimeout(url).then(resp => {

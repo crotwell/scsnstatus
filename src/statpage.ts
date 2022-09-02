@@ -41,7 +41,7 @@ export function createStationCheckboxes(
 }
 export function doPlot<Type>( selector: string,
                         allStats: Array<Type>,
-                        keyFn: (Type)=> string | (Type)=> number,
+                        keyFn: ((Type)=> string)|((Type)=> number),
                         selectedStations: Array<string>,
                         lineColors: Array<string>,
                       ) {

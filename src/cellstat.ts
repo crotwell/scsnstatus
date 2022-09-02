@@ -1,6 +1,5 @@
 import * as seisplotjs from 'seisplotjs';
-import {loadCellStats, loadKilovaultStats, CellSOH} from './jsonl_loader.js';
-import {scatterplot} from './scatterplot.js';
+import {loadCellStats, CellSOH, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
 import {
   doPlot,
   createKeyCheckboxes,
@@ -8,18 +7,7 @@ import {
   createStationCheckboxes,
   createUpdatingClock,
 } from './statpage.js'
-import { DateTime, Duration} from 'luxon';
-
-export function grab(stationList: Array<string>, timeRange: Interval) {
-  return Promise.all([
-    loadCellStats(stationList, timeRange),
-    loadKilovaultStats(stationList, timeRange)
-  ])
-  .then(([cellStats, kvStats]) => {
-    return cellStats;
-  });
-}
-
+import { Duration} from 'luxon';
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -40,27 +28,32 @@ app.innerHTML = `
 let curKey = "byterate";
 const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
 const allStations = ["BIRD", "JSC", 'CASEE', 'HODGE']
-
 let selectedStations = allStations.slice();
 
-function dataFn(d: CellSOH): string | number {
-  return d[curKey];
+function createDataFn(curKey: string): ((d:CellSOH)=> string)|((d:CellSOH)=> number) {
+  if (mib_floats.find(s=> s===curKey) || mib_ints.find(s=> s===curKey)) {
+    return (d: CellSOH) => d[curKey] as number;
+  } else if (mib_strings.find(s=> s===curKey)) {
+    return (d: CellSOH) => d[curKey] as string;
+  } else {
+    throw new Error(`curKey: ${curKey} is not string or number`);
+  }
 }
 
 function handleData(allStats: Array<CellSOH>) {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
-  doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
+  doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
   return allStats;
 }
 
 const timeChooser = initTimeChooser(Duration.fromISO("PT120M"), (timerange => {
-  dataPromise = grab(selectedStations, timerange).then(handleData);
+  dataPromise = loadCellStats(selectedStations, timerange).then(handleData);
 }));
 
 let timerange = timeChooser.toInterval();
-let dataPromise = grab(allStations, timerange).then(handleData);
+let dataPromise = loadCellStats(allStations, timerange).then(handleData);
 
 function createKeyCheckbox(stat: CellSOH) {
   const selector = 'div.datakeys';
@@ -77,7 +70,7 @@ function createKeyCheckbox(stat: CellSOH) {
                       (key)=>{
                         curKey = key;
                         dataPromise.then(allStats => {
-                          doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
+                          doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
                         });
                       });
 }
@@ -91,7 +84,7 @@ const stationCallback = function(sta: string, checked: boolean) {
     }
     return allStats;
   }).then(allStats => {
-    doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
+    doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
   });
 }
 

@@ -1,69 +1,69 @@
 import * as sp from 'seisplotjs';
 const d3 = sp.d3;
 
-export function scatterplot(selector: string,
+export function scatterplot<Type>(selector: string,
                             data: Array<Type>,
-                            keyFn: (Type)=> string | (Type)=> number,
+                            keyFn: ((Type)=> string)|((Type)=> number),
                             allStations: Array<string>,
                             lineColors: Array<string>
                           ) {
 
-// set the dimensions and margins of the graph
-const div_element = document.querySelector(selector);
-if (! div_element) {
-  throw new Error(`Can't find element by selector: '${selector}'`);
-}
-const rect = div_element.getBoundingClientRect();
-let margin = {top: 10, right: 30, bottom: 30, left: 130};
-let width = rect.width - margin.left - margin.right;
-let height = rect.height - margin.top - margin.bottom;
+  // set the dimensions and margins of the graph
+  const div_element = document.querySelector(selector);
+  if (! div_element) {
+    throw new Error(`Can't find element by selector: '${selector}'`);
+  }
+  const rect = div_element.getBoundingClientRect();
+  let margin = {top: 10, right: 30, bottom: 30, left: 130};
+  let width = rect.width - margin.left - margin.right;
+  let height = rect.height - margin.top - margin.bottom;
 
-// append the svg object to the body of the page
-const svg = d3.select(selector)
-  .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+  // append the svg object to the body of the page
+  const svg = d3.select(selector)
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
 
-let start = data[0]['time'];
-let end = data[0]['time'];
-let min = 99999999;
-let max = -99999999;
-let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
-let numberData = data.length > 0 && sp.util.isDef(keyFn(dataWithKey)) && typeof keyFn(dataWithKey) === 'number' ;
-let allOrdinalVals: Array<string> = [];
-if (numberData) {
-  console.log(`is numberData`)
-  data.forEach(d => {
-    const v = keyFn(d);
-    if (v) {
-      if (v < min) { min = v;}
-      if (v > max) { max = v;}
-      if (d['time'] < start) { start = d['time'];}
-      if (d['time'] > end) { end = d['time'];}
-    }
-  });
-} else {
-  console.log(`is string Data`)
-  let valList = new Set<string>();
-  data.forEach(d => {
-    const v = keyFn(d);
-    console.log(v)
-    if (v) {
-      valList.add(`${v}`);
-      if (d['time'] < start) { start = d['time'];}
-      if (d['time'] > end) { end = d['time'];}
-    }
-  });
-  allOrdinalVals = Array.from(valList.values())
-  min = 0;
-  max = allOrdinalVals.length-1;
-}
+  let start = data[0]['time'];
+  let end = data[0]['time'];
+  let min = 99999999;
+  let max = -99999999;
+  let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
+  let numberData = data.length > 0 && sp.util.isDef(keyFn(dataWithKey)) && typeof keyFn(dataWithKey) === 'number' ;
+  let allOrdinalVals: Array<string> = [];
+  if (numberData) {
+    console.log(`is numberData`)
+    data.forEach(d => {
+      const v = keyFn(d);
+      if (v) {
+        if (v < min) { min = v;}
+        if (v > max) { max = v;}
+        if (d['time'] < start) { start = d['time'];}
+        if (d['time'] > end) { end = d['time'];}
+      }
+    });
+  } else {
+    console.log(`is string Data`)
+    let valList = new Set<string>();
+    data.forEach(d => {
+      const v = keyFn(d);
+      console.log(v)
+      if (v) {
+        valList.add(`${v}`);
+        if (d['time'] < start) { start = d['time'];}
+        if (d['time'] > end) { end = d['time'];}
+      }
+    });
+    allOrdinalVals = Array.from(valList.values())
+    min = 0;
+    max = allOrdinalVals.length-1;
+  }
 
   // Add X axis
-  var x = d3.scaleUtc()
+  const x = d3.scaleUtc()
     .domain([start, end])
     .range([ 0, width ])
     .nice();
@@ -92,7 +92,7 @@ if (numberData) {
   svg.append("g")
     .call(d3.axisLeft(y));
 
-  var color = d3.scaleOrdinal()
+  const color = d3.scaleOrdinal()
     .domain(allStations)
     .range(lineColors.slice(0, allStations.length));
 
@@ -111,7 +111,7 @@ if (numberData) {
       .attr("r", 7)
   }
 
-  var doNotHighlight = function(event, d){
+  const doNotHighlight = function(event, d){
     d3.selectAll(".dot")
       .transition()
       .duration(200)

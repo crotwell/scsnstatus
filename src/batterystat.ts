@@ -1,6 +1,5 @@
 import * as seisplotjs from 'seisplotjs';
 import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
-import {scatterplot} from './scatterplot.js';
 import {
   doPlot,
   createKeyCheckboxes,
@@ -8,7 +7,7 @@ import {
   createStationCheckboxes,
   createUpdatingClock,
 } from './statpage.js'
-import { DateTime, Duration, Interval} from 'luxon';
+import { Duration } from 'luxon';
 
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -33,6 +32,19 @@ const allStations = ["JSC", 'CASEE', 'HODGE']
 
 let selectedStations = allStations.slice();
 
+function dataFn(d: KilovaultSOC): number {
+  if (curKey === "soc") {
+    const firstObj = d.soc[0];
+    if (firstObj && 'percentCharge' in firstObj) {
+      return firstObj.percentCharge;
+    } else {
+      return 0;
+    }
+  } else {
+    return 0;
+  }
+}
+
 function createKeyCheckbox(stat: KilovaultSOC) {
   const selector = 'div.datakeys';
   let statKeys = [];
@@ -48,7 +60,7 @@ function createKeyCheckbox(stat: KilovaultSOC) {
                       (key)=>{
                         curKey = key;
                         dataPromise.then(allStats => {
-                          doPlot("div.plot", allStats, curKey, selectedStations, lineColors);
+                          doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
                         });
                       });
 }
@@ -59,18 +71,7 @@ function handleData(allStats: Array<KilovaultSOC>) {
   }
   doPlot("div.plot",
           allStats,
-          (d)=> {
-              if (d[curKey] && Array.isArray(d[curKey])) {
-                const firstObj = d[curKey][0];
-                if (firstObj && 'percentCharge' in firstObj) {
-                  return firstObj.percentCharge;
-                } else {
-                  return 0;
-                }
-              } else {
-                return 0;
-              }
-            },
+          dataFn,
           selectedStations,
           lineColors);
   return allStats;
@@ -85,7 +86,7 @@ const stationCallback = function(sta: string, checked: boolean) {
     }
     return allStats;
   }).then(allStats => {
-    doPlot("div.plot", allStats, curKey, selectedStations, lineColors);
+    doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
   });
 }
 

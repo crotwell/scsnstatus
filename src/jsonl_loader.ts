@@ -4,6 +4,7 @@ import {Duration, DateTime, Interval} from 'luxon';
 export interface DataSOHType {
   station: string;
   time: DateTime;
+  [index: string]: string|number|DateTime;
 }
 
 export interface CellSOH extends DataSOHType {
@@ -25,6 +26,7 @@ export interface KilovaultSOC extends DataSOHType {
         name: string,
         address: string,
         percentCharge: number,
+        [index: string]: string|number
       }>;
 }
 
@@ -47,7 +49,6 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
             let statJson = JSON.parse(line);
             if ('station' in statJson === false) { throw new Error("No station in json object");}
             if ('time' in statJson === false) { throw new Error("No time in json object");}
-            const station = statJson['station'] as string;
             statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
             statJson.soc.forEach( s => {
               s.percentCharge = parseFloat(s.percentCharge);
@@ -94,15 +95,26 @@ export function loadStats(stationList: Array<string>, chan: string, interval: In
   });
 }
 
-export const mib_floats = ['sinr', 'powerIn', ];
-export const mib_ints = ['rssi',
-                          'rsrq',
-                          'rsrp',
-                          'boardTemperature',
-                          'netChannel',
-                          'cellularBytesSent',
-                          'cellularBytesRecvd',
-                        ];
+export const mib_floats = [
+  'sinr',
+  'powerIn',
+  'byterate',
+];
+export const mib_ints = [
+  'rssi',
+  'rsrq',
+  'rsrp',
+  'boardTemperature',
+  'netChannel',
+  'cellularBytesSent',
+  'cellularBytesRecvd',
+];
+export const mib_strings = [
+  'networkServiceType',
+  'cellid',
+  'cellBand',
+  'networkState'
+];
 
 export function json_fix_types(json: any): CellSOH {
   if ('station' in json === false) { throw new Error("No station in json object");}

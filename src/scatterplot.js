@@ -1,11 +1,18 @@
 import * as sp from 'seisplotjs';
+import {DataSOHType} from './jsonl_loader';
 const d3 = sp.d3;
 
-export function scatterplot<Type>(selector: string,
-                            data: Array<Type>,
-                            keyFn: ((Type)=> string)|((Type)=> number),
-                            allStations: Array<string>,
-                            lineColors: Array<string>
+// export function scatterplot(selector: string,
+//                             data: Array<DataSOHType>,
+//                             keyFn: ((d:DataSOHType)=> string)|((d:DataSOHType)=> number),
+//                             allStations: Array<string>,
+//                             lineColors: Array<string>
+//                           ) {
+export function scatterplot(selector,
+                            data,
+                            keyFn,
+                            allStations,
+                            lineColors
                           ) {
 
   // set the dimensions and margins of the graph
@@ -27,15 +34,15 @@ export function scatterplot<Type>(selector: string,
       .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-  let start = data[0]['time'];
-  let end = data[0]['time'];
+  let start = data[0].time;
+  let end = data[0].time;
   let min = 99999999;
   let max = -99999999;
   let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
-  let numberData = data.length > 0 && sp.util.isDef(keyFn(dataWithKey)) && typeof keyFn(dataWithKey) === 'number' ;
-  let allOrdinalVals: Array<string> = [];
+  let numberData = dataWithKey && typeof keyFn(dataWithKey) === 'number' ;
+  let allOrdinalVals = [];
   if (numberData) {
-    console.log(`is numberData`)
+    console.log(`is numberData`);
     data.forEach(d => {
       const v = keyFn(d);
       if (v) {
@@ -47,7 +54,7 @@ export function scatterplot<Type>(selector: string,
     });
   } else {
     console.log(`is string Data`)
-    let valList = new Set<string>();
+    let valList = new Set();
     data.forEach(d => {
       const v = keyFn(d);
       console.log(v)
@@ -97,7 +104,7 @@ export function scatterplot<Type>(selector: string,
     .range(lineColors.slice(0, allStations.length));
 
 
-  const highlight = function({}, d){
+  const highlight = function({}, d: DataSOHType){
     d3.selectAll(".dot")
       .transition()
       .duration(200)

@@ -104,7 +104,7 @@ export function scatterplot(selector,
     .range(lineColors.slice(0, allStations.length));
 
 
-  const highlight = function({}, d: DataSOHType){
+  const highlight = function({}, d){
     d3.selectAll(".dot")
       .transition()
       .duration(200)

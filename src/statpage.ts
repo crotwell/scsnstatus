@@ -1,11 +1,12 @@
 import * as seisplotjs from 'seisplotjs';
-import {loadCellStats, loadKilovaultStats, DataSOHType} from './jsonl_loader.js';
 import {scatterplot} from './scatterplot.js';
-import { DateTime} from 'luxon';
+import {DataSOHType} from './jsonl_loader.js';
+import { Duration, Interval } from 'luxon';
+
 
 export function createStationCheckboxes(
       allStations: Array<string>,
-      stationCallback: (string, boolean)=>void,
+      stationCallback: (sta: string, sel: boolean)=>void,
       lineColors: Array<string>,
     ) {
   const staSelector = 'div.stations';
@@ -39,9 +40,9 @@ export function createStationCheckboxes(
   stationStyle.appendChild(document.createTextNode(styleText));
 
 }
-export function doPlot<Type>( selector: string,
+export function doPlot<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,
-                        keyFn: ((Type)=> string)|((Type)=> number),
+                        keyFn: ((d:Type)=> string)|((d:Type)=> number),
                         selectedStations: Array<string>,
                         lineColors: Array<string>,
                       ) {
@@ -61,44 +62,43 @@ export function doPlot<Type>( selector: string,
   }
 }
 
-export function createKeyCheckboxes(selector,
+export function createKeyCheckboxes(selector: string,
                                     statNames: Array<string>,
                                     curKey: string,
-                                    callbackFn: (string)=>void
+                                    callbackFn: (k: string)=>void
                                     ) {
-  let keyDiv = document.querySelector<HTMLDivElement>(selector);
-  if (!keyDiv) {
+  const keyDiv = document.querySelector<HTMLDivElement>(selector);
+  if (keyDiv) {
+    statNames.forEach( key => {
+      if (!keyDiv.querySelector(`span.${key}`)) {
+        const div = keyDiv.appendChild(document.createElement('span'));
+        div.setAttribute('class', key);
+        const cb = div.appendChild(document.createElement('input'));
+        cb.setAttribute('type','radio');
+        cb.setAttribute('name', 'radiokey');
+        if (curKey === key) {
+          cb.setAttribute('checked', "true");
+        }
+        cb.addEventListener('click', () => {
+          callbackFn(key);
+        });
+        const nlabel = div.appendChild(document.createElement('label'));
+        nlabel.textContent = key;
+      }
+    });
+  } else {
     throw new Error(`Can't find element for selecotor: ${selector}`);
   }
-  statNames.forEach( key => {
-    if (!keyDiv.querySelector(`span.${key}`)) {
-      const div = keyDiv.appendChild(document.createElement('span'));
-      div.setAttribute('class', key);
-      const cb = div.appendChild(document.createElement('input'));
-      cb.setAttribute('type','radio');
-      cb.setAttribute('name', 'radiokey');
-      if (curKey === key) {
-        cb.setAttribute('checked', "true");
-      }
-      cb.addEventListener('click', () => {
-        callbackFn(key);
-      });
-      const nlabel = div.appendChild(document.createElement('label'));
-      nlabel.textContent = key;
-    }
-  });
+
 
 }
 
-export function initTimeChooser(duration: Duration, callbackFn: (Interval)=>void): seisplotjs.datechooser.TimeRangeChooser {
-  let start = seisplotjs.luxon.DateTime.fromISO("2022-05-15");
-  let end = start.plus(seisplotjs.luxon.Duration.fromObject({hours: 0, minutes: 5}));
+export function initTimeChooser(duration: Duration,
+                                callbackFn: (interval: Interval)=>void
+                              ): seisplotjs.datechooser.TimeRangeChooser {
   const timeChooser = document.querySelector<seisplotjs.datechooser.TimeRangeChooser>(seisplotjs.datechooser.TIMERANGE_ELEMENT);
   if (timeChooser) {
     timeChooser.duration = duration;
-    const timerange = timeChooser.toInterval();
-    start = timerange.start;
-    end = timerange.end;
     let nowButton = document.querySelector<HTMLButtonElement>('#loadNow');
     if (nowButton) {
       nowButton.onclick = () => {
@@ -106,8 +106,10 @@ export function initTimeChooser(duration: Duration, callbackFn: (Interval)=>void
       };
     }
     timeChooser.updateCallback = callbackFn;
+    return timeChooser;
+  } else {
+    throw new Error(`Can't find TimeRangeChooser by selector ${seisplotjs.datechooser.TIMERANGE_ELEMENT}`);
   }
-  return timeChooser;
 }
 
 export function createUpdatingClock() {

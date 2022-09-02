@@ -4,10 +4,10 @@ import {Duration, DateTime, Interval} from 'luxon';
 export interface DataSOHType {
   station: string;
   time: DateTime;
-  [index: string]: string|number|DateTime;
 }
 
 export interface CellSOH extends DataSOHType {
+  [index: string]: string|number|DateTime;
   byterate: number;
   rssi: number;
   rsrq: number;
@@ -21,13 +21,14 @@ export interface CellSOH extends DataSOHType {
 }
 
 export interface KilovaultSOC extends DataSOHType {
-    soc: Array<{
-        id: string,
-        name: string,
-        address: string,
-        percentCharge: number,
-        [index: string]: string|number
-      }>;
+  [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
+  soc: Array<{
+      id: string,
+      name: string,
+      address: string,
+      percentCharge: number,
+      [index: string]: string|number
+    }>;
 }
 
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
@@ -50,10 +51,10 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
             if ('station' in statJson === false) { throw new Error("No station in json object");}
             if ('time' in statJson === false) { throw new Error("No time in json object");}
             statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
-            statJson.soc.forEach( s => {
+            statJson.soc.forEach( (s: any) => {
               s.percentCharge = parseFloat(s.percentCharge);
             });
-            return statJson;
+            return statJson as KilovaultSOC;
       });
       return allStats.filter(x=> !!x);
     });

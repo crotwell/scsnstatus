@@ -1,3 +1,4 @@
+import './style.css';
 import * as seisplotjs from 'seisplotjs';
 import {loadCellStats, CellSOH, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
 import {
@@ -8,7 +9,9 @@ import {
   createUpdatingClock,
 } from './statpage.js'
 import { Duration} from 'luxon';
+import {createNavigation} from './navbar';
 
+createNavigation();
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 

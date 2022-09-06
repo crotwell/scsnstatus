@@ -1,14 +1,18 @@
+import './style.css';
 import * as seisplotjs from 'seisplotjs';
 import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
 import {
   doPlot,
+  doText,
   createKeyCheckboxes,
   initTimeChooser,
   createStationCheckboxes,
   createUpdatingClock,
 } from './statpage.js'
 import { Duration } from 'luxon';
+import {createNavigation} from './navbar';
 
+createNavigation();
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
@@ -21,9 +25,9 @@ app.innerHTML = `
   <div class="plot"></div>
   <div class="stations"></div>
   <div class="datakeys"></div>
-  <svg></svg>
+  <div><pre class="raw"></pre></div>
   <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`
+`;
 
 
 let curKey = "soc";
@@ -69,6 +73,12 @@ function handleData(allStats: Array<KilovaultSOC>) {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
+  doText("pre.raw",
+          allStats,
+          dataFn,
+          selectedStations,
+        //  lineColors
+        );
   doPlot("div.plot",
           allStats,
           dataFn,

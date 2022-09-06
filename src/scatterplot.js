@@ -1,5 +1,4 @@
 import * as sp from 'seisplotjs';
-import {DataSOHType} from './jsonl_loader';
 const d3 = sp.d3;
 
 // export function scatterplot(selector: string,
@@ -52,6 +51,10 @@ export function scatterplot(selector,
         if (d['time'] > end) { end = d['time'];}
       }
     });
+    if (min === max) {
+      min = min-1;
+      max = max+1;
+    }
   } else {
     console.log(`is string Data`)
     let valList = new Set();

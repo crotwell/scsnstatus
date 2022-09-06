@@ -61,6 +61,29 @@ export function doPlot<Type extends DataSOHType>( selector: string,
     p.textContent = "No Data";
   }
 }
+export function doText<Type extends DataSOHType>( selector: string,
+                        allStats: Array<Type>,
+                        keyFn: ((d:Type)=> string)|((d:Type)=> number),
+                        selectedStations: Array<string>,
+                    //    lineColors: Array<string>,
+                      ) {
+  let filtered = allStats.filter((stat: Type) => selectedStations.findIndex(s => s === stat.station) !== -1);
+  let plotDiv = document.querySelector<HTMLDivElement>(selector);
+  if (!plotDiv) {
+    throw new Error(`Can't find element for selector '${selector}'`);
+  }
+  while (plotDiv.lastChild) {
+    plotDiv.removeChild(plotDiv.lastChild);
+  }
+  if (filtered.length > 0) {
+    let s = "";
+    filtered.filter(d => keyFn(d)!==0).forEach(d => s=`${s}\n${d.station} ${d.time}  ${keyFn(d)}`);
+    plotDiv.textContent = s;
+  } else {
+    let p = plotDiv.appendChild(document.createElement("p"));
+    p.textContent = "No Data";
+  }
+}
 
 export function createKeyCheckboxes(selector: string,
                                     statNames: Array<string>,

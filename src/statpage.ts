@@ -128,6 +128,13 @@ export function initTimeChooser(duration: Duration,
         timeChooser.end = seisplotjs.luxon.DateTime.utc();
       };
     }
+    let todayButton = document.querySelector<HTMLButtonElement>('#loadToday');
+    if (todayButton) {
+      todayButton.onclick = () => {
+        timeChooser.end = seisplotjs.luxon.DateTime.utc();
+        timeChooser.duration = seisplotjs.luxon.Duration.fromISO("P1D");
+      };
+    }
     timeChooser.updateCallback = callbackFn;
     return timeChooser;
   } else {

@@ -20,15 +20,16 @@ export interface CellSOH extends DataSOHType {
   powerIn: number;
 }
 
+export interface PercentCharge {
+    id: string,
+    name: string,
+    address: string,
+    percentCharge: number,
+    [index: string]: string|number
+}
 export interface KilovaultSOC extends DataSOHType {
   [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
-  soc: Array<{
-      id: string,
-      name: string,
-      address: string,
-      percentCharge: number,
-      [index: string]: string|number
-    }>;
+  soc: Array<PercentCharge>;
 }
 
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {

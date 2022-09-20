@@ -151,3 +151,7 @@ export function createUpdatingClock() {
     }, 1000);
   }
 }
+
+export function timesort<Type extends DataSOHType>(a: Type, b: Type): number {
+  return a.time < b.time ? -1 : a.time > b.time ? 1 : 0;
+}

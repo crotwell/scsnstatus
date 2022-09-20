@@ -8,6 +8,7 @@ import {
   initTimeChooser,
   createStationCheckboxes,
   createUpdatingClock,
+  timesort,
 } from './statpage.js'
 import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
@@ -50,6 +51,19 @@ function dataFn(d: KilovaultSOC): number {
   }
 }
 
+function textDataFn(d: KilovaultSOC): string {
+  if (curKey === "soc") {
+    const firstObj = d.soc[0];
+    if (firstObj && 'percentCharge' in firstObj) {
+      return `${firstObj.id} ${firstObj.percentCharge}`;
+    } else {
+      return "";
+    }
+  } else {
+    return "";
+  }
+}
+
 function createKeyCheckbox(stat: KilovaultSOC) {
   const selector = 'div.datakeys';
   let statKeys = [];
@@ -74,14 +88,33 @@ function handleData(allStats: Array<KilovaultSOC>) {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
+  allStats.sort(timesort);
+  let expandData: Array<KilovaultSOC> = []
+  if (curKey === "soc") {
+    allStats.forEach(stat => {
+      if (stat.soc.length > 1) {
+        stat.soc.forEach(s => {
+          const d = structuredClone(stat);
+          d.soc = [ s ]; // clone but with only one soc
+          d.time = stat.time
+          expandData.push(d)
+        })
+      } else {
+        expandData.push(stat);
+      }
+    })
+  } else {
+    expandData = allStats;
+  }
+
   doText("pre.raw",
-          allStats,
-          dataFn,
+          expandData,
+          textDataFn,
           selectedStations,
         //  lineColors
         );
   doPlot("div.plot",
-          allStats,
+          expandData,
           dataFn,
           selectedStations,
           lineColors);

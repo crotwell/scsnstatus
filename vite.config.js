@@ -9,6 +9,7 @@ module.exports = defineConfig({
         main: resolve(__dirname, 'index.html'),
         cellstat: resolve(__dirname, 'cellstat/index.html'),
         batterystat: resolve(__dirname, 'batterystat/index.html'),
+        stations: resolve(__dirname, 'stations/index.html'),
       }
     }
   }

@@ -1,6 +1,7 @@
 import * as sp from 'seisplotjs';
 const d3 = sp.d3;
 
+
 // export function scatterplot(selector: string,
 //                             data: Array<DataSOHType>,
 //                             keyFn: ((d:DataSOHType)=> string)|((d:DataSOHType)=> number),
@@ -11,7 +12,7 @@ export function scatterplot(selector,
                             data,
                             keyFn,
                             allStations,
-                            lineColors
+                            colorForStation
                           ) {
 
   // set the dimensions and margins of the graph
@@ -102,10 +103,6 @@ export function scatterplot(selector,
   svg.append("g")
     .call(d3.axisLeft(y));
 
-  const color = d3.scaleOrdinal()
-    .domain(allStations)
-    .range(lineColors.slice(0, allStations.length));
-
 
   const highlight = function({}, d){
     d3.selectAll(".dot")
@@ -117,7 +114,7 @@ export function scatterplot(selector,
     d3.selectAll("." + d.station)
       .transition()
       .duration(200)
-      .style("fill", color(d.station))
+      .style("fill", colorForStation.get(d.station))
       .attr("r", 7)
   }
 
@@ -125,7 +122,7 @@ export function scatterplot(selector,
     d3.selectAll(".dot")
       .transition()
       .duration(200)
-      .style("fill", d => color(d.station))
+      .style("fill", d => colorForStation.get(d.station))
       .attr("r", 5 )
   }
 
@@ -139,7 +136,7 @@ export function scatterplot(selector,
       .attr("cx", function (d) { return x(d['time'].toJSDate()); } )
       .attr("cy", function (d) { return y(keyFn(d)) })
       .attr("r", 5)
-      .style("fill", function (d) { return color(d.station) } )
+      .style("fill", function (d) { return colorForStation.get(d.station) } )
     .on("mouseover", highlight)
     .on("mouseleave", doNotHighlight )
 

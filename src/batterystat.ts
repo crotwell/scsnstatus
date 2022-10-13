@@ -4,6 +4,7 @@ import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
 import {
   doPlot,
   doText,
+  createColors,
   createKeyCheckboxes,
   initTimeChooser,
   createStationCheckboxes,
@@ -35,8 +36,10 @@ app.innerHTML = `
 let curKey = "soc";
 const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
 const allStations = ["JSC", 'CASEE', 'HODGE']
+let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();
+
 
 function dataFn(d: KilovaultSOC): number {
   if (curKey === "soc") {
@@ -79,7 +82,7 @@ function createKeyCheckbox(stat: KilovaultSOC) {
                       (key)=>{
                         curKey = key;
                         dataPromise.then(allStats => {
-                          doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
+                          doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
                         });
                       });
 }
@@ -117,7 +120,7 @@ function handleData(allStats: Array<KilovaultSOC>) {
           expandData,
           dataFn,
           selectedStations,
-          lineColors);
+          colorForStation);
   return allStats;
 }
 
@@ -130,11 +133,11 @@ const stationCallback = function(sta: string, checked: boolean) {
     }
     return allStats;
   }).then(allStats => {
-    doPlot("div.plot", allStats, dataFn, selectedStations, lineColors);
+    doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
   });
 }
 
-createStationCheckboxes(allStations, stationCallback, lineColors);
+createStationCheckboxes(allStations, stationCallback, colorForStation);
 createUpdatingClock();
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {

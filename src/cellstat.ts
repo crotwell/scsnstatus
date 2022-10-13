@@ -3,6 +3,7 @@ import * as seisplotjs from 'seisplotjs';
 import {loadCellStats, CellSOH, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
 import {
   doPlot,
+  createColors,
   createKeyCheckboxes,
   initTimeChooser,
   createStationCheckboxes,
@@ -30,9 +31,9 @@ app.innerHTML = `
 `
 
 let curKey = "byterate";
-const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
 const allStations = ["BIRD", "JSC", 'CASEE', 'HODGE']
 let selectedStations = allStations.slice();
+let colorForStation = createColors(allStations);
 
 function createDataFn(curKey: string): ((d:CellSOH)=> string)|((d:CellSOH)=> number) {
   if (mib_floats.find(s=> s===curKey) || mib_ints.find(s=> s===curKey)) {
@@ -48,7 +49,7 @@ function handleData(allStats: Array<CellSOH>) {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
-  doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
+  doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, colorForStation);
   return allStats;
 }
 
@@ -74,7 +75,7 @@ function createKeyCheckbox(stat: CellSOH) {
                       (key)=>{
                         curKey = key;
                         dataPromise.then(allStats => {
-                          doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
+                          doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, colorForStation);
                         });
                       });
 }
@@ -88,10 +89,10 @@ const stationCallback = function(sta: string, checked: boolean) {
     }
     return allStats;
   }).then(allStats => {
-    doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, lineColors);
+    doPlot("div.plot", allStats, createDataFn(curKey), selectedStations, colorForStation);
   });
 }
 
-createStationCheckboxes(allStations, stationCallback, lineColors);
+createStationCheckboxes(allStations, stationCallback, colorForStation);
 
 createUpdatingClock();

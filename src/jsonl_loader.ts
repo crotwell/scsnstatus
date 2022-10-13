@@ -65,7 +65,9 @@ export function loadStats(stationList: Array<string>, chan: string, interval: In
   const net = "CO";
   const loc = "SH";
   const one_hour = Duration.fromObject({hours: 1});
-  let root = "http://eeyore.seis.sc.edu/scsn";
+  const protocol = sp.util.checkProtocol();
+  const host = "eeyore.seis.sc.edu"
+  let root = `${protocol}//${host}/scsn`;
   let pattern = "jsonl/%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H.jsonl";
   let msArchive = new sp.mseedarchive.MSeedArchive(root, pattern);
   let promiseList = [];

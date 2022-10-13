@@ -4,10 +4,19 @@ import {DataSOHType} from './jsonl_loader.js';
 import { Duration, Interval } from 'luxon';
 
 
+export function createColors(allStations: Array<string>): Map<string, string> {
+  const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
+  let colorForStation = new Map<string, string>();
+  for (let idx=0; idx< allStations.length; idx++) {
+    colorForStation.set(allStations[idx], lineColors[idx]);
+  }
+  return colorForStation;
+}
+
 export function createStationCheckboxes(
       allStations: Array<string>,
       stationCallback: (sta: string, sel: boolean)=>void,
-      lineColors: Array<string>,
+      stationLineColors: Map<string, string>,
     ) {
   const staSelector = 'div.stations';
   const stationsDiv = document.querySelector<HTMLDivElement>(staSelector);
@@ -30,7 +39,7 @@ export function createStationCheckboxes(
     nlabel.textContent = sta;
     styleText = `${styleText}
     .${sta} {
-      color: ${lineColors[idx]};
+      color: ${stationLineColors.get(sta)};
     }
     `;
   });

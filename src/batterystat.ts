@@ -35,7 +35,7 @@ app.innerHTML = `
 
 let curKey = "soc";
 const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
-const allStations = ["JSC", 'CASEE', 'HODGE']
+const allStations = ["JSC", 'CASEE', 'HODGE', 'PAULI']
 let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();

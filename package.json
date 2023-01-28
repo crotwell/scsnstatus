@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "buildtsc": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -15,6 +16,6 @@
   },
   "dependencies": {
     "luxon": "^3.0.3",
-    "seisplotjs": "^3.0.0-alpha.0"
+    "seisplotjs": "^3.0.0-alpha.4"
   }
 }

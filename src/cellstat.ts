@@ -31,7 +31,7 @@ app.innerHTML = `
 `
 
 let curKey = "byterate";
-const allStations = ["BIRD", "JSC", 'CASEE', 'HODGE']
+const allStations = ["JSC", 'CASEE', 'HODGE', 'PAULI']
 let selectedStations = allStations.slice();
 let colorForStation = createColors(allStations);
 

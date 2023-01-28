@@ -110,12 +110,15 @@ function handleData(allStats: Array<KilovaultSOC>) {
     expandData = allStats;
   }
 
-  doText("pre.raw",
-          expandData,
-          textDataFn,
-          selectedStations,
-        //  lineColors
-        );
+  if (false) {
+    // output raw values as text, for debugging
+    doText("pre.raw",
+            expandData,
+            textDataFn,
+            selectedStations,
+          //  lineColors
+          );
+  }
   doPlot("div.plot",
           expandData,
           dataFn,

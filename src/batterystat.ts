@@ -1,5 +1,5 @@
 import './style.css';
-import * as seisplotjs from 'seisplotjs';
+import * as sp from 'seisplotjs';
 import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
 import {
   doPlot,
@@ -34,7 +34,7 @@ app.innerHTML = `
 
 
 let curKey = "soc";
-const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
+const lineColors = new sp.seismographconfig.SeismographConfig().lineColors;
 const allStations = ["JSC", 'CASEE', 'HODGE', 'PAULI']
 let colorForStation = createColors(allStations);
 

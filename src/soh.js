@@ -1,4 +1,4 @@
-import * as seisplotjs from './seisplotjs_3.0.0-alpha.0.mjs';
+import * as sp from 'seisplotjs';
 import {loadStats} from './jsonl_loader.js';
 
 export function grab() {

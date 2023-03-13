@@ -1,5 +1,4 @@
 import './style.css';
-import * as seisplotjs from 'seisplotjs';
 import {loadCellStats, CellSOH, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
 import {
   doPlot,

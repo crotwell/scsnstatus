@@ -1,11 +1,11 @@
-import * as seisplotjs from 'seisplotjs';
+import * as sp from 'seisplotjs';
 import {scatterplot} from './scatterplot.js';
 import {DataSOHType} from './jsonl_loader.js';
-import { Duration, Interval } from 'luxon';
+import { Duration, Interval, DateTime } from 'luxon';
 
 
 export function createColors(allStations: Array<string>): Map<string, string> {
-  const lineColors = new seisplotjs.seismographconfig.SeismographConfig().lineColors;
+  const lineColors = new sp.seismographconfig.SeismographConfig().lineColors;
   let colorForStation = new Map<string, string>();
   for (let idx=0; idx< allStations.length; idx++) {
     colorForStation.set(allStations[idx], lineColors[idx]);
@@ -127,27 +127,27 @@ export function createKeyCheckboxes(selector: string,
 
 export function initTimeChooser(duration: Duration,
                                 callbackFn: (interval: Interval)=>void
-                              ): seisplotjs.datechooser.TimeRangeChooser {
-  const timeChooser = document.querySelector<seisplotjs.datechooser.TimeRangeChooser>(seisplotjs.datechooser.TIMERANGE_ELEMENT);
+                              ): sp.datechooser.TimeRangeChooser {
+  const timeChooser = document.querySelector<sp.datechooser.TimeRangeChooser>(sp.datechooser.TIMERANGE_ELEMENT);
   if (timeChooser) {
     timeChooser.duration = duration;
     let nowButton = document.querySelector<HTMLButtonElement>('#loadNow');
     if (nowButton) {
       nowButton.onclick = () => {
-        timeChooser.end = seisplotjs.luxon.DateTime.utc();
+        timeChooser.end = DateTime.utc();
       };
     }
     let todayButton = document.querySelector<HTMLButtonElement>('#loadToday');
     if (todayButton) {
       todayButton.onclick = () => {
-        timeChooser.end = seisplotjs.luxon.DateTime.utc();
-        timeChooser.duration = seisplotjs.luxon.Duration.fromISO("P1D");
+        timeChooser.end = DateTime.utc();
+        timeChooser.duration = Duration.fromISO("P1D");
       };
     }
     timeChooser.updateCallback = callbackFn;
     return timeChooser;
   } else {
-    throw new Error(`Can't find TimeRangeChooser by selector ${seisplotjs.datechooser.TIMERANGE_ELEMENT}`);
+    throw new Error(`Can't find TimeRangeChooser by selector ${sp.datechooser.TIMERANGE_ELEMENT}`);
   }
 }
 
@@ -155,7 +155,7 @@ export function createUpdatingClock() {
   const nowEl = document.querySelector<HTMLDivElement>("#nowtime");
   if (nowEl) {
     setInterval(() => {
-      let n = seisplotjs.luxon.DateTime.utc().set({millisecond: 0});
+      let n = DateTime.utc().set({millisecond: 0});
       nowEl.textContent = `${n.toISO({suppressMilliseconds: true})} UTC`
     }, 1000);
   }

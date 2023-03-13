@@ -1,5 +1,17 @@
 import * as sp from 'seisplotjs';
-const d3 = sp.d3;
+import {
+  select as d3_select,
+  selectAll as d3_selectAll,
+} from "d3-selection";
+import {
+  scaleUtc as d3_scaleUtc,
+  scaleLinear as d3_scaleLinear,
+  scalePoint as d3_scalePoint,
+} from "d3-scale";
+import {
+  axisBottom as d3_axisBottom,
+  axisLeft as d3_axisLeft,
+} from "d3-axis";
 
 
 // export function scatterplot(selector: string,
@@ -26,7 +38,7 @@ export function scatterplot(selector,
   let height = rect.height - margin.top - margin.bottom;
 
   // append the svg object to the body of the page
-  const svg = d3.select(selector)
+  const svg = d3_select(selector)
     .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
@@ -74,13 +86,13 @@ export function scatterplot(selector,
   }
 
   // Add X axis
-  const x = d3.scaleUtc()
+  const x = d3_scaleUtc()
     .domain([start, end])
     .range([ 0, width ])
     .nice();
   svg.append("g")
     .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    .call(d3_axisBottom(x));
 
   // Add Y axis
   let y;
@@ -88,30 +100,30 @@ export function scatterplot(selector,
   let yOrdinalScale = null;
   if (numberData) {
     console.log(`numberData`)
-    yNumberScale = d3.scaleLinear()
+    yNumberScale = d3_scaleLinear()
       .domain([min, max])
       .range([ height, 0]).nice()
       .nice();
     y = yNumberScale;
   } else {
     console.log(`ord Data`)
-    yOrdinalScale = d3.scalePoint()
+    yOrdinalScale = d3_scalePoint()
       .domain(allOrdinalVals)
       .range([ height, 0]);
     y = yOrdinalScale;
   }
   svg.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3_axisLeft(y));
 
 
   const highlight = function({}, d){
-    d3.selectAll(".dot")
+    d3_selectAll(".dot")
       .transition()
       .duration(200)
       .style("fill", "lightgrey")
       .attr("r", 3)
 
-    d3.selectAll("." + d.station)
+    d3_selectAll("." + d.station)
       .transition()
       .duration(200)
       .style("fill", colorForStation.get(d.station))
@@ -119,7 +131,7 @@ export function scatterplot(selector,
   }
 
   const doNotHighlight = function(event, d){
-    d3.selectAll(".dot")
+    d3_selectAll(".dot")
       .transition()
       .duration(200)
       .style("fill", d => colorForStation.get(d.station))

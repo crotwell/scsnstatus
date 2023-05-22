@@ -44,7 +44,7 @@ let selectedStations = allStations.slice();
 function dataFn(d: KilovaultSOC): number {
   if (curKey === "soc") {
     const firstObj = d.soc[0];
-    if (firstObj && 'percentCharge' in firstObj) {
+    if (firstObj && 'percentCharge' in firstObj && firstObj.percentCharge) {
       return firstObj.percentCharge;
     } else {
       return 0;

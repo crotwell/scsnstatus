@@ -82,6 +82,9 @@ export function loadStats(stationList: Array<string>, chan: string, interval: In
         } else {
           return "";
         }
+      }).catch(err => {
+        // no data?
+        return "";
       }));
       time = time.plus(one_hour);
     }
@@ -90,7 +93,9 @@ export function loadStats(stationList: Array<string>, chan: string, interval: In
     let all: Array<string> = [];
     for (let s of listOfList) {
       for (let l of s.trim().split('\n')) {
-        all.push(l);
+        if (l.length > 0) {
+          all.push(l);
+        }
       }
     }
     return all;

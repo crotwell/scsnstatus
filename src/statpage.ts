@@ -86,7 +86,7 @@ export function doText<Type extends DataSOHType>( selector: string,
   }
   if (filtered.length > 0) {
     let s = "";
-    filtered.filter(d => keyFn(d)!==0).forEach(d => s=`${s}\n${d.station} ${d.time}  ${keyFn(d)}`);
+    filtered.forEach(d => s=`${s}\n${d.station} ${d.time}  ${keyFn(d)}`);
     plotDiv.textContent = s;
   } else {
     let p = plotDiv.appendChild(document.createElement("p"));

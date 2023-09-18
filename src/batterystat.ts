@@ -57,10 +57,14 @@ function dataFn(d: KilovaultSOC): number {
 function textDataFn(d: KilovaultSOC): string {
   if (curKey === "soc") {
     const firstObj = d.soc[0];
-    if (firstObj && 'percentCharge' in firstObj) {
-      return `${firstObj.id} ${firstObj.percentCharge}`;
+    if (firstObj && 'percentCharge' in firstObj ) {
+      if (firstObj.percentCharge) {
+        return `${firstObj.id} ${firstObj.percentCharge}`;
+      } else {
+        return `undef`;
+      }
     } else {
-      return "";
+      return "missing";
     }
   } else {
     return "";
@@ -105,7 +109,8 @@ function handleData(allStats: Array<KilovaultSOC>) {
       } else {
         expandData.push(stat);
       }
-    })
+    });
+    expandData = expandData.filter(stat => stat.soc[0] && 'percentCharge' in  stat.soc[0] && stat.soc[0].percentCharge >= 0 && stat.soc[0].percentCharge <= 100);
   } else {
     expandData = allStats;
   }

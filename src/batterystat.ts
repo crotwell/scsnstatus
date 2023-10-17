@@ -35,7 +35,7 @@ app.innerHTML = `
 
 let curKey = "soc";
 const lineColors = new sp.seismographconfig.SeismographConfig().lineColors;
-const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI']
+const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA']
 let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();

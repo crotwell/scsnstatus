@@ -11,6 +11,7 @@ export default defineConfig({
         cellstat: resolve(__dirname, 'cellstat/index.html'),
         batterystat: resolve(__dirname, 'batterystat/index.html'),
         stations: resolve(__dirname, 'stations/index.html'),
+        scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),
       },
     },
   },

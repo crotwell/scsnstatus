@@ -16,17 +16,21 @@
           div.removeChild(div.lastChild);
         }
         div.appendChild(document.createElement("p")).textContent = `Got Latency: ${ldata.accessTime}`;
-      console.log(JSON.stringify(ldata.latestData[0]))
         ldata.latestData.forEach(ld => {
-
           div.appendChild(document.createElement("p")).textContent = `${ld.velocity.cloud} ${ld.velocity.iris} ${ld.velocity.eeyore}`;
         });
 
       });
 
-      setTimeout( () => {
-        updateLatency();
-      }, latencyServ.updateInterval.toMillis());
+      if (latencyServ.previousLatencyCache === null) {
+        setTimeout( () => {
+          updateLatency();
+        }, 2000);
+      } else {
+        setTimeout( () => {
+          updateLatency();
+        }, latencyServ.updateInterval.toMillis());
+      }
     }
     updateLatency();
   });

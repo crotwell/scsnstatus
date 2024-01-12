@@ -69,10 +69,6 @@ export class DataLatencyService {
       return Promise.all(this.latencyCache.latestData).then(ldata => this.latencyCache );
     }
     const now = DateTime.utc();
-    console.log(now);
-    console.log(this.latencyCache.accessTime);
-    console.log(now.diff(this.latencyCache.accessTime))
-    console.log(this.updateInterval)
     if (now.diff(this.latencyCache.accessTime).toMillis() < this.updateInterval.toMillis()) {
       return Promise.all(this.latencyCache.latestData).then(ldata => this.latencyCache );
     }

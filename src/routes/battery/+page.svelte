@@ -6,6 +6,8 @@
 
 import { onMount } from 'svelte';
 
+export let data: PageData;
+
 import { Duration, Interval, DateTime } from 'luxon';
 
   onMount(async () => {
@@ -67,9 +69,8 @@ import { Duration, Interval, DateTime } from 'luxon';
                           curKey,
                           (key)=>{
                             curKey = key;
-                            dataPromise.then(allStats => {
-                              doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
-                            });
+                            doPlot("div.plot", data.batterystats, dataFn, selectedStations, colorForStation);
+
                           });
     }
 
@@ -115,28 +116,25 @@ import { Duration, Interval, DateTime } from 'luxon';
     }
 
     const stationCallback = function(sta: string, checked: boolean) {
-    dataPromise.then(allStats => {
+
         if (checked) {
           selectedStations.push(sta);
         } else {
           selectedStations = selectedStations.filter(s => s !== sta);
         }
-        return allStats;
-      }).then(allStats => {
-        statpage.doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
-      });
+        statpage.doPlot("div.plot", data.batterystats, dataFn, selectedStations, colorForStation);
+
     }
 
     statpage.createStationCheckboxes(allStations, stationCallback, colorForStation);
     statpage.createUpdatingClock();
 
     const timeChooser = statpage.initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
-      dataPromise = jsonl_loader.loadKilovaultStats(selectedStations, timerange).then(handleData);
+      console.log("time change...")
+      //data.batterystats = await jsonl_loader.loadKilovaultStats(selectedStations, timerange).then(handleData);
     }));
 
-    let timerange = timeChooser.toInterval();
-    let dataPromise = jsonl_loader.loadKilovaultStats(selectedStations, timerange).then(handleData);
-
+    handleData(data.batterystats);
 });
 </script>
 <style>

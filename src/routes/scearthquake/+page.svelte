@@ -1,7 +1,8 @@
+<svelte:head>
+	<title>SC Earthquakes</title>
+</svelte:head>
 
 <script lang="ts">
-  import NavBar from "$lib/navbar.svelte";
-
   import { onMount } from 'svelte';
 
 
@@ -163,8 +164,6 @@
     display: block;
   }
 </style>
-
-<NavBar/>
 
 
 <h5 id="nowtime">Now! And again!</h5>

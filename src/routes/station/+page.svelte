@@ -1,8 +1,10 @@
+<svelte:head>
+	<title>Station List</title>
+</svelte:head>
 
 <script lang="ts">
 	import type { PageData } from './$types';
   import { onMount } from 'svelte';
-  import NavBar from "$lib/navbar.svelte";
 
   export let data: PageData;
   export let networks = [];
@@ -24,8 +26,6 @@
 
 </script>
 
-
-<NavBar/>
 
 <h1>Stations: {networks.length}</h1>
 

@@ -1,6 +1,5 @@
 
 <script lang="ts">
-  import NavBar from "$lib/navbar.svelte";
   import { onMount } from 'svelte';
 
   onMount(async () => {
@@ -35,8 +34,6 @@
     updateLatency();
   });
 </script>
-
-<NavBar/>
 
 <h5 id="nowtime">Now!</h5>
 <div>

@@ -1,10 +1,11 @@
-
+<svelte:head>
+	<title>Battery Status</title>
+</svelte:head>
 
 <script lang="ts">
 
 import { onMount } from 'svelte';
 
-import NavBar from "$lib/navbar.svelte";
 import { Duration, Interval, DateTime } from 'luxon';
 
   onMount(async () => {
@@ -144,8 +145,6 @@ import { Duration, Interval, DateTime } from 'luxon';
     min-height: 400px;
   }
 </style>
-
-<NavBar/>
 
 <h5 id="nowtime">Now!</h5>
 <div>

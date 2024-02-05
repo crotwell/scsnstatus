@@ -1,6 +1,3 @@
-
-<script lang="ts">
-  import NavBar from "$lib/navbar.svelte";
-</script>
-
-<NavBar/>
+<svelte:head>
+	<title>Cellular Status</title>
+</svelte:head>

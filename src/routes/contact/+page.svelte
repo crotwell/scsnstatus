@@ -1,9 +1,7 @@
+<svelte:head>
+	<title>Contact Info</title>
+</svelte:head>
 
-<script lang="ts">
-  import NavBar from "$lib/navbar.svelte";
-</script>
-
-<NavBar/>
 
 <h1>Contact</h1>
 

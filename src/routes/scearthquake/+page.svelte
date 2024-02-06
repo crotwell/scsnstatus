@@ -42,13 +42,13 @@
       displayForTime(timeRange, allQuakes);
     }
     function displayForTime(timeRange: Interval, quakes: Array<Quake>): Array<Quake> {
-    const quakesInTime = allQuakes.filter(q => {
-      return timeRange.start <= q.time && q.time <= timeRange.end;
-    });
-    quaketable.quakeList = quakesInTime;
-    quakemap.quakeList = []
-    quakemap.addQuake(quakesInTime);
-    quakemap.draw();
+      const quakesInTime = allQuakes.filter(q => {
+        return timeRange.start <= q.time && q.time <= timeRange.end;
+      });
+      quaketable.quakeList = quakesInTime;
+      quakemap.quakeList = []
+      quakemap.addQuake(quakesInTime);
+      quakemap.draw();
     }
 
     console.log(`qml len: ${data.qml?.length}`)
@@ -59,63 +59,6 @@
     allQuakes = data.qml.eventList;
     displayForTime(timerangeEl.getTimeRange(), allQuakes);
     console.log(`got ${data.qml.eventList.length} quakes ${quaketable.quakeList.length}`)
-
-    });
-
-    function displayAllQuakes() {
-
-    }
-
-    function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
-    if ( quake == null) {
-      displayAllQuakes();
-    }
-    document.querySelectorAll(".showquake").forEach( el => {
-      el.classList.remove("hide");
-      el.classList.add("show");
-    });
-    document.querySelectorAll(".showalleq").forEach( el => {
-      el.classList.remove("show");
-      el.classList.add("hide");
-    });
-    pageState.dataset.catalog = [ quake];
-    let loader = new sp.seismogramloader.SeismogramLoader(
-      pageState.dataset.inventory,
-      pageState.dataset.catalog);
-    loader.dataselectQuery = new sp.fdsndataselect.DataSelectQuery("eeyore.seis.sc.edu");
-    //loader.dataselectQuery.port(8080)
-    loader.endOffset = Duration.fromObject({minutes: 5});
-    loader.load().then( ds => {
-      console.log(`loader ${ds.waveforms.length} seismograms`);
-      pageState.dataset = ds;
-      ds.waveforms.forEach(sdd => {
-
-        sdd.quakeList.forEach( quake => {
-          const pickMarkers = sp.seismograph.createMarkerForPicks(
-            quake.preferredOrigin, sdd.channel);
-          sdd.addMarkers(pickMarkers);
-          sdd.alignmentTime = quake.time;
-        });
-      });
-
-      ds.processedWaveforms = ds.waveforms.map(sdd => {
-        if (sdd.seismogram == null) {
-          return sdd;
-        }
-        let out = sdd;
-        //out = sdd.cloneWithNewSeismogram(sp.filter.rMean(sdd.seismogram));
-        //out = sdd.cloneWithNewSeismogram(sp.filter.removeTrend(sdd.seismogram));
-        //const highPass = sp.filter.createButterworth(2, sp.filter.BAND_PASS, 1.0, 20.0, sdd.seismogram.samplePeriod);
-        //out = sdd.cloneWithNewSeismogram(sp.filter.applyFilter(highPass, out.seismogram));
-        return out;
-      });
-
-      let orgDisp = document.querySelector("sp-organized-display");
-      orgDisp.seismographConfig.doGain = true;
-      orgDisp.seismographConfig.ySublabelIsUnits = true;
-      orgDisp.seisData = ds.processedWaveforms;
-    });
-
 
     quaketable.addStyle(`
         td {
@@ -131,7 +74,65 @@
     console.log(`quakeclick: ${ce.detail.quake}`);
     displayQuake(ce.detail.quake, pageState);
     });
+    console.log(`add listener to quaketable`)
+
+
+    function displayAllQuakes() {
+
     }
+
+    function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
+      if ( quake == null) {
+        displayAllQuakes();
+      }
+      document.querySelectorAll(".showquake").forEach( el => {
+        el.classList.remove("hide");
+        el.classList.add("show");
+      });
+      document.querySelectorAll(".showalleq").forEach( el => {
+        el.classList.remove("show");
+        el.classList.add("hide");
+      });
+      pageState.dataset.catalog = [ quake];
+      let loader = new sp.seismogramloader.SeismogramLoader(
+        pageState.dataset.inventory,
+        pageState.dataset.catalog);
+      loader.dataselectQuery = new sp.fdsndataselect.DataSelectQuery("eeyore.seis.sc.edu");
+      //loader.dataselectQuery.port(8080)
+      loader.endOffset = Duration.fromObject({minutes: 5});
+      loader.load().then( ds => {
+        console.log(`loader ${ds.waveforms.length} seismograms`);
+        pageState.dataset = ds;
+        ds.waveforms.forEach(sdd => {
+
+          sdd.quakeList.forEach( quake => {
+            const pickMarkers = sp.seismograph.createMarkerForPicks(
+              quake.preferredOrigin, sdd.channel);
+            sdd.addMarkers(pickMarkers);
+            sdd.alignmentTime = quake.time;
+          });
+        });
+
+        ds.processedWaveforms = ds.waveforms.map(sdd => {
+          if (sdd.seismogram == null) {
+            return sdd;
+          }
+          let out = sdd;
+          //out = sdd.cloneWithNewSeismogram(sp.filter.rMean(sdd.seismogram));
+          //out = sdd.cloneWithNewSeismogram(sp.filter.removeTrend(sdd.seismogram));
+          //const highPass = sp.filter.createButterworth(2, sp.filter.BAND_PASS, 1.0, 20.0, sdd.seismogram.samplePeriod);
+          //out = sdd.cloneWithNewSeismogram(sp.filter.applyFilter(highPass, out.seismogram));
+          return out;
+        });
+
+        let orgDisp = document.querySelector("sp-organized-display");
+        orgDisp.seismographConfig.doGain = true;
+        orgDisp.seismographConfig.ySublabelIsUnits = true;
+        orgDisp.seisData = ds.processedWaveforms;
+      });
+
+    }
+  }); // end onMount
 
 </script>
 
@@ -177,7 +178,12 @@
   </sp-quake-table>
 </div>
 <div class="showquake hide">
-  <sp-organized-display></sp-organized-display>
+  <sp-organized-display
+    tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/&#123;z&#125;/&#123;y&#125;/&#123;x&#125;"
+    tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+    sort="distance"
+    
+  ></sp-organized-display>
 </div>
 <div class="datakeys"></div>
 <div><pre class="raw"></pre></div>

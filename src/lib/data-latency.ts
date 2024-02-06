@@ -22,7 +22,7 @@ export class LatencyData {
     this.updateInterval = DEFAULT_UPDATE_INTERVAL;
   }
   get updateIntervalSeconds() {
-    return this.updateInterval.asSeconds();
+    return this.updateInterval.toMillis()/1000;
   }
 }
 

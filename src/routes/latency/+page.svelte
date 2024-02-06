@@ -11,6 +11,13 @@ table.latencytable tr td.station {
   color: red;
 }
 
+.latency-conn-ok {
+  color: green;
+}
+.latency-conn-error {
+  color: magenta;
+}
+
 .latencygood {
   color: black;
 }
@@ -38,7 +45,10 @@ table.latencytable tr td.station {
     latencyAsText,
     latencyVelocityIcon,
     latencySeriousness,
+    latencyConnFailure,
+    latencyConnFailureNumber,
   } from '$lib/latency-util'
+  import {Interval, DateTime} from 'luxon';
 
 	export let data: PageData;
 
@@ -68,19 +78,19 @@ table.latencytable tr td.station {
   <table>
     <tr>
       <th></th>
-      <th>Cloud</th>
-      <th></th>
+      <th class={latencyConnFailure(data.statsFailures, "cloud")}>
+        Cloud {latencyConnFailureNumber(data.statsFailures, "cloud")}
+      </th>
       <th></th>
       <th></th>
       <th></th>
 
-      <th>Eeyore</th>
+      <th class={latencyConnFailure(data.statsFailures, "eeyore")}>Eeyore</th>
       <th></th>
       <th></th>
       <th></th>
-      <th></th>
-      <th>IRIS</th>
-      <th></th>
+
+      <th class={latencyConnFailure(data.statsFailures, "iris")}>IRIS</th>
       <th></th>
       <th></th>
       <th></th>
@@ -105,11 +115,25 @@ table.latencytable tr td.station {
     <tr>
       <td>{ld['key']}</td>
       <td class={latencySeriousness(ld.cloud.end)}>{ld.cloud.end.toISOTime()}</td><td>{latencyAsText(ld.cloud.end)}</td><td>{ld.velocity.cloud.toFixed(2)}</td><td>{latencyVelocityIcon(ld.velocity.cloud)}</td>
-      <td>{ld.eeyore.end.toISOTime()}</td><td>{latencyAsText(ld.eeyore.end)}</td><td>{ld.velocity.eeyore.toFixed(2)}</td><td>{latencyVelocityIcon(ld.velocity.eeyore)}</td>
-      <td>{ld.iris.end.toISOTime()}</td><td>{latencyAsText(ld.iris.end)}</td><td>{ld.velocity.iris.toFixed(2)}</td><td>{latencyVelocityIcon(ld.velocity.iris)}</td>
+      <td class={latencySeriousness(ld.eeyore.end)}>{ld.eeyore.end.toISOTime()}</td><td>{latencyAsText(ld.eeyore.end)}</td><td>{ld.velocity.eeyore.toFixed(2)}</td><td>{latencyVelocityIcon(ld.velocity.eeyore)}</td>
+      <td class={latencySeriousness(ld.iris.end)}>{ld.iris.end.toISOTime()}</td><td>{latencyAsText(ld.iris.end)}</td><td>{ld.velocity.iris.toFixed(2)}</td><td>{latencyVelocityIcon(ld.velocity.iris)}</td>
     </tr>
     {/each}
   </table>
+  <h5>Access at {data.latency.accessTime.toISO()} UTC,
+   {Interval.fromDateTimes(data.latency.accessTime, DateTime.utc()).toDuration().set({milliseconds: 0}).toHuman()}</h5>
+  <h5>Rate averaged over last {data?.previousLatencyCache?.accessTime.toISO()}
+    {#if data?.previousLatencyCache?.accessTime != null}
+    {Math.round(Interval.fromDateTimes(data.previousLatencyCache.accessTime, data.latency.accessTime).toDuration().toMillis()/1000)}
+    {:else}
+    -
+    {/if} seconds.
+  </h5>
+  <h5>Update Interval: {data.latency.updateIntervalSeconds} seconds</h5>
+  <h5>UTC: {DateTime.utc().toISO()}</h5>
+  <h5>Local: {DateTime.now().toISO()}</h5>
+
+
 </div>
 <div class="datakeys"></div>
 <div><pre class="raw"></pre></div>

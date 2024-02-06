@@ -20,5 +20,7 @@ console.log(`page load: have latency data: ${data?.latency != null}`)
 		},
     dumb: 'dumb text',
     latency: latest,
+    previousLatencyCache: _latencyServ.previousLatencyCache,
+    statsFailures: _latencyServ.statsFailures,
 	};
 };

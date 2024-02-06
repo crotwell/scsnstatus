@@ -68,3 +68,20 @@ export function latencySeriousness(end) {
   }
   return out;
 }
+
+export function latencyConnFailure(statsFailures: StatsFailures, host: string): string {
+  if ( ! (host in statsFailures)) {
+    return "latency-conn-error";
+  }
+  if (statsFailures[host] > 0) {
+    return "latency-conn-failure";
+  }
+  return "latency-conn-ok";
+}
+
+export function latencyConnFailureNumber(statsFailures: StatsFailures, host: string): string {
+  if (statsFailures[host] === 0) {
+    return "";
+  }
+  return `${statsFailures[host]}`;
+}

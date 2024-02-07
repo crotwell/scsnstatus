@@ -57,13 +57,8 @@
   });
 </script>
 
+<h3>{data.quake.description}, {data.quake.toString()}</h3>
 
-
-<h1>{data.title}</h1>
-<h3>{data.quakeml_id} spjs: {data.spjsversion}</h3>
-<h3>{data.quake.description}</h3>
-
-<div>{@html data.content}</div>
 <sp-organized-display
   bind:this={orgdisplay}
   map="true"

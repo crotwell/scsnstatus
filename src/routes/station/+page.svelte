@@ -11,6 +11,7 @@
 <script lang="ts">
 	import type { PageData } from './$types';
   import { onMount } from 'svelte';
+  import {DateTime} from 'luxon';
 
   export let data: PageData;
   export let networks = [];
@@ -29,7 +30,16 @@
         p.parentNode.removeChild(p);
       }
     }
-    stationmap.addStation(networks[0].stations);
+    const now = DateTime.utc();
+    const inactiveClass = `${sp.leafletutil.InactiveStationMarkerClassName}`
+    for(let s of sp.stationxml.allStations(networks)) {
+      if (s.timeRange.isBefore(now)) {
+        stationmap.addStation(s, sp.leafletutil.InactiveStationMarkerClassName);
+      } else {
+        stationmap.addStation(s);
+      }
+    }
+    stationmap.draw();
   });
 
 

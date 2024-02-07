@@ -17,13 +17,13 @@
   export let networks = [];
   let stationmap;
   let stationtable;
+  let inactivestationtable;
 
   onMount(async () => {
     // leaflet uses window, and fails to load for server-side rendering
     const  sp  = await import('seisplotjs');
     const xml = new DOMParser().parseFromString(data.rawstationxml, sp.util.XML_MIME);
     networks = sp.stationxml.parseStationXml(xml);
-    stationtable.stationList = networks[0].stations;
     if (networks.length > 0 && networks[0].stations.length > 0) {
       const p = document.querySelector("p");
       if (p.parentNode) {
@@ -31,14 +31,21 @@
       }
     }
     const now = DateTime.utc();
-    const inactiveClass = `${sp.leafletutil.InactiveStationMarkerClassName}`
+    const inactiveClass = `${sp.leafletutil.InactiveStationMarkerClassName}`;
+    const inactiveSta = [];
+    const activeSta = [];
     for(let s of sp.stationxml.allStations(networks)) {
       if (s.timeRange.isBefore(now)) {
-        stationmap.addStation(s, sp.leafletutil.InactiveStationMarkerClassName);
+        inactiveSta.push(s);
       } else {
-        stationmap.addStation(s);
+        activeSta.push(s);
       }
     }
+    stationtable.columnLabels.delete(sp.infotable.STATION_COLUMN.END);
+    stationtable.stationList = activeSta;
+    inactivestationtable.stationList = inactiveSta;
+    stationmap.addStation(inactiveSta, sp.leafletutil.InactiveStationMarkerClassName);
+    stationmap.addStation(activeSta);
     stationmap.draw();
   });
 
@@ -56,6 +63,14 @@
     tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
   >
   </sp-station-quake-map>
+  <h3>Current Stations:</h3>
   <sp-station-table
-    bind:this={stationtable}></sp-station-table>
+    bind:this={stationtable}
+    >
+  </sp-station-table>
+  <h3>Inactive Stations:</h3>
+  <sp-station-table
+    bind:this={inactivestationtable}
+    >
+  </sp-station-table>
 </div>

@@ -160,7 +160,7 @@
 <div>
   <sp-timerange
     bind:this={timerangeEl}
-    duration="P30DT0M"></sp-timerange>
+    duration="P31D"></sp-timerange>
   <button id="loadMonth" on:click={() => timerangeEl.duration = 'P31D'}>Month</button>
   <button id="loadYear" bind:this={loadYearBtn} on:click={() => timerangeEl.duration = 'P1Y'} >Year</button>
   <button id="loadAll" on:click={() => {timerangeEl.end = DateTime.utc(); timerangeEl.start = DateTime.fromISO('2009-07-10T00:00:00Z');}}>All</button>

@@ -2,25 +2,34 @@
 	<title>Station List</title>
 </svelte:head>
 
+<style>
+  sp-station-quake-map {
+    height: 300px;
+  }
+</style>
+
 <script lang="ts">
 	import type { PageData } from './$types';
   import { onMount } from 'svelte';
 
   export let data: PageData;
   export let networks = [];
+  let stationmap;
+  let stationtable;
 
   onMount(async () => {
     // leaflet uses window, and fails to load for server-side rendering
     const  sp  = await import('seisplotjs');
     const xml = new DOMParser().parseFromString(data.rawstationxml, sp.util.XML_MIME);
     networks = sp.stationxml.parseStationXml(xml);
-    document.querySelector("sp-station-table").stationList = networks[0].stations;
+    stationtable.stationList = networks[0].stations;
     if (networks.length > 0 && networks[0].stations.length > 0) {
       const p = document.querySelector("p");
       if (p.parentNode) {
         p.parentNode.removeChild(p);
       }
     }
+    stationmap.addStation(networks[0].stations);
   });
 
 
@@ -31,5 +40,12 @@
 
 <div class="stations">
   <p>No stations yet</p>
-  <sp-station-table></sp-station-table>
+  <sp-station-quake-map
+    bind:this={stationmap}
+    tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/&#123;z&#125;/&#123;y&#125;/&#123;x&#125;"
+    tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+  >
+  </sp-station-quake-map>
+  <sp-station-table
+    bind:this={stationtable}></sp-station-table>
 </div>

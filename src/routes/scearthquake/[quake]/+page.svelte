@@ -61,11 +61,12 @@
 
 <h1>{data.title}</h1>
 <h3>{data.quakeml_id} spjs: {data.spjsversion}</h3>
-<h3>{data.quake.eventId}</h3>
+<h3>{data.quake.description}</h3>
 
 <div>{@html data.content}</div>
 <sp-organized-display
   bind:this={orgdisplay}
+  map="true"
   tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/&#123;z&#125;/&#123;y&#125;/&#123;x&#125;/"
   tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
   sort="distance"

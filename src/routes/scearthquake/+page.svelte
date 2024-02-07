@@ -3,6 +3,7 @@
 </svelte:head>
 
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import { browser, building, dev, version } from '$app/environment';
   import { onMount } from 'svelte';
 	import type { PageData } from './$types';
@@ -71,8 +72,9 @@
         }
       `);
     quaketable.addEventListener("quakeclick", ce => {
-    console.log(`quakeclick: ${ce.detail.quake}`);
-    displayQuake(ce.detail.quake, pageState);
+      console.log(`quakeclick: ${ce.detail.quake}  ${ce.detail.quake.eventId}`);
+      //displayQuake(ce.detail.quake, pageState);
+      goto(`/scearthquake/${ce.detail.quake.eventId}`);
     });
     console.log(`add listener to quaketable`)
 
@@ -182,7 +184,7 @@
     tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/&#123;z&#125;/&#123;y&#125;/&#123;x&#125;"
     tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
     sort="distance"
-    
+
   ></sp-organized-display>
 </div>
 <div class="datakeys"></div>

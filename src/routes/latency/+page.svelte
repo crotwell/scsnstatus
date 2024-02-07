@@ -51,6 +51,9 @@ table.latencytable tr td.station {
   import {Interval, DateTime} from 'luxon';
 
 	export let data: PageData;
+  let accessTimer;
+  let nowtimeutc;
+  let nowtimelocal;
 
 	onMount(() => {
     console.log("in onMount");
@@ -58,20 +61,21 @@ table.latencytable tr td.station {
       console.log("timeout inside onMount, invalidating")
           invalidate("data:latency");
         }, 10000);
+    const infoTimersInterval = setInterval( () => {
+      let accessDur = Interval.fromDateTimes(data.latency.accessTime, DateTime.utc()).toDuration();
+      accessDur = accessDur.normalize();
+      accessTimer.textContent = `${accessDur.toFormat('hh:mm:ss')} ago`;
+      nowtimeutc.textContent = DateTime.utc().set({milliseconds: 0}).toISO();
+      nowtimelocal.textContent = DateTime.now().set({milliseconds: 0}).toISO();
+    }, 1000);
 
     return () => {
 			clearInterval(interval);
+      clearInterval(infoTimersInterval);
 		};
   });
 </script>
 
-<h5 id="nowtime">Now!</h5>
-<div>
-  <sp-timerange duration="P2DT0M"></sp-timerange>
-  <button id="loadToday">Today</button>
-  <button id="loadNow">Now</button>
-</div>
-<div class="plot"></div>
 <h5>Access: {data.latency.accessTime.toISO()}  {data.latency.latestData.length}</h5>
 
 <div class="latency">
@@ -120,8 +124,9 @@ table.latencytable tr td.station {
     </tr>
     {/each}
   </table>
-  <h5>Access at {data.latency.accessTime.toISO()} UTC,
-   {Interval.fromDateTimes(data.latency.accessTime, DateTime.utc()).toDuration().set({milliseconds: 0}).toHuman()}</h5>
+  <h5>Access at
+    {data.latency.accessTime.toISO()} UTC,
+   <span bind:this={accessTimer}></span></h5>
   <h5>Rate averaged over last {data?.previousLatencyCache?.accessTime.toISO()}
     {#if data?.previousLatencyCache?.accessTime != null}
     {Math.round(Interval.fromDateTimes(data.previousLatencyCache.accessTime, data.latency.accessTime).toDuration().toMillis()/1000)}
@@ -130,8 +135,8 @@ table.latencytable tr td.station {
     {/if} seconds.
   </h5>
   <h5>Update Interval: {data.latency.updateIntervalSeconds} seconds</h5>
-  <h5>UTC: {DateTime.utc().toISO()}</h5>
-  <h5>Local: {DateTime.now().toISO()}</h5>
+  <h5>UTC: <span bind:this={nowtimeutc}>{DateTime.utc().toISO()}</span></h5>
+  <h5>Local: <span bind:this={nowtimelocal}>{DateTime.now().toISO()}</span></h5>
 
 
 </div>

@@ -1,6 +1,8 @@
 import * as sp from 'seisplotjs';
 import {Duration, DateTime, Interval} from 'luxon';
 
+export const DEFAULT_HOST = "eeyore.seis.sc.edu"
+//export const DEFAULT_HOST = "thecloud.seis.sc.edu"
 export interface DataSOHType {
   station: string;
   time: DateTime;
@@ -61,12 +63,11 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
     });
 }
 
-export function loadStats(stationList: Array<string>, chan: string, interval: Interval): Promise<Array<string>> {
+export function loadStats(stationList: Array<string>, chan: string, interval: Interval, host=DEFAULT_HOST): Promise<Array<string>> {
   const net = "CO";
   const loc = "SH";
   const one_hour = Duration.fromObject({hours: 1});
   const protocol = sp.util.checkProtocol();
-  const host = "eeyore.seis.sc.edu"
   let root = `${protocol}//${host}/scsn`;
   let pattern = "jsonl/%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H.jsonl";
   let msArchive = new sp.mseedarchive.MSeedArchive(root, pattern);

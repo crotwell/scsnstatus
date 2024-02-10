@@ -19,7 +19,7 @@ import { Duration, Interval, DateTime } from 'luxon';
 
     let curKey = "soc";
     const lineColors = new sp.seismographconfig.SeismographConfig().lineColors;
-    const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA']
+    const allStations = ["BIRD", "JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA'];
     let colorForStation = statpage.createColors(allStations);
 
     let selectedStations = allStations.slice();

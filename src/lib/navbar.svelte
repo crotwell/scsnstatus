@@ -7,6 +7,7 @@
     <li><a href="/scearthquake">SC Earthquakes</a></li>
     <li><a href="/cellular">Cell Stat</a></li>
     <li><a href="/battery">Battery Stat</a></li>
+    <li><a href="/diskusage">Computer Stat</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="/contact">Contact</a></li>
   </ul>

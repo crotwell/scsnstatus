@@ -29,6 +29,21 @@ export interface PercentCharge {
     percentCharge: number,
     [index: string]: string|number
 }
+
+export interface ComputerStat {
+  time: string,
+  station: string,
+  temp: number,
+  du: Array<DiskUsage>,
+}
+export interface DiskUsage {
+  free: number,
+  user: number,
+  total: number,
+  percentused: number,
+  human: string,
+}
+
 export interface KilovaultSOC extends DataSOHType {
   [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
   soc: Array<PercentCharge>;
@@ -62,6 +77,26 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
       return allStats.filter(x=> !!x);
     });
 }
+
+export function loadComputerStats(stationList: Array<string>, interval: Interval): Promise<Array<ComputerStat>> {
+  const chan = "DISK";
+  return loadStats(stationList, chan, interval)
+    .then(jsonTextList => {
+      const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
+            let statJson = JSON.parse(line);
+            if ('station' in statJson === false) { throw new Error("No station in json object");}
+            if ('time' in statJson === false) { throw new Error("No time in json object");}
+            statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
+            statJson.temp = parseFloat(statJson.temp)
+            statJson.du.forEach( (s: any) => {
+              s.percentCharge = parseFloat(s.percentCharge);
+            });
+            return statJson as ComputerStat;
+      });
+      return allStats.filter(x=> !!x);
+    });
+}
+
 
 export function loadStats(stationList: Array<string>, chan: string, interval: Interval, host=DEFAULT_HOST): Promise<Array<string>> {
   const net = "CO";

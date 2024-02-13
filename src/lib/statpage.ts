@@ -151,15 +151,6 @@ export function initTimeChooser(duration: Duration,
   }
 }
 
-export function createUpdatingClock() {
-  const nowEl = document.querySelector<HTMLDivElement>("#nowtime");
-  if (nowEl) {
-    setInterval(() => {
-      let n = DateTime.utc().set({millisecond: 0});
-      nowEl.textContent = `${n.toISO({suppressMilliseconds: true})} UTC`
-    }, 1000);
-  }
-}
 
 export function timesort<Type extends DataSOHType>(a: Type, b: Type): number {
   return a.time < b.time ? -1 : a.time > b.time ? 1 : 0;

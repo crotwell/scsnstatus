@@ -127,7 +127,6 @@ import { Duration, Interval, DateTime } from 'luxon';
     }
 
     statpage.createStationCheckboxes(allStations, stationCallback, colorForStation);
-    statpage.createUpdatingClock();
 
     const timeChooser = statpage.initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
       console.log("time change...")
@@ -144,7 +143,6 @@ import { Duration, Interval, DateTime } from 'luxon';
   }
 </style>
 
-<h5 id="nowtime">Now!</h5>
 <div>
   <sp-timerange duration="P2DT0M"></sp-timerange>
   <button id="loadToday">Today</button>

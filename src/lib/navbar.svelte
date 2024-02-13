@@ -10,11 +10,21 @@
     <li><a href="/diskusage">Computer Stat</a></li>
     <li><a href="/about">About</a></li>
     <li><a href="/contact">Contact</a></li>
+    <li><span bind:this={navbarclock} id="nbclock">Now!</span></li>
   </ul>
 </nav>
 
 <script>
+  import {DateTime} from "luxon";
+  let navbarclock;
+  function createUpdatingClock() {
 
+    setInterval(() => {
+      let n = DateTime.utc().set({millisecond: 0});
+      navbarclock.textContent = `${n.toISO({suppressMilliseconds: true})} UTC`
+    }, 1000);
+  }
+  createUpdatingClock();
 </script>
 
 <style>

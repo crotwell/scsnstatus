@@ -3,7 +3,8 @@ import hostToShortName  from './host-to-short-name.ts';
 
 import {DateTime, Interval, Duration} from 'luxon';
 import {
-  ringserverweb
+  ringserverweb,
+  util
 } from 'seisplotjs';
 
 const DEFAULT_UPDATE_INTERVAL= Duration.fromObject({seconds: 10});
@@ -64,7 +65,7 @@ export class DataLatencyService {
   get latencyData() {
     return this.latencyCache;
   }
-  queryLatency() {
+  queryLatency(fetcher?: (url: URL|string, fetchInit: RequestInit)=>Promise<Response>) {
     if (this.inProgress) {
       return Promise.all(this.latencyCache.latestData).then(ldata => this.latencyCache );
     }
@@ -76,6 +77,8 @@ export class DataLatencyService {
     const networkCode = this.networkCode;
 
     const pattern = `^${networkCode}.*_H.Z.*`;
+    // set seisplotjs to use passed in fetch instead of window.fetch
+    if (fetcher) {util.setDefaultFetch(fetcher);}
     const irisStats = this.createStreamStats(ringserverweb.IRIS_HOST, 80, pattern);
     const eeyoreStats = this.createStreamStats(eeyore_host, 6382, pattern);
     const cloudStats = this.createStreamStats(cloud_host, 6382, pattern);

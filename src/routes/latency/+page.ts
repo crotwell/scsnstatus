@@ -2,7 +2,7 @@ import type { PageLoad } from './$types';
 
 export let _latencyServ = null;
 
-export const load: PageLoad = async ({ params, depends, data }) => {
+export const load: PageLoad = async ({ fetch, params, depends, data }) => {
 console.log(`page load: have latency data: ${data?.latency != null}`)
   depends('data:latency');
   const  sp  = await import('seisplotjs');
@@ -11,7 +11,7 @@ console.log(`page load: have latency data: ${data?.latency != null}`)
   if (_latencyServ == null) {
     _latencyServ = new datalatency.DataLatencyService();
   }
-  const latest = await _latencyServ.queryLatency();
+  const latest = await _latencyServ.queryLatency(fetch);
   console.log(`got latency data : ${latest.accessTime}`)
 	return {
 		post: {

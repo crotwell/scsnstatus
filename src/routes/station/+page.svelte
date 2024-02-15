@@ -53,7 +53,7 @@
 </script>
 
 
-<h1>Stations: {networks.length}</h1>
+<h1>Stations:</h1>
 
 <div class="stations">
   <p>No stations yet</p>

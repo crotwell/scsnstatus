@@ -21,7 +21,9 @@
 
     setInterval(() => {
       let n = DateTime.utc().set({millisecond: 0});
-      navbarclock.textContent = `${n.toISO({suppressMilliseconds: true})} UTC`
+      if (navbarclock != null) {
+        navbarclock.textContent = `${n.toISO({suppressMilliseconds: true})} UTC`
+      }
     }, 1000);
   }
   createUpdatingClock();

@@ -26,7 +26,6 @@ app.innerHTML = `
   <div class="stations"></div>
   <div class="datakeys"></div>
   <svg></svg>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `
 
 let curKey = "rsrq";

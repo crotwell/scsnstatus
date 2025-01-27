@@ -33,7 +33,6 @@ app.innerHTML = `
   </div>
   <div class="datakeys"></div>
   <div><pre class="raw"></pre></div>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `;
 
 const SC_QUAKE_URL = "https://eeyore.seis.sc.edu/scsn/sc_quakes/sc_quakes.xml"

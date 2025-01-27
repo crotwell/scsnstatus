@@ -29,7 +29,6 @@ app.innerHTML = `
   <div class="stations"></div>
   <div class="datakeys"></div>
   <div><pre class="raw"></pre></div>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `;
 
 

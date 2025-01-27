@@ -14,6 +14,7 @@ app.innerHTML = `
   <div class="stations">
     <p class="status"></p>
     <table class="latency">
+    <thead>
     <tr>
       <th></th>
       <th class="eeyore">Eeyore</th>
@@ -50,6 +51,9 @@ app.innerHTML = `
       <th>Rate</th>
       <th></th>
     </tr>
+    </thead>
+    <tbody>
+    </tbody>
     </table>
 
     <h5>Access at <span class="access_time"></span>,
@@ -185,9 +189,13 @@ function updateLatency() {
     }
     div.querySelector(".update_interval").textContent = ldata.updateIntervalSeconds;
     const table = div.querySelector("table.latency");
+    const tbody = table.querySelector("tbody");
 
     for (let host of HOST_LIST) {
-      const th = table.querySelector(`.${host}`);
+      const th = table.querySelector(`th.${host}`);
+      if (th == null) {
+        console.log(`querySelector th.${host} didn't find`)
+      }
       if (latencyServ.statsFailures[host] == 0) {
         th.textContent = host;
         th.classList.remove("latency-conn-failure");
@@ -198,7 +206,7 @@ function updateLatency() {
     }
 
     ldata.latestData.forEach(ld => {
-      let tr = table.querySelector(`tr.${ld.key}`);
+      let tr = tbody.querySelector(`tr.${ld.key}`);
       if (tr == null ) {
         tr = document.createElement("tr");
         tr.classList.add(ld.key);
@@ -216,7 +224,7 @@ function updateLatency() {
             ${createItemsForHost(ld, "cloud")}
             ${createItemsForHost(ld, "iris")}
           `;
-        table.appendChild(tr);
+        tbody.appendChild(tr);
       } else {
         tr.querySelector(".vel.cloud").textContent = `${ld.velocity.cloud.toFixed(2)}`;
         tr.querySelector(".velicon.cloud").textContent = latencyVelocityIcon(ld.velocity.cloud);
@@ -234,3 +242,23 @@ function updateLatency() {
   }, latencyServ.updateInterval.toMillis());
 }
 updateLatency();
+
+// table sorting from https://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript
+const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+const comparer = (idx, asc) => (a, b) => ((v1, v2) =>
+    v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+    )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+const table = document.querySelector("table.latency");
+const thead = table.querySelector("thead");
+const secHead = thead.querySelector("tr:nth-child(n+2)")
+secHead.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+    const table = th.closest('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const descend = th.classList.contains("asc");
+    th.classList.toggle("asc");
+        rows.sort(comparer(Array.from(th.parentNode.children).indexOf(th), !descend));
+        rows.forEach(tr => tbody.appendChild(tr) );
+})));

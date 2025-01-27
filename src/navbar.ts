@@ -4,6 +4,7 @@ let navhtml = `
 <nav class="sidebar">
   <ul>
     <li><a href="${import.meta.env.BASE_URL}index.html">Home</a></li>
+    <li><a href="${import.meta.env.BASE_URL}latency/index.html">Latency</a></li>
     <li><a href="${import.meta.env.BASE_URL}stations/index.html">Stations</a></li>
     <li><a href="${import.meta.env.BASE_URL}scearthquakes/index.html">SC Earthquakes</a></li>
     <li><a href="${import.meta.env.BASE_URL}cellstat/index.html">Cell Stat</a></li>

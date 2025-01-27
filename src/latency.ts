@@ -52,7 +52,8 @@ app.innerHTML = `
     </tr>
     </table>
 
-    <h5>Access at <span class="access_time"></span>, <span class="access_age"></span> ago.
+    <h5>Access at <span class="access_time"></span>,
+      <span class="access_age"></span> seconds ago.
     </h5>
     <h5>Rate averaged over last <span class="averaged_over">-</span> seconds.</h5>
     <h5>Update Interval: <span class="update_interval">-</span> seconds</h5>
@@ -83,7 +84,11 @@ function updateNow() {
       luxon.DateTime.utc().toFormat(DATE_FORMAT);
     document.querySelector(".now_local").textContent =
       luxon.DateTime.now().toFormat(DATE_FORMAT);
-
+    if (latencyServ.latencyData != null ) {
+      document.querySelector(".access_age").textContent =
+        luxon.Interval.fromDateTimes(latencyServ.latencyData.accessTime, luxon.DateTime.utc())
+        .toDuration().as("seconds").toFixed(1);;
+    }
     setTimeout( () => {
       updateNow();
     }, 100)
@@ -179,7 +184,7 @@ function updateLatency() {
         .toDuration().as("seconds");
     }
     div.querySelector(".update_interval").textContent = ldata.updateIntervalSeconds;
-    const table = div.querySelector("table");
+    const table = div.querySelector("table.latency");
 
     for (let host of HOST_LIST) {
       const th = table.querySelector(`.${host}`);

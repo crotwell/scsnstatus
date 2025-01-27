@@ -29,7 +29,7 @@ app.innerHTML = `
   <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `
 
-let curKey = "byterate";
+let curKey = "rsrq";
 const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD"]
 let selectedStations = allStations.slice();
 let colorForStation = createColors(allStations);

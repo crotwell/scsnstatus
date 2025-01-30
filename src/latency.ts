@@ -91,7 +91,7 @@ function updateNow() {
     if (latencyServ.latencyData != null ) {
       document.querySelector(".access_age").textContent =
         luxon.Interval.fromDateTimes(latencyServ.latencyData.accessTime, luxon.DateTime.utc())
-        .toDuration().as("seconds").toFixed(1);;
+        .toDuration().as("seconds").toFixed(0);;
     }
     setTimeout( () => {
       updateNow();

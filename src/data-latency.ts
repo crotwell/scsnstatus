@@ -42,7 +42,7 @@ export class StatsFailures {
 }
 
 export const eeyore_host = "http://eeyore.seis.sc.edu/ringserver";
-export const cloud_host = "http://li1043-95.members.linode.com/ringserver";
+export const cloud_host = "http://thecloud.seis.sc.edu/ringserver";
 //export const cloud_host = "http://139-144-31-38.ip.linodeusercontent.com/ringserver";
 export const cloud_cname_host = "thecloud.seis.sc.edu";
 

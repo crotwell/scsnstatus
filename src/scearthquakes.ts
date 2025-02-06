@@ -9,7 +9,6 @@ createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
-  <h5 id="nowtime">Now! And again! ${sp.version}</h5>
   <div>
     <sp-timerange duration="P30DT0M"></sp-timerange>
     <button id="loadMonth">Month</button>
@@ -29,7 +28,11 @@ app.innerHTML = `
     </sp-quake-table>
   </div>
   <div class="showquake hide">
-    <sp-organized-display></sp-organized-display>
+    <sp-organized-display
+      sort="distance"
+      tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
+      tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+    ></sp-organized-display>
   </div>
   <div class="datakeys"></div>
   <div><pre class="raw"></pre></div>

@@ -29,7 +29,7 @@ app.innerHTML = `
 `
 
 let curKey = "rsrq";
-const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD"]
+const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", "BELLE"]
 let selectedStations = allStations.slice();
 let colorForStation = createColors(allStations);
 

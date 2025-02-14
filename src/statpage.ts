@@ -1,5 +1,5 @@
 import * as sp from 'seisplotjs';
-import {scatterplot} from './scatterplot.js';
+import {scatterplot, highlightStation, doNotHighlightStation} from './scatterplot.js';
 import {DataSOHType} from './jsonl_loader.js';
 import { Duration, Interval, DateTime } from 'luxon';
 
@@ -42,6 +42,8 @@ export function createStationCheckboxes(
       color: ${stationLineColors.get(sta)};
     }
     `;
+    nlabel.addEventListener("mouseover", (event) => { highlightStation(sta, stationLineColors); });
+    nlabel.addEventListener("mouseleave", (event) => { doNotHighlightStation(stationLineColors); });
   });
   const headEl = document.querySelector<HTMLElement>('head');
   if (! headEl) { throw new Error(`Can't find head element`);}

@@ -12,7 +12,31 @@ import {
   axisBottom as d3_axisBottom,
   axisLeft as d3_axisLeft,
 } from "d3-axis";
+import 'd3-transition';
 
+
+
+export function highlightStation(station, colorForStation){
+    d3_selectAll(".dot")
+      .transition()
+      .duration(200)
+      .style("fill", "lightgrey")
+      .attr("r", 3)
+
+    d3_selectAll("." + station)
+      .transition()
+      .duration(200)
+      .style("fill", colorForStation.get(station))
+      .attr("r", 7)
+  }
+
+export function doNotHighlightStation(colorForStation){
+    d3_selectAll(".dot")
+      .transition()
+      .duration(200)
+      .style("fill", d => colorForStation.get(d.station))
+      .attr("r", 5 )
+  }
 
 // export function scatterplot(selector: string,
 //                             data: Array<DataSOHType>,
@@ -54,7 +78,6 @@ export function scatterplot(selector,
   let numberData = dataWithKey && typeof keyFn(dataWithKey) === 'number' ;
   let allOrdinalVals = [];
   if (numberData) {
-    console.log(`is numberData`);
     data.forEach(d => {
       const v = keyFn(d);
       if (v) {
@@ -69,11 +92,9 @@ export function scatterplot(selector,
       max = max+1;
     }
   } else {
-    console.log(`is string Data`)
     let valList = new Set();
     data.forEach(d => {
       const v = keyFn(d);
-      console.log(v)
       if (v) {
         valList.add(`${v}`);
         if (d['time'] < start) { start = d['time'];}
@@ -106,7 +127,6 @@ export function scatterplot(selector,
       .nice();
     y = yNumberScale;
   } else {
-    console.log(`ord Data`)
     yOrdinalScale = d3_scalePoint()
       .domain(allOrdinalVals)
       .range([ height, 0]);
@@ -117,27 +137,11 @@ export function scatterplot(selector,
 
 
   const highlight = function({}, d){
-    d3_selectAll(".dot")
-      .transition()
-      .duration(200)
-      .style("fill", "lightgrey")
-      .attr("r", 3)
-
-    d3_selectAll("." + d.station)
-      .transition()
-      .duration(200)
-      .style("fill", colorForStation.get(d.station))
-      .attr("r", 7)
+    highlightStation(d.station, colorForStation);
   }
-
   const doNotHighlight = function(event, d){
-    d3_selectAll(".dot")
-      .transition()
-      .duration(200)
-      .style("fill", d => colorForStation.get(d.station))
-      .attr("r", 5 )
+    doNotHighlightStation(colorForStation);
   }
-
   // Add dots
   svg.append('g')
     .selectAll("dot")

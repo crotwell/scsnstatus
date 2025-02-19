@@ -140,6 +140,9 @@ export class DataLatencyService {
           }
         } else {
           // didn't find, reuse
+          if (!pvalue?.startRaw) {
+            console.log(`pvalue.startRaw not definded: ${pvalue}`);
+          }
           const clonePValue = new ringserverweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
           clonePValue.accessTime = DateTime.utc();
           out.set(pkey, clonePValue);

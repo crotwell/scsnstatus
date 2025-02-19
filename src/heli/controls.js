@@ -54,6 +54,27 @@ export function handleAmpChange(config, value, redrawFun) {
   redrawFun(config);
 }
 
+export function setupStationRadioButtons(config, loadAndPlotFun) {
+  const staDiv = document.querySelector("#scsnStations");
+  config.stationList.forEach((sta) => {
+    const span = staDiv.appendChild(document.createElement("span"));
+    const button = span.appendChild(document.createElement("input"));
+    const label = span.appendChild(document.createElement("label"));
+    label.textContent = sta;
+    button.setAttribute("type", "radio");
+    button.setAttribute("class", "shape");
+    button.setAttribute("name", "station");
+    button.textContent = sta;
+    button.value = sta;
+    button.checked = sta === config.station;
+    button.addEventListener("click", (event) => {
+      config.station = sta;
+      loadAndPlotFun(config);
+    });
+  });
+
+}
+
 export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
   if (!loadAndPlotFun) {
     throw new Error("loadandPlotFun must be defined");
@@ -94,23 +115,8 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
       orgDisp.draw();
     });
   });
-  const staDiv = document.querySelector("#scsnStations");
-  config.stationList.forEach((sta) => {
-    const span = staDiv.appendChild(document.createElement("span"));
-    const button = span.appendChild(document.createElement("input"));
-    const label = span.appendChild(document.createElement("label"));
-    label.textContent = sta;
-    button.setAttribute("type", "radio");
-    button.setAttribute("class", "shape");
-    button.setAttribute("name", "station");
-    button.textContent = sta;
-    button.value = sta;
-    button.checked = sta === config.station;
-    button.addEventListener("click", (event) => {
-      config.station = sta;
-      loadAndPlotFun(config);
-    });
-  });
+
+  setupStationRadioButtons(config, loadAndPlotFun);
 
   const orientDiv = document.querySelector("#orientations");
   orientList.forEach((orient) => {

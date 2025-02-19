@@ -157,7 +157,7 @@ sp.util.updateVersionText('.sp_version');
 
 
 
-const staList = [
+export const staList = [
   "BARN",
   "BELLE",
   "BIRD",

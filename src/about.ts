@@ -1,5 +1,4 @@
 import './style.css'
-import * as sp from 'seisplotjs';
 import {createNavigation} from './navbar';
 
 createNavigation();
@@ -22,7 +21,7 @@ seismicity in the region.
 Dr. Talwani retired in 2009 and the SCSN was under the direction of
 Dr. Tom Owens until his retirement in 2022. Dr. Scott White was director from
 2022-2024. Dr. Dan Frost is the current
-director. Dr. Philip Crotwell is the network manager. 
+director. Dr. Philip Crotwell is the network manager.
 </p>
 
 <pre>

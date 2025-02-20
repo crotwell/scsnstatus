@@ -1,19 +1,16 @@
 
-import hostToShortName  from './host-to-short-name.ts';
+import * as sp from 'seisplotjs';
+import hostToShortName  from './host-to-short-name';
 
-import {DateTime, Interval, Duration} from 'luxon';
+import {DateTime, Duration} from 'luxon';
 import {
-  d3,
-  seismogram,
-  seismographconfig,
-  seismograph,
   ringserverweb
 } from 'seisplotjs';
 
 const DEFAULT_UPDATE_INTERVAL= Duration.fromObject({seconds: 10});
 
 export class LatencyData {
-  latestData = [];
+  latestData: Array<sp.ringserverweb.StreamStat> = [];
   accessTime: DateTime;
   pattern: string;
   networkCode: string;
@@ -31,13 +28,23 @@ export class LatencyData {
 }
 
 export class StatsFailures {
-  eeyore;
-  iris;
-  cloud;
+  hostToFails = new Map<string, number>();
   constructor() {
-    this.eeyore = 0;
-    this.iris = 0;
-    this.cloud = 0;
+  }
+  numForHost(host: string) {
+    if (host in this.hostToFails.keys()) { return this.hostToFails.get(host);}
+    return 9999;
+  }
+  zero(host: string) {
+    this.hostToFails.set(host, 0);
+  }
+  addOne(host: string) {
+    let prev = 0;
+    if (host in this.hostToFails.keys()) {
+      const x = this.hostToFails.get(host);
+      prev = x?x:0;
+    }
+    this.hostToFails.set(host, 1+prev);
   }
 }
 
@@ -50,20 +57,28 @@ export const HOST_LIST = [ 'eeyore', 'cloud', 'iris'];
 
 export const DEFAULT_HISTORY_LENGTH = 12;
 
+export type HostStreamStats = {
+  host: string,
+  fullhost: string,
+  pattern: string,
+  accessTime: DateTime,
+  stats: Array<sp.ringserverweb.StreamStat>
+};
+
 export class DataLatencyService {
   networkCode = 'CO';
   latencyCache = new LatencyData();
-  previousLatencyCache = null;
+  previousLatencyCache: LatencyData|null = null;
   historyLength = DEFAULT_HISTORY_LENGTH;
-  latencyHistory = [];
+  latencyHistory: Array<LatencyData> = [];
   updateInterval = DEFAULT_UPDATE_INTERVAL;
   inProgress = false;
   statsFailures = new StatsFailures();
 
 
-  isConnectionFailure(host) {
+  isConnectionFailure(host: string) {
     console.log(`isConnectionFailure  ${host}`);
-    return ! this.statsFailures[host] || this.statsFailures[shortHost] > 0;
+    return this.statsFailures.numForHost(host) !== 0;
   }
 
   get latencyData() {
@@ -71,11 +86,11 @@ export class DataLatencyService {
   }
   queryLatency() {
     if (this.inProgress) {
-      return Promise.all(this.latencyCache.latestData).then(ldata => this.latencyCache );
+      return Promise.all(this.latencyCache.latestData).then(() => this.latencyCache );
     }
     const now = DateTime.utc();
     if (now.diff(this.latencyCache.accessTime).toMillis() < this.updateInterval.toMillis()) {
-      return Promise.all(this.latencyCache.latestData).then(ldata => this.latencyCache );
+      return Promise.all(this.latencyCache.latestData).then(() => this.latencyCache );
     }
     this.inProgress = true;
     const networkCode = this.networkCode;
@@ -86,7 +101,8 @@ export class DataLatencyService {
     const cloudStats = this.createStreamStats(cloud_host, pattern);
     const accessTime = DateTime.utc();
     const mythis = this;
-    return Promise.all([irisStats, eeyoreStats, cloudStats]).then(statArray => {
+    return Promise.all([irisStats, eeyoreStats, cloudStats])
+    .then((statArray: Array<HostStreamStats>) => {
       let lc = new LatencyData();
       lc.latestData = this.cosolidateStats(statArray, mythis.latencyCache);
       lc.accessTime = accessTime;
@@ -97,12 +113,13 @@ export class DataLatencyService {
       mythis.inProgress = false;
       // clean up any too old latency results
       while (mythis.latencyHistory.length > 0
-              && accessTime.diff(mythis.latencyHistory[0].accessTime) > (1+mythis.historyLength)*mythis.updateInterval.toMillis()) {
+              && accessTime.diff(mythis.latencyHistory[0].accessTime).toMillis() > (1+mythis.historyLength)*mythis.updateInterval.toMillis()) {
         mythis.latencyHistory.pop();
       }
       mythis.latencyHistory.unshift(lc);
       if (mythis.latencyHistory.length > mythis.historyLength) {
-        mythis.previousLatencyCache = mythis.latencyHistory.pop();
+        const popped = mythis.latencyHistory.pop();
+        mythis.previousLatencyCache = popped?popped:null;
       } else if (mythis.latencyHistory.length > 1) {
         mythis.previousLatencyCache = mythis.latencyHistory[mythis.latencyHistory.length-1];
       }
@@ -115,7 +132,7 @@ export class DataLatencyService {
       return mythis.latencyCache;
     });
   }
-  cosolidateStats(hostStats, prevLC) {
+  cosolidateStats(hostStats: Array<HostStreamStats>, prevLC: LatencyData) {
     const out = new Map();
     for (const hs of hostStats) {
       for (const s of hs.stats) {
@@ -125,7 +142,7 @@ export class DataLatencyService {
         }
         const x = out.get(s.key);
         x[hs.host] = s;
-        s['accessTime'] = hs.accessTime;
+        s.accessTime = hs.accessTime;
       }
     }
     if (prevLC && prevLC.latestData) {
@@ -151,7 +168,7 @@ export class DataLatencyService {
     }
     return Array.from(out.values());
   }
-  createStreamStats(hosturl, pattern) {
+  createStreamStats(hosturl: string, pattern: string): HostStreamStats {
     const mythis = this;
     const shortHost = hostToShortName(hosturl);
     const conn = new ringserverweb.RingserverConnection(hosturl);
@@ -164,18 +181,18 @@ export class DataLatencyService {
       'stats': []
     };
     return conn.pullStreams(pattern).then(streamStats => {
-      mythis.statsFailures[shortHost] = 0;
+      mythis.statsFailures.zero(shortHost);
       const stationStats = ringserverweb.stationsFromStreams(streamStats.streams);
       out.stats = stationStats;
       return out;
-    }, reason => {
+    }).catch( reason => {
       // connection failure, return with empty stats
-      mythis.statsFailures[shortHost] += 1;
-console.log(`statsFailure ${shortHost} ${mythis.statsFailures[shortHost]}`)
+      mythis.statsFailures.addOne(shortHost);
+console.log(`statsFailure ${shortHost} ${mythis.statsFailures.numForHost(shortHost)} ${reason}`)
       return out;
     });
   }
-  calcLatencyVelocity(previousLatencyCache, latencyCache) {
+  calcLatencyVelocity(previousLatencyCache: LatencyData|null, latencyCache: LatencyData) {
     for (let stat of latencyCache.latestData) {
       stat.velocity = {};
       for (let host of HOST_LIST) {

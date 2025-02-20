@@ -1,5 +1,5 @@
 import * as sp from "seisplotjs";
-import { getNowTime, loadDataReal } from "./doplot.js";
+import { getNowTime, loadDataReal } from "./doplot";
 
 const luxon = sp.luxon;
 

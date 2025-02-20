@@ -1,5 +1,4 @@
 import './style.css'
-import * as sp from 'seisplotjs';
 import {createNavigation} from './navbar';
 
 createNavigation();

@@ -4,5 +4,5 @@ export function scatterplot<Type extends DataSOHType>(selector: string,
                             data: Array<Type>,
                             keyFn: ((d:Type)=> string)|((d:Type)=> number),
                             allStations: Array<string>,
-                            lineColors: Array<string>
+                            lineColors: Map<string, string>
                           ): void;

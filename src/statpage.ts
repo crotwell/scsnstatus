@@ -55,7 +55,7 @@ export function doPlot<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,
                         keyFn: ((d:Type)=> string)|((d:Type)=> number),
                         selectedStations: Array<string>,
-                        lineColors: Array<string>,
+                        lineColors: Map<string, string>,
                       ) {
   let filtered = allStats.filter((stat: Type) => selectedStations.findIndex(s => s === stat.station) !== -1);
   let plotDiv = document.querySelector<HTMLDivElement>(selector);

@@ -1,9 +1,7 @@
 import './style.css'
 import * as sp from 'seisplotjs';
 import {
-  HOURS_PER_LINE,
   doPlot,
-  queryEarthquakes,
   redrawHeli,
   getNowTime,
   drawSeismograph,
@@ -25,9 +23,6 @@ const app = document.querySelector<HTMLDivElement>('#app')!
 
 if (true) {
 app.innerHTML = `
-<h1>Helicorders</h1>
-
-<h3>South Carolina Seismic Network</h3>
 
 <h3>Helicorder Plots for South Carolina Seismic Network Stations:</h3>
 <div id="scsnStations">

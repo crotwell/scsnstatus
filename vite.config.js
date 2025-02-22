@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  base: "/scsn/scsnstatus/",
   build: {
     rollupOptions: {
       input: {
@@ -12,6 +13,7 @@ export default defineConfig({
         latency: resolve(__dirname, 'latency/index.html'),
         cellstat: resolve(__dirname, 'cellstat/index.html'),
         batterystat: resolve(__dirname, 'batterystat/index.html'),
+        voltage: resolve(__dirname, 'voltage/index.html'),
         stations: resolve(__dirname, 'stations/index.html'),
         scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),
         about: resolve(__dirname, 'about/index.html'),

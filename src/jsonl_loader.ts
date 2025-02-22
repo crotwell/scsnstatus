@@ -34,6 +34,13 @@ export interface KilovaultSOC extends DataSOHType {
   soc: Array<PercentCharge>;
 }
 
+export interface LatencyVoltage extends DataSOHType {
+  volt: number,
+  eeyore: number,
+  thecloud: number,
+  iris: number
+}
+
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
   const chan = "CEL";
   return loadStats(stationList, chan, interval)

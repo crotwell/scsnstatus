@@ -24,7 +24,6 @@ const app = document.querySelector<HTMLDivElement>('#app')!
 if (true) {
 app.innerHTML = `
 
-<h3>Helicorder Plots for South Carolina Seismic Network Stations:</h3>
 <div id="scsnStations">
   <label class="sectionlabel" title="Stations within the South Carolina Seismic Network">Stations:</label>
 </div>
@@ -33,7 +32,22 @@ app.innerHTML = `
   <span id="instruments"><label class="sectionlabel">Instrument: </label></span>
   <span id="orientations"><label class="sectionlabel">Orientation: </label></span>
 </div>
-<div id="minmax">
+
+<div id="times">
+  <label class="sectionlabel">Time Range: </label>
+  <button id="loadToday">Today</button>
+  <button id="loadNow">Now</button>
+  <button id="loadPrev">Previous</button>
+  <button id="loadNext">Next</button>
+  <sp-datetime></sp-datetime>
+  <label class="sectionlabel">Click Interval: </label>
+  <input id="clickinterval" class="smallnum" type="text" value="PT5M"></input>
+  <label class="sectionlabel">Mouse: </label><span id="mousetime"></span>
+</div>
+
+<details>
+  <summary class="sectionlabel">Configure</summary>
+  <div id="minmax">
   <label class="sectionlabel" title="Load MinMax">Load: </label>
   <span>
     <input type="checkbox" id="minmax" class="shape" name="ampMode" value="0" checked="true"/>
@@ -84,17 +98,7 @@ app.innerHTML = `
   <label for="highcut">High Cut: </label>
   <input class="smallnum" type="text" id="highcut" name="highcut" value=10.0></input>
 </div>
-<div id="times">
-  <label class="sectionlabel">Time Range: </label>
-  <button id="loadToday">Today</button>
-  <button id="loadNow">Now</button>
-  <button id="loadPrev">Previous</button>
-  <button id="loadNext">Next</button>
-  <sp-datetime></sp-datetime>
-  <label class="sectionlabel">Click Interval: </label>
-  <input id="clickinterval" class="smallnum" type="text" value="PT5M"></input>
-  <label class="sectionlabel">Mouse: </label><span id="mousetime"></span>
-</div>
+
 <details>
   <summary class="sectionlabel">Query Earthquakes</summary>
   <div id="eqquery">
@@ -120,7 +124,9 @@ app.innerHTML = `
   </div>
 </details>
 
-<h3><span class="textNetCode"></span>.<span class="textStaCode"></span>.<span class="textLocCode">00</span>.<span class="textChanCode">H??</span> from <span class="startTime"></span> to <span class="endTime"></span>.</h3>
+</details>
+
+<h5><span class="textNetCode"></span>.<span class="textStaCode"></span>.<span class="textLocCode">00</span>.<span class="textChanCode">H??</span> from <span class="startTime"></span> to <span class="endTime"></span>.</h5>
 <details id="messagesParent">
   <summary class="sectionlabel">Messages:</summary>
   <div id="messages">
@@ -128,7 +134,6 @@ app.innerHTML = `
 </details>
 
 <div id='heli'>
-  <h5>Heli Div</h5>
   <sp-helicorder></sp-helicorder>
 </div>
 <div id='seismograph' style="display: none;">

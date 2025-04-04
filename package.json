@@ -14,7 +14,7 @@
     "@types/d3-selection": "^3.0.4",
     "@types/luxon": "^3.0.0",
     "typescript": "^5.2.2",
-    "vite": "^6.2.4"
+    "vite": "^6.2.5"
   },
   "dependencies": {
     "d3-axis": "^3.0.0",

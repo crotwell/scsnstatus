@@ -39,8 +39,6 @@ app.innerHTML = `
   <button id="loadPrev">Previous</button>
   <button id="loadNext">Next</button>
   <sp-datetime></sp-datetime>
-  <label class="sectionlabel">Click Interval: </label>
-  <input id="clickinterval" class="smallnum" type="text" value="PT5M"></input>
   <label class="sectionlabel">Mouse: </label><span id="mousetime"></span>
 </div>
 
@@ -111,13 +109,14 @@ export class CellStatusService {
       // only look in cache if not "today" so we get updates
       // careful of int vs string with ===
       const yearStr = ""+year;
-      const dayofyearStr = ""+dayofyear;
+      let dayofyearStr = ""+dayofyear;
+      if (dayofyearStr.length === 1) { dayofyearStr = `0${dayofyearStr}`;}
+      if (dayofyearStr.length === 2) { dayofyearStr = `0${dayofyearStr}`;}
       let cachedValue = this.cache.find( cellStat => {
-        return cellStat.dayofyear === dayofyearStr
-          && cellStat.station === station && cellStat.year === yearStr;
+        return cellStat["dayofyear"] === dayofyearStr
+          && cellStat["station"] === station && cellStat["year"] === yearStr;
       });
       if (cachedValue) {
-        console.log(`cell stats from cache: ${station} ${yearStr}/${dayofyearStr}`)
         return new Promise(function(resolve, reject) {
           resolve(cachedValue);
         });
@@ -125,8 +124,11 @@ export class CellStatusService {
     }
     let url = `https://eeyore.seis.sc.edu:${this.relativeURL}${year}/${dayofyear}/${station}.json`;
     return sp.util.doFetchWithTimeout(url, null, 10)
-      .then(out => {
-        return out.json();
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        return response.json();
       }).then(json => {
         if (year !== today.year || dayofyear !== today.ordinal) {
           // only push non-today
@@ -159,21 +161,23 @@ const cellStatusService = new CellStatusService();
 function loadAndPlot(config) {
   if (config.station) {
     const today = sp.luxon.DateTime.utc();
-    const year = today.year;
-    const dayofyear = today.ordinal;
-    cellStatusService.queryCellStatus(config.station, year, dayofyear)
-    .then( jsonData => {
+    const weekAgo = today.minus(sp.luxon.Duration.fromISO("P7D"));
+    const promiseList = [];
+    let dayToGet = weekAgo;
+    while (dayToGet.toMillis() <= today.toMillis()) {
+      const year = today.year;
+      const dayofyear = today.ordinal;
+      dayToGet = dayToGet.plus({days: 1});
+      promiseList.push(cellStatusService.queryCellStatus(config.station, dayToGet.year, dayToGet.ordinal)
+      .then( jsonData => {
+        return parseLatency(jsonData);
+      }));
+    }
+    Promise.all(promiseList)
+    .then(listOfdohList => {
       let dohList: Array<LatencyVoltage> = [];
-      for (let v of jsonData.values) {
-        const doh = {
-          station: config.station,
-          time: sp.util.isoToDateTime(v["time"]),
-          volt: v["volt"],
-          eeyore: v["latency"]["eeyore"],
-          thecloud: v["latency"]["thecloud"],
-          iris: v["latency"]["iris"]
-        }
-        dohList.push(doh);
+      for (let dayList of listOfdohList) {
+        dohList = dohList.concat(dayList);
       }
       return dohList;
     }).then( dohList => {
@@ -182,6 +186,23 @@ function loadAndPlot(config) {
   } else {
     showMessage(`No station selected... ${config.station}`);
   }
+}
+
+function parseLatency(jsonData): Array<LatencyVoltage> {
+
+  let dohList: Array<LatencyVoltage> = [];
+  for (let v of jsonData["values"]) {
+    const doh = {
+      station: jsonData["station"],
+      time: sp.util.isoToDateTime(v["time"]),
+      volt: parseFloat(v["volt"]),
+      eeyore: v["latency"]["eeyore"],
+      thecloud: v["latency"]["thecloud"],
+      iris: v["latency"]["iris"]
+    };
+    dohList.push(doh);
+  }
+  return dohList;
 }
 
 setupStationRadioButtons(state, loadAndPlot);
@@ -200,11 +221,14 @@ function doPlotInner(state, dohList) {
   }
   const voltDiv = document.querySelector("#voltage")
   let colorForStation = createColors(state.stationList);
+  const xRange = null;
+  const yRange = [11, 15]
   doPlot("div.plot",
           dohList,
           doh => doh.volt,
           [state.station],
-          colorForStation);
+          colorForStation,
+          xRange, yRange);
 }
 
 // Check browser state, in case of back or forward buttons
@@ -212,9 +236,6 @@ let currentState = window.history.state;
 
 if (currentState) {
   if (currentState.station) {
-    console.log(
-      `load existing state: ${JSON.stringify(currentState, null, 2)}`,
-    );
     state = currentState;
     loadAndPlot(state);
   }
@@ -224,7 +245,6 @@ if (currentState) {
 // also register for events that change state
 window.onpopstate = function (event) {
   if (event.state && event.state.station) {
-    console.log(`onpopstate event: ${JSON.stringify(event.state, null, 2)}`);
     state = event.state;
     loadAndPlot(state);
   }

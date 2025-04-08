@@ -56,6 +56,8 @@ export function doPlot<Type extends DataSOHType>( selector: string,
                         keyFn: ((d:Type)=> string)|((d:Type)=> number),
                         selectedStations: Array<string>,
                         lineColors: Map<string, string>,
+                        xRange?: Array<DateTime, DateTime>,
+                        yRange?: Array<number, number>,
                       ) {
   let filtered = allStats.filter((stat: Type) => selectedStations.findIndex(s => s === stat.station) !== -1);
   let plotDiv = document.querySelector<HTMLDivElement>(selector);
@@ -66,7 +68,7 @@ export function doPlot<Type extends DataSOHType>( selector: string,
     plotDiv.removeChild(plotDiv.lastChild);
   }
   if (filtered.length > 0) {
-    scatterplot(selector, filtered, keyFn, selectedStations, lineColors);
+    scatterplot(selector, filtered, keyFn, selectedStations, lineColors, xRange, yRange);
   } else {
     let p = plotDiv.appendChild(document.createElement("p"));
     p.textContent = "No Data";

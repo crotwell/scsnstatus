@@ -43,12 +43,16 @@ export function doNotHighlightStation(colorForStation){
 //                             keyFn: ((d:DataSOHType)=> string)|((d:DataSOHType)=> number),
 //                             allStations: Array<string>,
 //                             lineColors: Array<string>
+// xRange: null|Array<DateTime, DateTime>,
+// yRange: null|Array<number, number>
 //                           ) {
 export function scatterplot(selector,
                             data,
                             keyFn,
                             allStations,
-                            colorForStation
+                            colorForStation,
+                            xRange,
+                            yRange
                           ) {
 
   // set the dimensions and margins of the graph
@@ -72,21 +76,40 @@ export function scatterplot(selector,
 
   let start = data[0].time;
   let end = data[0].time;
+  if (xRange != null) {
+    start = xRange[0];
+    end = xRange[1];
+  }
   let min = 99999999;
   let max = -99999999;
   let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
   let numberData = dataWithKey && typeof keyFn(dataWithKey) === 'number' ;
   let allOrdinalVals = [];
   if (numberData) {
-    data.forEach(d => {
-      const v = keyFn(d);
-      if (v) {
-        if (v < min) { min = v;}
-        if (v > max) { max = v;}
-        if (d['time'] < start) { start = d['time'];}
-        if (d['time'] > end) { end = d['time'];}
-      }
-    });
+    if (xRange == null) {
+      data.forEach(d => {
+        const v = keyFn(d);
+        if (v) {
+          if (d['time'] < start) { start = d['time'];}
+          if (d['time'] > end) { end = d['time'];}
+        }
+      });
+    } else {
+      start = xRange[0];
+      end = xRange[1];
+    }
+    if (yRange == null) {
+      data.forEach(d => {
+        const v = keyFn(d);
+        if (v) {
+          if (v < min) { min = v;}
+          if (v > max) { max = v;}
+        }
+      });
+    } else {
+      min = yRange[0];
+      max = yRange[1];
+    }
     if (min === max) {
       min = min-1;
       max = max+1;
@@ -97,8 +120,10 @@ export function scatterplot(selector,
       const v = keyFn(d);
       if (v) {
         valList.add(`${v}`);
-        if (d['time'] < start) { start = d['time'];}
-        if (d['time'] > end) { end = d['time'];}
+        if (xRange == null) {
+          if (d['time'] < start) { start = d['time'];}
+          if (d['time'] > end) { end = d['time'];}
+        }
       }
     });
     allOrdinalVals = Array.from(valList.values())
@@ -120,7 +145,6 @@ export function scatterplot(selector,
   let yNumberScale = null;
   let yOrdinalScale = null;
   if (numberData) {
-    console.log(`numberData`)
     yNumberScale = d3_scaleLinear()
       .domain([min, max])
       .range([ height, 0]).nice()

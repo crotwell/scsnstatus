@@ -21,3 +21,9 @@
 #nav ul li:not(:last-child) {
   border-right: 1px solid black;
 }
+
+sp-station-quake-map {
+  min-width: 100px;
+  min-height: 100px;
+  height: 400px;
+}

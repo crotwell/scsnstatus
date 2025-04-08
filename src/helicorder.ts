@@ -199,11 +199,25 @@ let state = {
     lowcut: "1.0",
     highcut: "10.0",
   },
+  quakes: {
+    local: [],
+    regional: [],
+    global: [],
+    accesstime: null,
+  },
 };
 
 let savedData = {
   config: state,
 };
+// set current station if query param on url
+const url = new URL(document.location.href);
+if (url.searchParams.get("station")) {
+  let netSta = url.searchParams.get("station").replace('.', '_');
+  let sid = sp.fdsnsourceid.StationSourceId.parse(netSta)
+  state.station = sid.stationCode;
+  state.netCode = sid.networkCode;
+}
 
 function loadAndPlot(config) {
   updatePageForConfig(config);

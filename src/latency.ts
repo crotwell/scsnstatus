@@ -168,8 +168,8 @@ function createItemsForHost(ld: LatencyData, host: string): string {
     // missing?
     return `
 
-      <td class="${LATENCY_BADBAD}">--:--:--</td>
-      <td class="${LATENCY_BADBAD}">-</td>
+      <td class="latencytime ${host} ${LATENCY_BADBAD}">--:--:--</td>
+      <td class="latencytext ${host} ${LATENCY_BADBAD}">-</td>
       <td class="vel ${host}">${0.00}</td>
       <td class="velicon ${host}">${latencyVelocityIcon(0)}</td>
 
@@ -179,10 +179,10 @@ function createItemsForHost(ld: LatencyData, host: string): string {
   const hostVel = ld.velocity[host];
   return `
 
-    <td class="${latencySeriousness(hostLd.end)}">
+    <td class="latencytime ${host} ${latencySeriousness(hostLd.end)}">
       ${hostLd.end.toFormat('HH:mm:ss')}
     </td>
-    <td class="${latencySeriousness(hostLd.end)}">
+    <td class="latencytext ${host} ${latencySeriousness(hostLd.end)}">
       ${latencyAsText(hostLd.end)}</td>
     <td class="vel ${host}">${hostVel.toFixed(2)}</td>
     <td class="velicon ${host}">${latencyVelocityIcon(hostVel)}</td>
@@ -239,6 +239,18 @@ function updateLatency() {
           `;
         tbody.appendChild(tr);
       } else {
+        for (let host of HOST_LIST) {
+          const hostLd = ld[host];
+          let timeEl = tr.querySelector(`.latencytime.${host}`);
+          timeEl.textContent = `${hostLd.end.toFormat('HH:mm:ss')}`;
+          timeEl.classList.remove(LATENCY_BADBAD, LATENCY_BAD, LATENCY_WORRY, LATENCY_GOOD);
+          timeEl.classList.add(latencySeriousness(hostLd.end))
+          let textEl = tr.querySelector(`.latencytext.${host}`);
+          textEl.textContent = `${latencyAsText(hostLd.end)}`;
+          textEl.classList.remove(LATENCY_BADBAD, LATENCY_BAD, LATENCY_WORRY, LATENCY_GOOD);
+          textEl.classList.add(latencySeriousness(hostLd.end))
+        }
+
         tr.querySelector(".vel.cloud").textContent = `${ld.velocity.cloud.toFixed(2)}`;
         tr.querySelector(".velicon.cloud").textContent = latencyVelocityIcon(ld.velocity.cloud);
         tr.querySelector(".vel.eeyore").textContent = `${ld.velocity.eeyore.toFixed(2)}`;

@@ -32,7 +32,7 @@ export class StatsFailures {
   constructor() {
   }
   numForHost(host: string) {
-    if (host in this.hostToFails.keys()) { return this.hostToFails.get(host);}
+    if (this.hostToFails.has(host)) { return this.hostToFails.get(host);}
     return 9999;
   }
   zero(host: string) {
@@ -57,13 +57,20 @@ export const HOST_LIST = [ 'eeyore', 'cloud', 'iris'];
 
 export const DEFAULT_HISTORY_LENGTH = 12;
 
-export type HostStreamStats = {
-  host: string,
-  fullhost: string,
-  pattern: string,
-  accessTime: DateTime,
-  stats: Array<sp.ringserverweb.StreamStat>
-};
+export class HostStreamStats {
+  host: string;
+  fullhost: string;
+  pattern: string;
+  accessTime: DateTime;
+  stats: Array<sp.ringserverweb.StreamStat>;
+  constructor(host: string, fullhost: string, pattern: string, accessTime: DateTime) {
+    this.host = host;
+    this.fullhost = fullhost;
+    this.pattern = pattern;
+    this.accessTime = accessTime;
+    this.stats = [];
+  }
+}
 
 export class DataLatencyService {
   networkCode = 'CO';
@@ -77,7 +84,6 @@ export class DataLatencyService {
 
 
   isConnectionFailure(host: string) {
-    console.log(`isConnectionFailure  ${host}`);
     return this.statsFailures.numForHost(host) !== 0;
   }
 
@@ -127,7 +133,6 @@ export class DataLatencyService {
       this.calcLatencyVelocity(plc, lc);
       return lc;
     }, reason => {
-      console.error(`queryLatency Failed: ${reason}`);
       mythis.inProgress = false;
       return mythis.latencyCache;
     });
@@ -157,9 +162,6 @@ export class DataLatencyService {
           }
         } else {
           // didn't find, reuse
-          if (!pvalue?.startRaw) {
-            console.log(`pvalue.startRaw not definded: ${pvalue}`);
-          }
           const clonePValue = new ringserverweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
           clonePValue.accessTime = DateTime.utc();
           out.set(pkey, clonePValue);
@@ -168,7 +170,7 @@ export class DataLatencyService {
     }
     return Array.from(out.values());
   }
-  createStreamStats(hosturl: string, pattern: string): HostStreamStats {
+  createStreamStats(hosturl: string, pattern: string): Promise<HostStreamStats> {
     const mythis = this;
     const shortHost = hostToShortName(hosturl);
     const conn = new ringserverweb.RingserverConnection(hosturl);
@@ -188,7 +190,6 @@ export class DataLatencyService {
     }).catch( reason => {
       // connection failure, return with empty stats
       mythis.statsFailures.addOne(shortHost);
-console.log(`statsFailure ${shortHost} ${mythis.statsFailures.numForHost(shortHost)} ${reason}`)
       return out;
     });
   }
@@ -205,10 +206,6 @@ console.log(`statsFailure ${shortHost} ${mythis.statsFailures.numForHost(shortHo
               if (stat[host] && prevStat[host]) {
                 stat.velocity[host] = (stat[host].end.diff(prevStat[host].end)) /
                                           (stat[host].accessTime.diff(prevStat[host].accessTime));
-                if (stat.velocity[host] < 0) {
-                  console.log(`negative velocity: (${stat[host].end} .diff(${prevStat[host].end})) /
-                                            (${stat[host].accessTime}.diff(${prevStat[host].accessTime})`)
-                }
               }
             }
           }

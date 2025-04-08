@@ -116,8 +116,9 @@ export function latencySeriousness(endtime: luxon.DateTime): string {
 
 export function latencyAsText( end ) {
   let out = "missing";
+  const now = luxon.DateTime.utc();
   if (end){
-    const latency = luxon.Interval.fromDateTimes(end, luxon.DateTime.utc()).toDuration();
+    const latency = luxon.Interval.fromDateTimes(end, now).toDuration();
     if (latency.toMillis() < 1000) {
       out = "ok";
     } else if (latency.as('seconds') < 10) {
@@ -129,6 +130,10 @@ export function latencyAsText( end ) {
     } else if (latency.as('hours') < 48) {
       out = `${Math.round(latency.as('hours'))} hr`;
     } else {
+      const latencyInt = luxon.Interval.fromDateTimes(end, now);
+
+      document.querySelector("pre.raw").textContent =
+      `${end}  ${latencyInt}  days latency: ${latency.toMillis()} s: ${latency.as('seconds')} h: ${latency.as('hours')}`;
       out = `${Math.round(latency.as('days'))} days`;
     }
   }
@@ -159,6 +164,17 @@ export function latencyVelocityIcon( velocity) {
 
 function createItemsForHost(ld: LatencyData, host: string): string {
   const hostLd = ld[host];
+  if ( ! hostLd) {
+    // missing?
+    return `
+
+      <td class="${LATENCY_BADBAD}">--:--:--</td>
+      <td class="${LATENCY_BADBAD}">-</td>
+      <td class="vel ${host}">${0.00}</td>
+      <td class="velicon ${host}">${latencyVelocityIcon(0)}</td>
+
+    `;
+  }
 
   const hostVel = ld.velocity[host];
   return `
@@ -167,7 +183,7 @@ function createItemsForHost(ld: LatencyData, host: string): string {
       ${hostLd.end.toFormat('HH:mm:ss')}
     </td>
     <td class="${latencySeriousness(hostLd.end)}">
-    ${latencyAsText(hostLd.end)}</td>
+      ${latencyAsText(hostLd.end)}</td>
     <td class="vel ${host}">${hostVel.toFixed(2)}</td>
     <td class="velicon ${host}">${latencyVelocityIcon(hostVel)}</td>
 
@@ -193,14 +209,11 @@ function updateLatency() {
 
     for (let host of HOST_LIST) {
       const th = table.querySelector(`th.${host}`);
-      if (th == null) {
-        console.log(`querySelector th.${host} didn't find`)
-      }
-      if (latencyServ.statsFailures[host] == 0) {
+      if (latencyServ.statsFailures.numForHost(host) === 0) {
         th.textContent = host;
         th.classList.remove("latency-conn-failure");
       } else {
-        th.textContent = `${host} (${latencyServ.statsFailures[host]} failures)`;
+        th.textContent = `${host} (${latencyServ.statsFailures.numForHost(host)} failures)`;
         th.classList.add("latency-conn-failure");
       }
     }
@@ -218,7 +231,7 @@ function updateLatency() {
         `;
         tr.innerHTML = `
         <tr>
-          <td class="station"><a href="helicorder?station=${ld.key}">${ld.key}</a></td>
+          <td class="station"><a href="${import.meta.env.BASE_URL}heli/index.html?station=FDSN:${ld.key}">${ld.key}</a></td>
 
             ${createItemsForHost(ld, "eeyore")}
             ${createItemsForHost(ld, "cloud")}

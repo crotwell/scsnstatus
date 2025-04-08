@@ -477,6 +477,15 @@ export function queryEarthquakes(hash) {
               firstSTime: quake.time.plus({ seconds: firstS.time }),
               ttimes: ttimes,
             };
+          }).catch(e=>{
+            console.log(`problem getting traveltimes: ${e}`);
+            return {
+              quake: quake,
+              firstP: null,
+              firstPTime: null,
+              firstS: null,
+              firstSTime: null,
+              ttimes: null,}
           });
         traveltimes.push(ttresult);
       });
@@ -521,16 +530,18 @@ ${distaz.delta.toFixed(2)} deg to ${mystation.stationCode}
       });
 
       hash.traveltimes.forEach((tt) => {
-        markers.push({
-          markertype: "predicted",
-          name: tt.firstP.phase,
-          time: tt.firstPTime,
-        });
-        markers.push({
-          markertype: "predicted",
-          name: tt.firstS.phase,
-          time: tt.firstSTime,
-        });
+        if (tt.firstPTime != null) {
+          markers.push({
+            markertype: "predicted",
+            name: tt.firstP.phase,
+            time: tt.firstPTime,
+          });
+          markers.push({
+            markertype: "predicted",
+            name: tt.firstS.phase,
+            time: tt.firstSTime,
+          });
+        }
       });
       markers.push({
         markertype: "predicted",

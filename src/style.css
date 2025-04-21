@@ -27,3 +27,7 @@ sp-station-quake-map {
   min-height: 100px;
   height: 400px;
 }
+
+.latency-conn-failure {
+  background: red;
+}

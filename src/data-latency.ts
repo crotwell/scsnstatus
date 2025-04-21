@@ -160,9 +160,15 @@ export class DataLatencyService {
               out.get(pkey)[host] = pvalue[host];
             }
           }
-        } else {
+        } else if (pvalue.startRaw) {
           // didn't find, reuse
           const clonePValue = new ringserverweb.StreamStat(pvalue.key, pvalue.startRaw, pvalue.endRaw);
+          clonePValue.accessTime = DateTime.utc();
+          out.set(pkey, clonePValue);
+        } else {
+          // can happen after long network outage, like sleeping laptop?
+          console.log(`previous startRaw is undef, use 1970?`);
+          const clonePValue = new ringserverweb.StreamStat(pvalue.key, "1970-01-01T00:00:00Z", "1970-01-01T00:00:00Z");
           clonePValue.accessTime = DateTime.utc();
           out.set(pkey, clonePValue);
         }

@@ -42,7 +42,7 @@ export class StatsFailures {
     let prev = 0;
     if (host in this.hostToFails.keys()) {
       const x = this.hostToFails.get(host);
-      prev = x?x:0;
+      prev = (x!=null)?x:0;
     }
     this.hostToFails.set(host, 1+prev);
   }

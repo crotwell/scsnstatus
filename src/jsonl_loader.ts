@@ -43,8 +43,18 @@ export interface LatencyVoltage extends DataSOHType {
 
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
   const chan = "CEL";
-  return loadStats(stationList, chan, interval)
+  const sidChan = "W_CEL_";
+  return Promise.all([loadStats(stationList, chan, interval),
+        loadStats(stationList, sidChan, interval)])
+    .then(plist => {
+      let out = []
+      for (const p of plist) {
+        out = out.concat(p);
+      }
+      return out;
+    })
     .then(jsonTextList => {
+      console.log(`got ${jsonTextList.length} json objs`)
       const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
             let statObj = json_fix_types(JSON.parse(line));
             return statObj;
@@ -54,7 +64,16 @@ export function loadCellStats(stationList: Array<string>, interval: Interval): P
 }
 export function loadKilovaultStats(stationList: Array<string>, interval: Interval): Promise<Array<KilovaultSOC>> {
   const chan = "KVSOC";
-  return loadStats(stationList, chan, interval)
+  const sidChan = "W_KV_SOC";
+  return Promise.all([loadStats(stationList, chan, interval),
+        loadStats(stationList, sidChan, interval)])
+    .then(plist => {
+      let out = []
+      for (const p of plist) {
+        out = out.concat(p);
+      }
+      return out;
+    })
     .then(jsonTextList => {
       const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
             let statJson = JSON.parse(line);

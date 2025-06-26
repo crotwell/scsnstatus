@@ -60,9 +60,9 @@ function dataFn(d: ComputerStat): number {
 function textDataFn(d: ComputerStat): string {
   if (curKey === "du") {
     const firstObj = d.du[0];
-    if (firstObj && 'percentCharge' in firstObj ) {
+    if (firstObj && 'percentused' in firstObj ) {
       if (firstObj.percentused) {
-        return `${firstObj.id} ${firstObj.percentused}`;
+        return `${firstObj.path} ${firstObj.percentused}`;
       } else {
         return `undef`;
       }

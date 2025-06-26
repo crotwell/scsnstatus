@@ -11,6 +11,7 @@ let navhtml = `
     <li><a href="${import.meta.env.BASE_URL}cellstat/index.html">Cell Stat</a></li>
     <li><a href="${import.meta.env.BASE_URL}batterystat/index.html">Battery Stat</a></li>
     <li><a href="${import.meta.env.BASE_URL}voltage/index.html">Voltage</a></li>
+    <li><a href="${import.meta.env.BASE_URL}computerstat/index.html">Computer</a></li>
     <li><a href="${import.meta.env.BASE_URL}about/index.html">About</a></li>
     <li><a href="${import.meta.env.BASE_URL}contact/index.html">Contact</a></li>
   </ul>

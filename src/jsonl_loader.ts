@@ -41,6 +41,21 @@ export interface LatencyVoltage extends DataSOHType {
   iris: number
 }
 
+export interface DiskUsage {
+  free: number,
+  used: number,
+  total: number,
+  percentused: number,
+  human: string,
+  hostname: string,
+  path: string
+}
+
+export interface ComputerStat extends DataSOHType {
+  temp: number,
+  du: Array<DiskUsage>
+}
+
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
   const chan = "CEL";
   const sidChan = "W_CEL_";
@@ -84,6 +99,38 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
               s.percentCharge = parseFloat(s.percentCharge);
             });
             return statJson as KilovaultSOC;
+      });
+      return allStats.filter(x=> !!x);
+    });
+}
+
+export function loadComputerStat(stationList: Array<string>, interval: Interval): Promise<Array<ComputerStat>> {
+  const chan = "DISK";
+  const sidChan = "W_DSK_";
+  return Promise.all([loadStats(stationList, chan, interval),
+        loadStats(stationList, sidChan, interval)])
+    .then(plist => {
+      let out = []
+      for (const p of plist) {
+        out = out.concat(p);
+      }
+      return out;
+    })
+    .then(jsonTextList => {
+      console.log(`got ${jsonTextList.length} json objs`)
+      const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
+        let statJson = JSON.parse(line);
+        if ('station' in statJson === false) { throw new Error("No station in json object");}
+        if ('time' in statJson === false) { throw new Error("No time in json object");}
+        statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
+        statJson.temp = parseFloat(statJson['temp'] as string);
+        statJson.du.forEach( (s: any) => {
+          s.free = parseFloat(s.free);
+          s.used = parseFloat(s.used);
+          s.total = parseFloat(s.total);
+          s.percentused = parseFloat(s.percentused);
+        });
+        return statJson as ComputerStat;
       });
       return allStats.filter(x=> !!x);
     });

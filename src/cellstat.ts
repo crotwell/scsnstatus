@@ -11,6 +11,8 @@ import {
 import { Duration} from 'luxon';
 import {createNavigation} from './navbar';
 
+import {stationList} from './util.js';
+
 createNavigation();
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -29,7 +31,7 @@ app.innerHTML = `
 `
 
 let curKey = "rsrq";
-const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", "BELLE"]
+const allStations = stationList
 let selectedStations = allStations.slice();
 let colorForStation = createColors(allStations);
 

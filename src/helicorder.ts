@@ -12,6 +12,7 @@ import {
   enableFiltering,
   loadAllEarthquakeQueryParams,
 } from "./heli/controls.js";
+import {stationList} from './util.js';
 
 const d3 = sp.d3;
 const luxon = sp.luxon;
@@ -157,28 +158,13 @@ sp.util.updateVersionText('.sp_version');
 
 
 
-export const staList = [
-  "BARN",
-  "BELLE",
-  "BIRD",
-  "C1SC",
-  "CASEE",
-  "CSB",
-  "HAW",
-  "HODGE",
-  "JSC",
-  "PARR",
-  "PAULI",
-  "SUMMV",
-  "TEEBA",
-];
 const DEFAULT_FIXED_AMP = 10000;
 
 // state preserved for browser history
 // also see near bottom where we check if page history has state obj and use that
 let state = {
   netCodeList: ["CO", "N4"],
-  stationList: staList,
+  stationList: stationList,
   bandCodeList: ["H", "L"],
   instCodeList: ["H", "N"],
   orientationCodeList: ["Z", "N", "E", "1", "2"],

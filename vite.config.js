@@ -15,6 +15,7 @@ export default defineConfig({
         batterystat: resolve(__dirname, 'batterystat/index.html'),
         voltage: resolve(__dirname, 'voltage/index.html'),
         stations: resolve(__dirname, 'stations/index.html'),
+        sohstream: resolve(__dirname, 'sohstreams/index.html'),
         scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),
         about: resolve(__dirname, 'about/index.html'),
         contact: resolve(__dirname, 'contact/index.html'),

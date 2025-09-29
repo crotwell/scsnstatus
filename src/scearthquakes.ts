@@ -1,5 +1,6 @@
 import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
+import {loadNetworks, SC_QUAKE_URL, SC_STATION_URL} from './util';
 import './style.css';
 import * as sp from 'seisplotjs';
 import {Interval} from 'luxon';
@@ -38,9 +39,6 @@ app.innerHTML = `
   <div><pre class="raw"></pre></div>
 `;
 
-const SC_QUAKE_URL = "https://eeyore.seis.sc.edu/scsn/sc_quakes/sc_quakes.xml"
-const SC_STATION_URL = "https://eeyore.seis.sc.edu/scsn/sc_quakes/CO_channels.staml"
-
 let allQuakes = [];
 export type PageState = {
   quakeList: Array<sp.quakeml.Quake>,
@@ -71,7 +69,7 @@ function displayForTime(timeRange: Interval, quakes: Array<Quake>): Array<Quake>
 }
 
 const quakeQuery = sp.quakeml.fetchQuakeML(SC_QUAKE_URL);
-const chanQuery = sp.stationxml.fetchStationXml(SC_STATION_URL).then(staxml => {
+const chanQuery = loadNetworks().then(staxml => {
   // filter so only HH? and HN?
   staxml.forEach(net=> {
     net.stations.forEach(sta => {
@@ -79,7 +77,6 @@ const chanQuery = sp.stationxml.fetchStationXml(SC_STATION_URL).then(staxml => {
           ch.channelCode.charAt(1) === 'H' || ch.channelCode.charAt(1) === 'N') &&
           ch.channelCode.charAt(2) === 'Z');
     });
-    //net.stations = net.stations.filter(sta => sta.stationCode === "JSC" || sta.stationCode === "PARR");
     net.stations = net.stations.filter(sta => sta.channels.length > 0);
   });
   staxml = staxml.filter(net => net.stations.length > 0);

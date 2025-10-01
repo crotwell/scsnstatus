@@ -1,6 +1,5 @@
 import './style.css'
 import * as sp from 'seisplotjs';
-import {staList} from './helicorder';
 import {setupStationRadioButtons} from './heli/controls';
 import {showMessage, clearMessages} from './heli/doplot';
 import {LatencyVoltage} from './json_loader';
@@ -14,6 +13,7 @@ import {
   createUpdatingClock,
   timesort,
 } from './statpage.js'
+import {stationList} from './util';
 
 const d3 = sp.d3;
 const luxon = sp.luxon;
@@ -68,12 +68,12 @@ sp.util.updateVersionText('.sp_version');
 // also see near bottom where we check if page history has state obj and use that
 let state = {
   netCodeList: ["CO", "N4"],
-  stationList: staList,
+  stationList: stationList,
   bandCodeList: ["H", "L"],
   instCodeList: ["H", "N"],
   orientationCodeList: ["Z", "N", "E", "1", "2"],
   netCode: "CO",
-  station: staList[0],
+  station: stationList[0],
   locCode: "00",
   bandCode: "H",
   instCode: "H",

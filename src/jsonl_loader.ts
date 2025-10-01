@@ -52,6 +52,7 @@ export interface DiskUsage {
 }
 
 export interface ComputerStat extends DataSOHType {
+  station: string,
   temp: number,
   du: Array<DiskUsage>
 }

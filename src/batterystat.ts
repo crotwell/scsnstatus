@@ -97,9 +97,10 @@ function nwsSkyCover() {
   }
   return Promise.all(promiseList).then(nwsList => {
     const nwsDiv = document.querySelector("ul.nws");
+    if (! nwsDiv) { throw new Error("Unable to find div for weather");}
     nwsList.forEach( nwsJson => {
       const nwsLine = document.createElement("li");
-      const skyCover = nwsJson["cloudLayers"].reduce( (acc, curr) => `${acc} ${curr["amount"]}`, "");
+      const skyCover = nwsJson["cloudLayers"].reduce( (acc: string, curr: string) => `${acc} ${curr["amount"]}`, "");
       const staName = nwsJson["stationName"]
       nwsLine.textContent = `${skyCover} - ${nwsJson["stationId"]} ${staName}, ${nwsJson["textDescription"]} at ${nwsJson["timestamp"]}`;
       nwsDiv.appendChild(nwsLine);
@@ -121,7 +122,7 @@ function createKeyCheckbox(stat: KilovaultSOC) {
                       curKey,
                       (key)=>{
                         curKey = key;
-                        dataPromise.then(allStats => {
+                        dataPromise.then((allStats: Array<KilovaultSOC>) => {
                           doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
                         });
                       });
@@ -176,7 +177,7 @@ const stationCallback = function(sta: string, checked: boolean) {
       selectedStations = selectedStations.filter(s => s !== sta);
     }
     return allStats;
-  }).then(allStats => {
+  }).then((allStats: Array<KilovaultSOC>) => {
     doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
   });
 }

@@ -132,7 +132,8 @@ export class DataLatencyService {
       let plc = mythis.previousLatencyCache;
       this.calcLatencyVelocity(plc, lc);
       return lc;
-    }, reason => {
+    }).catch(reason => {
+      console.log(`fail latency: ${reason}`);
       mythis.inProgress = false;
       return mythis.latencyCache;
     });

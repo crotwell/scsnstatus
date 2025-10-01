@@ -1,4 +1,5 @@
 import './style.css';
+import * as sp from 'seisplotjs';
 import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
 import {
   doPlot,
@@ -27,6 +28,11 @@ app.innerHTML = `
   <div class="plot"></div>
   <div class="stations"></div>
   <div class="datakeys"></div>
+  <div class="nws">
+    <h5>Current Sky Cover:</h5>
+    <ul class="nws">
+    </ul>
+  </div>
   <div><pre class="raw"></pre></div>
 `;
 
@@ -66,6 +72,39 @@ function textDataFn(d: KilovaultSOC): string {
   } else {
     return "";
   }
+}
+
+function nwsSkyCover() {
+  console.log(`before skycover`)
+  const fetchInit = sp.util.defaultFetchInitObj();
+  fetchInit["headers"] = {
+      "accept": "application/ld+json"
+    }
+
+  const nwsList = [ "KCHS", "KCAE", "KGSP"];
+  const promiseList = [];
+  for (const nwsSta of nwsList) {
+    const url = `https://api.weather.gov/stations/${nwsSta}/observations/latest?require_qc=false`
+    const fetchProm = sp.util.doFetchWithTimeout(url, fetchInit).then(resp => {
+      if (resp.ok) {
+        const nwsJson = resp.json();
+        return nwsJson;
+      } else {
+        throw new Error(`fetch ${nwsSta} not ok: ${resp.status}`)
+      }
+    });
+    promiseList.push(fetchProm);
+  }
+  return Promise.all(promiseList).then(nwsList => {
+    const nwsDiv = document.querySelector("ul.nws");
+    nwsList.forEach( nwsJson => {
+      const nwsLine = document.createElement("li");
+      const skyCover = nwsJson["cloudLayers"].reduce( (acc, curr) => `${acc} ${curr["amount"]}`, "");
+      const staName = nwsJson["stationName"]
+      nwsLine.textContent = `${skyCover} - ${nwsJson["stationId"]} ${staName}, ${nwsJson["textDescription"]} at ${nwsJson["timestamp"]}`;
+      nwsDiv.appendChild(nwsLine);
+    });
+  });
 }
 
 function createKeyCheckbox(stat: KilovaultSOC) {
@@ -150,4 +189,12 @@ const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => 
 }));
 
 let timerange = timeChooser.toInterval();
-let dataPromise = loadKilovaultStats(selectedStations, timerange).then(handleData);
+let dataPromise = loadKilovaultStats(selectedStations, timerange)
+  .then(handleData)
+  .then( () => {
+    console.log(`before sky cover`)
+    return nwsSkyCover();
+  }).catch( err => {
+    console.log(`error in data: ${err}`);
+    throw err;
+  })

@@ -115,7 +115,7 @@ app.innerHTML = `
     </div>
     <div id="regional">
       <h5>Regional Earthquakes:</h5>
-      <label>Max Radius: </label><input type="text" id="regionalMaxRadius" name="regionalMaxRadius" pattern="-?[1-9][0-9]*(\.[0-9]*)?" value="10"/>
+      <label>Max Radius: </label><input type="text" id="regionalMaxRadius" name="regionalMaxRadius" pattern="-?[1-9][0-9]*(\.[0-9]*)?" value="20"/>
       <label>Min Mag: </label><input type="text" id="regionalMinMag" name="regionalMinMag" pattern="-?[1-9][0-9]*(\.[0-9]*)?" value="4.5"/>
     </div>
     <div id="global">

@@ -191,7 +191,7 @@ function createItemsForHost(ld: LatencyData, host: string): string {
 }
 
 function updateLatency() {
-  latencyServ.queryLatency().then(ldata => {
+  const latencyPromise = latencyServ.queryLatency().then(ldata => {
     const div = document.querySelector("div.stations");
     div.querySelector(".access_time").textContent = ldata.accessTime.toISO();
     div.querySelector(".access_age").textContent =
@@ -241,6 +241,7 @@ function updateLatency() {
       } else {
         for (let host of HOST_LIST) {
           const hostLd = ld[host];
+          if (hostLd==null){continue;}
           let timeEl = tr.querySelector(`.latencytime.${host}`);
           timeEl.textContent = `${hostLd.end.toFormat('HH:mm:ss')}`;
           timeEl.classList.remove(LATENCY_BADBAD, LATENCY_BAD, LATENCY_WORRY, LATENCY_GOOD);
@@ -259,14 +260,19 @@ function updateLatency() {
         tr.querySelector(".velicon.iris").textContent = latencyVelocityIcon(ld.velocity.iris);
       }
     });
-
+    return ldata;
   });
 
   setTimeout( () => {
-    updateLatency();
+    updateLatency().catch(r => {
+      console.log(`Problem update latency, will try again... ${r}`);
+    });
   }, latencyServ.updateInterval.toMillis());
+  return latencyPromise;
 }
-updateLatency();
+updateLatency().catch(r => {
+  console.log(`Initial update latency failed? ${r}`);
+});
 
 // table sorting from https://stackoverflow.com/questions/14267781/sorting-html-table-with-javascript
 const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;

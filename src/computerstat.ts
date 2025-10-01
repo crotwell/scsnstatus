@@ -10,6 +10,7 @@ import {
   createUpdatingClock,
   timesort,
 } from './statpage.js'
+import {stationList} from './util';
 import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
 
@@ -31,21 +32,35 @@ app.innerHTML = `
 `;
 
 
-let curKey = "du";
-const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", ]
+let curKey = "du__data_scsn";
+const allStations = stationList;
 let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();
 
+function duSubkeyMatches(subkey: string|null, path: string): boolean {
+  if (subkey == null
+    || path.replaceAll("/", "_") === subkey
+    || (subkey === "root" && path === "/")) {
+      return true;
+  }
+  return false;
+}
 
 function dataFn(d: ComputerStat): number {
-  if (curKey === "du") {
-    const firstObj = d.du[0];
-    if (firstObj && 'percentused' in firstObj && firstObj.percentused) {
-      return firstObj.percentused;
-    } else {
-      return 0;
+  if (curKey.startsWith("du")) {
+    let subkey = null;
+    if (curKey !== 'du') {
+      subkey = curKey.substring(3);
     }
+    for (const firstObj of d.du) {
+      if (firstObj && 'percentused' in firstObj
+          && duSubkeyMatches(subkey, firstObj.path)) {
+        return firstObj.percentused;
+      }
+    }
+    // didnt' find
+    return 0;
   } else if (curKey === "temp") {
     if ('temp' in d) {
       return d.temp;
@@ -53,25 +68,29 @@ function dataFn(d: ComputerStat): number {
       return 0;
     }
   } else {
-    return 0;
+    console.log(`unknown curKey: ${curKey}`)
   }
+  return 0;
 }
 
 function textDataFn(d: ComputerStat): string {
-  if (curKey === "du") {
-    const firstObj = d.du[0];
-    if (firstObj && 'percentused' in firstObj ) {
-      if (firstObj.percentused) {
-        return `${firstObj.path} ${firstObj.percentused}`;
-      } else {
-        return `undef`;
-      }
-    } else {
-      return "missing";
+  if (curKey.startsWith("du")) {
+    let subkey = null;
+    if (curKey !== 'du') {
+      subkey = curKey.substring(3);
     }
+    for (const firstObj of d.du) {
+      if (firstObj && 'percentused' in firstObj
+          && duSubkeyMatches(subkey, firstObj.path)) {
+        if (firstObj.percentused) {
+          return `${firstObj.path} ${firstObj.percentused}`;
+        }
+      }
+    }
+    return "missing";
   } else if (curKey === "temp") {
     if ('temp' in d) {
-      return `${d.id} ${d.temp}`
+      return `${d.station} ${d.temp}`
     } else {
       return `undef`;
     }
@@ -85,6 +104,16 @@ function createKeyCheckbox(stat: ComputerStat) {
   let statKeys = [];
   for(const key in stat) {
     if (key === 'time' || key === 'station' ) {
+      continue;
+    }
+    if (key === 'du') {
+      for (const du of stat.du) {
+        if (du.path === "/") {
+          statKeys.push("du_root");
+        } else {
+          statKeys.push(`du_${du.path.replaceAll("/", "_")}`);
+        }
+      }
       continue;
     }
     statKeys.push(key);
@@ -106,14 +135,21 @@ function handleData(allStats: Array<ComputerStat>) {
   }
   allStats.sort(timesort);
   let expandData: Array<ComputerStat> = []
-  if (curKey === "du") {
+  if (curKey.startsWith("du")) {
+    let subkey = null;
+    if (curKey !== 'du') {
+      subkey = curKey.substring(3);
+    }
     allStats.forEach(stat => {
       if (stat.du.length > 1) {
         stat.du.forEach(s => {
-          const d = structuredClone(stat);
-          d.du = [ s ]; // clone but with only one du
-          d.time = stat.time
-          expandData.push(d)
+          if (subkey == null || s.path.replaceAll("/", "_") === subkey
+              || (subkey === "root" && s.path === "/")) {
+            const d = structuredClone(stat);
+            d.du = [ s ]; // clone but with only one du
+            d.time = stat.time
+            expandData.push(d)
+          }
         })
       } else {
         expandData.push(stat);
@@ -126,7 +162,7 @@ function handleData(allStats: Array<ComputerStat>) {
     expandData = allStats;
   }
 
-  if (true) {
+  if (false) {
     // output raw values as text, for debugging
     doText("pre.raw",
             expandData,

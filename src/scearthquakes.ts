@@ -19,7 +19,7 @@ app.innerHTML = `
   <div class="showalleq show">
     <h3>Earthquakes:</h3>
     <sp-station-quake-map
-      tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
+      tileUrl="https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
       tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
       zoomLevel="7"
       centerLat="33.5" centerLon="-81"
@@ -31,7 +31,7 @@ app.innerHTML = `
   <div class="showquake hide">
     <sp-organized-display
       sort="distance"
-      tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
+      tileUrl="https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
       tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
     ></sp-organized-display>
   </div>

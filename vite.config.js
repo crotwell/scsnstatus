@@ -14,6 +14,7 @@ export default defineConfig({
         cellstat: resolve(__dirname, 'cellstat/index.html'),
         batterystat: resolve(__dirname, 'batterystat/index.html'),
         voltage: resolve(__dirname, 'voltage/index.html'),
+        computerstat: resolve(__dirname, 'computerstat/index.html'),
         stations: resolve(__dirname, 'stations/index.html'),
         sohstream: resolve(__dirname, 'sohstreams/index.html'),
         scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),

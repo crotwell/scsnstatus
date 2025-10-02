@@ -17,7 +17,10 @@ app.innerHTML = `
     centerLat="33.5" centerLon="-81"
     fitbounds="false">
   </sp-station-quake-map>
-  <sp-station-table></sp-station-table>
+  <h3>South Carolina Seismic Network, CO</h3>
+  <sp-station-table class="scsn"></sp-station-table>
+  <h3>Other networks</h3>
+  <sp-station-table class="other"></sp-station-table>
   </div>
   <div class="stations"></div>
   <div class="datakeys"></div>
@@ -28,7 +31,7 @@ const stationsQuery = new sp.fdsnstation.StationQuery();
 stationsQuery.networkCode('CO');
 stationsQuery.queryStations().then( netList => {
   let stationList = Array.from(sp.stationxml.allStations(netList));
-  let table = document.querySelector("sp-station-table");
+  let table = document.querySelector("sp-station-table.scsn");
   table.stationList = stationList;
   console.log(`got ${stationList.length} stations ${table.stationList.length}`)
   let map = document.querySelector("sp-station-quake-map");
@@ -46,7 +49,7 @@ const latLonBox = new sp.fdsncommon.LatLonBox(-83.75, -78.5, 31.0, 35.5);
 otherStationsQuery.endAfter(DateTime.utc()).latLonRegion(latLonBox);
 otherStationsQuery.queryStations().then( netList => {
   let map = document.querySelector("sp-station-quake-map");
-  let table = document.querySelector("sp-station-table");
+  let table = document.querySelector("sp-station-table.other");
   for (const n of netList) {
     for (const s of n.stations) {
       if (s.isActiveAt() && s.networkCode !== 'CO' && s.networkCode !== 'SY') {

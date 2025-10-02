@@ -52,7 +52,7 @@ export function createEmptySavedData(config) {
     chanTR: [],
     origData: null,
     seisData: null,
-    centerTime: null,
+    centerTime: config.centerTime?luxon.DateTime.fromISO(config.centerTime).toUTC():null,
   };
   return hash;
 }
@@ -181,11 +181,6 @@ export function doPlotHeli(config) {
         config.locCode,
         `${config.bandCode}${config.instCode}[${config.orientationCode}${config.altOrientationCode}]`,
       );
-      console.log(`search sta: ${config.station}`);
-      console.log(`search loc: ${config.locCode}`);
-      console.log(
-        `search channels:  ${config.bandCode}${config.instCode}[${config.orientationCode}${config.altOrientationCode}]`,
-      );
       if (matchChannels.length === 0) {
         console.log(`WARN: found no channels`);
       }
@@ -278,10 +273,6 @@ export function doPlotHeli(config) {
       });
     })
     .then((hash) => {
-      console.log(`concat hash ${hash.chantrList.length}`);
-      hash.chantrList.forEach((sdd) =>
-        console.log(`  ${sdd}: ${!!sdd.seismogram}`),
-      );
       let gotData =
         hash.minMaxSddList.reduce(
           (acc, cur) => acc || !!cur.seismogram,
@@ -290,7 +281,6 @@ export function doPlotHeli(config) {
         hash.chantrList.reduce((acc, cur) => acc || !!cur.seismogram, false);
       if (!gotData) {
         showError("No Data Found MSeedArchive");
-        console.log("min max data from miniseedArchive found none");
         if (false && hash.chanTR.length > 0) {
           let dsQ = new sp.fdsndataselect.DataSelectQuery().nodata(404);
           hash.chantrList = dsQ.postQuerySeismograms(hash.chanTR);
@@ -558,7 +548,6 @@ ${distaz.delta.toFixed(2)} deg to ${mystation.stationCode}
 }
 
 export function loadDataReal(sddList) {
-  console.log(`loading real data...`);
   let mseedQ = new sp.mseedarchive.MSeedArchive(
     MSEED_URL,
     "%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H",
@@ -581,7 +570,6 @@ export function loadDataReal(sddList) {
   ])
     .then((parr) => parr[0].concat(parr[1]))
     .then((sddList) => {
-      console.log(`real data : ${sddList.length}`);
       return sddList;
     });
 }
@@ -638,31 +626,6 @@ export function redrawHeli(hash) {
     clearMessages();
     hash.heli.seisData = hash.seisData;
     hash.heli.heliConfig = heliConfig;
-    hash.heli.addEventListener("helimousemove", (hEvent) => {
-      const mouseTimeSpan = document.querySelector("#mousetime");
-      if (mouseTimeSpan) {
-        mouseTimeSpan.textContent = `${hEvent.detail.time.toISO()}`;
-      }
-    });
-    hash.heli.addEventListener("heliclick", (hEvent) => {
-      hash.centerTime = hEvent.detail.time;
-      const hwValue = document.querySelector("#clickinterval").value;
-      let dur;
-      if (!Number.isNaN(Number.parseFloat(hwValue))) {
-        // assume seconds
-        dur = luxon.Duration.fromMillis(1000 * Number.parseFloat(hwValue));
-      } else {
-        dur = luxon.Duration.fromISO(hwValue);
-      }
-      if (dur.toMillis() > 0) {
-        hash.halfWidth = luxon.Duration.fromMillis(dur.toMillis() / 2);
-      }
-      if (hash.station) {
-        drawSeismograph(hash);
-      } else {
-        console.log(`no station in hash: ${hash.station}`);
-      }
-    });
   } else {
     showMessage("No Data.");
   }
@@ -692,7 +655,6 @@ export function updateHeliAmpConfig(hash, heliConfig) {
 }
 
 export function drawSeismograph(hash) {
-  console.log(`draw seis for ${hash.station}`);
   document.querySelector("#heli").setAttribute("style", "display: none;");
   const seismographDiv = document.querySelector("#seismograph");
   seismographDiv.setAttribute("style", "display: block;");
@@ -719,6 +681,7 @@ export function drawSeismograph(hash) {
     halfWidth = sp.luxon.Duration.fromISO("PT5M");
   }
   const seismographDisp = seismographDiv.querySelector("sp-organized-display");
+  seismographDisp.seisData = [];
   const interval = sp.luxon.Interval.fromDateTimes(
     hash.centerTime.minus(halfWidth),
     hash.centerTime.plus(halfWidth),
@@ -744,6 +707,7 @@ export function drawSeismograph(hash) {
     return sdd;
   });
   let seismographConfig = new sp.seismographconfig.SeismographConfig();
+  seismographConfig.wheelZoom = false;
   seismographConfig.linkedAmplitudeScale =
     new sp.scale.IndividualAmplitudeScale();
 
@@ -763,7 +727,6 @@ export function drawSeismograph(hash) {
   });
 
   return loadDataReal(seismographDisp.seisData).then((sddList) => {
-    console.log(`data loaded, before filter: ${sddList.length}`);
     let filtSddList = sddList.map((sdd) => filterData(hash.config, sdd));
     // looks dumb, but recalcs time and amp
     seismographDisp.seisData = filtSddList;

@@ -139,9 +139,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
         config.orientationCode = newOrientationCode;
         config.altOrientationCode = "";
       }
-      console.log(
-        `click ${config.orientationCode} ${config.altOrientationCode}`,
-      );
       loadAndPlotFun(config);
     });
   });
@@ -173,7 +170,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
     button.addEventListener("click", (event) => {
       config.bandCode = bandinst.charAt(0);
       config.instCode = bandinst.charAt(1);
-      console.log(`click ${config.bandCode}${config.instCode}`);
       loadAndPlotFun(config);
     });
   });
@@ -192,9 +188,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
     button.checked = loc === config.locCode;
     button.addEventListener("click", (event) => {
       config.locCode = locCode;
-      console.log(
-        `click ${config.locCode} ${config.bandCode}${config.instCode}`,
-      );
       loadAndPlotFun(config);
     });
   });
@@ -203,7 +196,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
     .querySelector("button#loadNow")
     .addEventListener("click", function (d) {
       config.endTime = getNowTime().toISO();
-      console.log(`now ${config.endTime}`);
       updateDateChooser(config);
       loadAndPlotFun(config);
     });
@@ -215,7 +207,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
         .endOf("day")
         .plus({ millisecond: 1 })
         .toISO();
-      console.log(`today ${config.endTime}`);
       updateDateChooser(config);
       loadAndPlotFun(config);
     });
@@ -230,7 +221,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
         e = luxon.DateTime.fromISO(e).toUTC();
       }
       config.endTime = e.minus({ days: 1 }).toISO();
-      console.log(`prev ${config.endTime}`);
       updateDateChooser(config);
       loadAndPlotFun(config);
     });
@@ -245,7 +235,6 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
         e = luxon.DateTime.fromISO(e).toUTC();
       }
       config.endTime = e.plus({ day: 1 }).toISO();
-      console.log(`next ${config.endTime}`);
       updateDateChooser(config);
       loadAndPlotFun(config);
     });
@@ -340,6 +329,35 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
       document.querySelector("input#highcut").value,
       redrawFun,
     );
+  });
+
+  const heli = document.querySelector("sp-helicorder");
+  heli.addEventListener("helimousemove", (hEvent) => {
+    const mouseTimeSpan = document.querySelector("#mousetime");
+    if (mouseTimeSpan) {
+      mouseTimeSpan.textContent = `${hEvent.detail.time.toISO()}`;
+    }
+  });
+  document.querySelector("#heli").addEventListener("heliclick", (hEvent) => {
+    document.querySelector("#heli").setAttribute("style", "display: none;");
+    document.querySelector("#seismograph").setAttribute("style", "display: block;");
+    config.centerTime = hEvent.detail.time;
+    const hwValue = document.querySelector("#clickinterval").value;
+    let dur;
+    if (!Number.isNaN(Number.parseFloat(hwValue))) {
+      // assume seconds
+      dur = luxon.Duration.fromMillis(1000 * Number.parseFloat(hwValue));
+    } else {
+      dur = luxon.Duration.fromISO(hwValue);
+    }
+    if (dur.toMillis() > 0) {
+      config.halfWidth = luxon.Duration.fromMillis(dur.toMillis() / 2);
+    }
+    if (config.station) {
+      redrawFun();
+    } else {
+      console.log(`no station in hash: ${config.station}`);
+    }
   });
 }
 

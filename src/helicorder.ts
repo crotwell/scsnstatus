@@ -191,6 +191,8 @@ let state = {
     global: [],
     accesstime: null,
   },
+  centerTime: "now",
+  halfWidth: luxon.Duration.fromISO("PT5M"),
 };
 
 let savedData = {
@@ -218,6 +220,7 @@ function redraw() {
   if (
     window.getComputedStyle(document.querySelector("#heli")).display === "none"
   ) {
+    savedData.centerTime = savedData.config.centerTime;
     drawSeismograph(savedData);
   } else {
     if (savedData && savedData.seisData) {
@@ -235,9 +238,6 @@ let currentState = window.history.state;
 if (currentState) {
   updatePageForConfig(currentState);
   if (currentState.station) {
-    console.log(
-      `load existing state: ${JSON.stringify(currentState, null, 2)}`,
-    );
     state = currentState;
     loadAndPlot(state);
   }
@@ -247,7 +247,6 @@ if (currentState) {
 // also register for events that change state
 window.onpopstate = function (event) {
   if (event.state && event.state.station) {
-    console.log(`onpopstate event: ${JSON.stringify(event.state, null, 2)}`);
     state = event.state;
     updatePageForConfig(state);
     loadAndPlot(state);

@@ -14,7 +14,6 @@ import {
 } from "./heli/controls.js";
 import {stationList} from './util.js';
 
-const d3 = sp.d3;
 const luxon = sp.luxon;
 
 import {createNavigation} from './navbar';

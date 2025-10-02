@@ -1,6 +1,5 @@
 import * as sp from "seisplotjs";
 
-const d3 = sp.d3;
 const luxon = sp.luxon;
 
 const DEFAULT_DURATION = "P1D";

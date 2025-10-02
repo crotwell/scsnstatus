@@ -31,3 +31,7 @@ sp-station-quake-map {
 .latency-conn-failure {
   background: red;
 }
+
+.spjsversion {
+  font-size: x-small;
+}

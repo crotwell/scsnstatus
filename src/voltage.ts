@@ -15,7 +15,6 @@ import {
 } from './statpage.js'
 import {stationList} from './util';
 
-const d3 = sp.d3;
 const luxon = sp.luxon;
 
 import {createNavigation} from './navbar';
@@ -42,7 +41,6 @@ app.innerHTML = `
   <label class="sectionlabel">Mouse: </label><span id="mousetime"></span>
 </div>
 
-<h3><span class="textNetCode"></span>.<span class="textStaCode"></span>.<span class="textLocCode">00</span>.<span class="textChanCode">H??</span> from <span class="startTime"></span> to <span class="endTime"></span>.</h3>
 <details id="messagesParent">
   <summary class="sectionlabel">Messages:</summary>
   <div id="messages">

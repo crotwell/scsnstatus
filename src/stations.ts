@@ -8,12 +8,6 @@ createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
-  <h5 id="nowtime">Now! And again! ${sp.version}</h5>
-  <div>
-    <sp-timerange duration="P2DT0M"></sp-timerange>
-    <button id="loadToday">Today</button>
-    <button id="loadNow">Now</button>
-  </div>
   <div class="plot">
   <h3>Stations:</h3>
   <sp-station-quake-map

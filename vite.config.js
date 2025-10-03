@@ -4,7 +4,7 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  base: "/scsn/status_new/",
+  base: "/scsn/status/",
   build: {
     rollupOptions: {
       input: {

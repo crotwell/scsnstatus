@@ -1,5 +1,6 @@
 import './style.css';
-import {loadCellStats, CellSOH, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
+import {loadCellStats, mib_floats, mib_ints, mib_strings} from './jsonl_loader.js';
+import type { CellSOH } from './jsonl_loader.js';
 import {
   doPlot,
   createColors,

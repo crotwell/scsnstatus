@@ -1,5 +1,6 @@
 import './style.css';
-import { loadComputerStat, ComputerStat} from './jsonl_loader.js';
+import { loadComputerStat } from './jsonl_loader.js';
+import type { ComputerStat} from './jsonl_loader.js';
 import {
   doPlot,
   doText,

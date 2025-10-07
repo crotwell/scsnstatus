@@ -2,16 +2,10 @@ import './style.css'
 import * as sp from 'seisplotjs';
 import {setupStationRadioButtons} from './heli/controls';
 import {showMessage, clearMessages} from './heli/doplot';
-import {LatencyVoltage} from './jsonl_loader';
+import type {LatencyVoltage} from './jsonl_loader';
 import {
   doPlot,
-  doText,
   createColors,
-  createKeyCheckboxes,
-  initTimeChooser,
-  createStationCheckboxes,
-  createUpdatingClock,
-  timesort,
 } from './statpage.js'
 import {stationList} from './util';
 
@@ -48,8 +42,6 @@ app.innerHTML = `
 </details>
 
 <h5>Voltage</h5>
-<div id='voltage'>
-</div>
 <div class='plot'>
 </div>
 
@@ -89,11 +81,6 @@ let state = {
   },
 };
 
-let savedData = {
-  config: state,
-};
-
-
 export class CellStatusService {
 
   relativeURL = '/scsn/cell-stats/';
@@ -101,7 +88,7 @@ export class CellStatusService {
   cache = [];
   maxCacheLength = 100;
 
-  queryCellStatus(station, year, dayofyear) {
+  queryCellStatus(station: string, year: number, dayofyear: number) {
     const today = sp.luxon.DateTime.utc();
     if (year !== today.year || dayofyear !== today.ordinal) {
       // only look in cache if not "today" so we get updates
@@ -115,9 +102,7 @@ export class CellStatusService {
           && cellStat["station"] === station && cellStat["year"] === yearStr;
       });
       if (cachedValue) {
-        return new Promise(function(resolve, reject) {
-          resolve(cachedValue);
-        });
+        return Promise.resolve(cachedValue);
       }
     }
     let url = `https://eeyore.seis.sc.edu:${this.relativeURL}${year}/${dayofyear}/${station}.json`;
@@ -144,7 +129,7 @@ export class CellStatusService {
 
   }
 
-  emptyCellStatus(station, year, dayofyear) {
+  emptyCellStatus(station: string, year: number, dayofyear: number) {
     return {
       "station": station,
       "dayofyear": dayofyear,
@@ -158,13 +143,12 @@ const cellStatusService = new CellStatusService();
 
 function loadAndPlot(config) {
   if (config.station) {
+    clearMessages();
     const today = sp.luxon.DateTime.utc();
     const weekAgo = today.minus(sp.luxon.Duration.fromISO("P7D"));
     const promiseList = [];
     let dayToGet = weekAgo;
     while (dayToGet.toMillis() <= today.toMillis()) {
-      const year = today.year;
-      const dayofyear = today.ordinal;
       dayToGet = dayToGet.plus({days: 1});
       promiseList.push(cellStatusService.queryCellStatus(config.station, dayToGet.year, dayToGet.ordinal)
       .then( jsonData => {
@@ -205,10 +189,6 @@ function parseLatency(jsonData): Array<LatencyVoltage> {
 
 setupStationRadioButtons(state, loadAndPlot);
 
-function redraw() {
-      loadAndPlot(state);
-}
-
 function doPlotInner(state, dohList) {
   let voltList = "";
   let n = 0
@@ -217,7 +197,6 @@ function doPlotInner(state, dohList) {
     n+=1;
     if (n>10) {break;}
   }
-  const voltDiv = document.querySelector("#voltage")
   let colorForStation = createColors(state.stationList);
   const xRange = null;
   const yRange = [11, 15]
@@ -248,11 +227,6 @@ window.onpopstate = function (event) {
   }
 };
 
-let paused = false;
-let stopped = false;
-let numSteps = 0;
-
-let heli = null;
 
 let chooserEnd;
 if (!state.endTime) {
@@ -261,10 +235,10 @@ if (!state.endTime) {
 chooserEnd = sp.util.checkStringOrDate(state.endTime);
 const chooserStart = chooserEnd.minus(luxon.Duration.fromISO(state.duration));
 
-let throttleRedisplay = null;
+let throttleRedisplay: null | number = null;
 let throttleRedisplayDelay = 500;
 
-let dateChooser = document.querySelector("sp-datetime");
+let dateChooser = document.querySelector("sp-datetime") as sp.datechooser.DateTimeChooser;
 dateChooser.time = chooserStart;
 dateChooser.updateCallback = (time) => {
   if (throttleRedisplay) {
@@ -276,5 +250,3 @@ dateChooser.updateCallback = (time) => {
     loadAndPlot(state);
   }, throttleRedisplayDelay);
 };
-
-//setupEventHandlers(state, loadAndPlot, redraw);

@@ -1,15 +1,9 @@
-import {loadActiveStations, stationList, loadAllChannels} from './util';
+import { loadAllChannels} from './util';
 import * as sp from 'seisplotjs';
 import './style.css';
 import {
-  doPlot,
-  createColors,
   createKeyCheckboxes,
-  initTimeChooser,
-  createStationCheckboxes,
-  createUpdatingClock,
 } from './statpage.js'
-import { Duration} from 'luxon';
 import {createNavigation} from './navbar';
 
 const MSEED_URL = "https://eeyore.seis.sc.edu/mseed";
@@ -50,7 +44,7 @@ let mseedQ = new sp.mseedarchive.MSeedArchive(
 );
 
 
-let orgDisp = document.querySelector("sp-organized-display");
+const orgDisp = document.querySelector("sp-organized-display") as sp.organizeddisplay.OrganizedDisplay;
 orgDisp.seismographConfig.doGain = false;
 orgDisp.seismographConfig.ySublabelIsUnits = true;
 orgDisp.seismographConfig.amplitudeWithZero();
@@ -58,10 +52,10 @@ orgDisp.seismographConfig.wheelZoom = false;
 orgDisp.overlayby = sp.organizeddisplay.OVERLAY_ALL;
 orgDisp.seisData = [];
 
-function makePlot(key) {
+function makePlot(key: string) {
   orgDisp.seisData = [];
-  const sourceCode = [];
-  const subsourceCode = [];
+  const sourceCode: Array<string> = [];
+  const subsourceCode: Array<string> = [];
   if (key === KEY_CLOCK_QUAL) {
     sourceCode.push("C");
     subsourceCode.push("Q");
@@ -91,8 +85,9 @@ function makePlot(key) {
 
     return staList;
   }).then(staList => {
-    const timeRange = document.querySelector("sp-timerange").getTimeRange();
-    const promiseList = new Array();
+    const timeChooser = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
+    const timeRange = timeChooser.getTimeRange();
+    const promiseList: Array<Promise<Array<sp.seismogram.SeismogramDisplayData>>> = new Array();
     staList.forEach(sta => {
       const sddList = new Array();
       sta.channels.forEach(chan => {
@@ -108,7 +103,7 @@ function makePlot(key) {
     });
     return promiseList;
   }).then(sddListList => {
-    console.log(`loaded ${sddListList.size} stations`);
+    console.log(`loaded ${sddListList.length} stations`);
   }).catch(reason => {
     console.log(`error loading ${reason} `);
     console.warn(false, reason);
@@ -116,7 +111,7 @@ function makePlot(key) {
 }
 
 
-function createKeyCheckbox(keys: Array<String>) {
+function createKeyCheckbox(keys: Array<string>) {
   const selector = 'div.datakeys';
   let statKeys = [];
   for(const key of keys) {

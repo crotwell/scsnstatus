@@ -1,6 +1,6 @@
 import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
-import {loadNetworks, SC_QUAKE_URL, SC_STATION_URL} from './util';
+import {loadNetworks, SC_QUAKE_URL } from './util';
 import './style.css';
 import * as sp from 'seisplotjs';
 import {Interval} from 'luxon';
@@ -29,6 +29,7 @@ app.innerHTML = `
     </sp-quake-table>
   </div>
   <div class="showquake hide">
+    <div class="loadingmessage hide">Loading data...</div>
     <sp-organized-display
       sort="distance"
       tileUrl="https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
@@ -39,7 +40,7 @@ app.innerHTML = `
   <div><pre class="raw"></pre></div>
 `;
 
-let allQuakes = [];
+let allQuakes: Array<sp.quakeml.Quake> = [];
 export type PageState = {
   quakeList: Array<sp.quakeml.Quake>,
   channelList: Array<sp.stationxml.Channel>,
@@ -112,6 +113,8 @@ function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
     el.classList.remove("show");
     el.classList.add("hide");
   });
+  document.querySelectorAll(".loadingmessage").forEach(el => el.classList.replace("hide", "show"));
+
   pageState.dataset.catalog = [ quake];
   let loader = new sp.seismogramloader.SeismogramLoader(
     pageState.dataset.inventory,
@@ -148,6 +151,8 @@ function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
     orgDisp.seismographConfig.doGain = true;
     orgDisp.seismographConfig.ySublabelIsUnits = true;
     orgDisp.seisData = ds.processedWaveforms;
+  }).then( () => {
+    document.querySelectorAll(".loadingmessage").forEach(el => el.classList.replace("show", "hide"));
   });
 }
 

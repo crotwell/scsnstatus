@@ -1,6 +1,6 @@
 import * as sp from 'seisplotjs';
 import {scatterplot, highlightStation, doNotHighlightStation} from './scatterplot.js';
-import {DataSOHType} from './jsonl_loader.js';
+import type {DataSOHType} from './jsonl_loader';
 import { Duration, Interval, DateTime } from 'luxon';
 
 
@@ -24,7 +24,7 @@ export function createStationCheckboxes(
     throw new Error(`Can't find element with selector: ${staSelector}`)
   }
   let styleText = "";
-  allStations.forEach((sta, idx) => {
+  allStations.forEach((sta, _idx) => {
     const div = stationsDiv.appendChild(document.createElement('span'));
     const cb = div.appendChild(document.createElement('input'));
     cb.setAttribute('type','checkbox');
@@ -42,8 +42,8 @@ export function createStationCheckboxes(
       color: ${stationLineColors.get(sta)};
     }
     `;
-    nlabel.addEventListener("mouseover", (event) => { highlightStation(sta, stationLineColors); });
-    nlabel.addEventListener("mouseleave", (event) => { doNotHighlightStation(stationLineColors); });
+    nlabel.addEventListener("mouseover", (_event) => { highlightStation(sta, stationLineColors); });
+    nlabel.addEventListener("mouseleave", (_event) => { doNotHighlightStation(stationLineColors); });
   });
   const headEl = document.querySelector<HTMLElement>('head');
   if (! headEl) { throw new Error(`Can't find head element`);}
@@ -56,8 +56,8 @@ export function doPlot<Type extends DataSOHType>( selector: string,
                         keyFn: ((d:Type)=> string)|((d:Type)=> number),
                         selectedStations: Array<string>,
                         lineColors: Map<string, string>,
-                        xRange?: Array<DateTime, DateTime>,
-                        yRange?: Array<number, number>,
+                        xRange?: [DateTime, DateTime],
+                        yRange?: [number, number],
                       ) {
   let filtered = allStats.filter((stat: Type) => selectedStations.findIndex(s => s === stat.station) !== -1);
   let plotDiv = document.querySelector<HTMLDivElement>(selector);

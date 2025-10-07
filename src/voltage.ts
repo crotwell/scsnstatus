@@ -2,7 +2,7 @@ import './style.css'
 import * as sp from 'seisplotjs';
 import {setupStationRadioButtons} from './heli/controls';
 import {showMessage, clearMessages} from './heli/doplot';
-import {LatencyVoltage} from './json_loader';
+import {LatencyVoltage} from './jsonl_loader';
 import {
   doPlot,
   doText,

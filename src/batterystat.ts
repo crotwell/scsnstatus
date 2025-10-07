@@ -1,6 +1,7 @@
 import './style.css';
 import * as sp from 'seisplotjs';
-import { loadKilovaultStats, KilovaultSOC} from './jsonl_loader.js';
+import { loadKilovaultStats} from './jsonl_loader.js';
+import type {KilovaultSOC} from './jsonl_loader.js';
 import {
   doPlot,
   doText,

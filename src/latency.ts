@@ -190,8 +190,8 @@ function createItemsForHost(ld: LatencyData, host: string): string {
   `;
 }
 
-function updateLatency() {
-  const latencyPromise = latencyServ.queryLatency().then(ldata => {
+function queryAndUpdateLatency() {
+  return latencyServ.queryLatency().then(ldata => {
     const div = document.querySelector("div.stations");
     div.querySelector(".access_time").textContent = ldata.accessTime.toISO();
     div.querySelector(".access_age").textContent =
@@ -262,7 +262,15 @@ function updateLatency() {
     });
     return ldata;
   });
+}
 
+function updateLatency() {
+  let latencyPromise = null;
+  if (!document.hidden) {
+    latencyPromise = queryAndUpdateLatency();
+  } else {
+    latencyPromise = Promise.resolve(latencyServ.latencyData);
+  }
   setTimeout( () => {
     updateLatency().catch(r => {
       console.log(`Problem update latency, will try again... ${r}`);

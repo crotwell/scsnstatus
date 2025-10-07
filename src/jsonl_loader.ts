@@ -63,7 +63,7 @@ export function loadCellStats(stationList: Array<string>, interval: Interval): P
   return Promise.all([loadStats(stationList, chan, interval),
         loadStats(stationList, sidChan, interval)])
     .then(plist => {
-      let out = []
+      let out: Array<CellSOH> = []
       for (const p of plist) {
         out = out.concat(p);
       }

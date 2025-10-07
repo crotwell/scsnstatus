@@ -53,20 +53,26 @@ let pageState: PageState = {
   dataset: new sp.dataset.Dataset(),
 }
 
-document.querySelector("sp-timerange").updateCallback = (timeRange) => {
+const timeRangeEl = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
+timeRangeEl.updateCallback = (timeRange) => {
     console.log( `Range: ${timeRange.start.toISO()} to ${timeRange.end.toISO()}`);
     displayForTime(timeRange, allQuakes);
 }
-function displayForTime(timeRange: Interval, quakes: Array<Quake>): Array<Quake> {
-  const quakesInTime = allQuakes.filter(q => {
+
+const quakeTable = document.querySelector("sp-quake-table") as sp.infotable.QuakeTable;
+if (!quakeTable) {throw new Error("Can't find sp-quake-table");}
+const map = document.querySelector("sp-station-quake-map") as sp.leafletutil.QuakeStationMap;
+if (!map) {throw new Error("Can't find sp-station-quake-map");}
+
+function displayForTime(timeRange: Interval, quakes: Array<sp.quakeml.Quake>): Array<sp.quakeml.Quake> {
+  const quakesInTime = quakes.filter(q => {
     return timeRange.start <= q.time && q.time <= timeRange.end;
   });
-  let table = document.querySelector("sp-quake-table");
-  table.quakeList = quakesInTime;
-  let map = document.querySelector("sp-station-quake-map");
+  quakeTable.quakeList = quakesInTime;
   map.quakeList = []
   map.addQuake(quakesInTime);
   map.draw();
+  return quakesInTime;
 }
 
 const quakeQuery = sp.quakeml.fetchQuakeML(SC_QUAKE_URL);
@@ -84,16 +90,14 @@ const chanQuery = loadNetworks().then(staxml => {
   return staxml;
 });
 Promise.all([ quakeQuery, chanQuery ]).then( ([qml, staxml]) => {
-  console.log(`qml len: ${qml.length}`)
+  console.log(`qml len: ${qml.eventList.length}`)
   pageState.quakeList = qml.eventList;
   pageState.dataset.inventory = staxml;
   pageState.channelList = Array.from(sp.stationxml.allChannels(staxml));
 
-  let table = document.querySelector("sp-quake-table");
   allQuakes = qml.eventList;
-  const trEl = document.querySelector("sp-timerange");
-  displayForTime(trEl.getTimeRange(), allQuakes);
-  console.log(`got ${qml.eventList.length} quakes ${table.quakeList.length}`)
+  displayForTime(timeRangeEl.getTimeRange(), allQuakes);
+  console.log(`got ${qml.eventList.length} quakes ${quakeTable.quakeList.length}`)
 
 });
 
@@ -147,7 +151,8 @@ function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
       return out;
     });
 
-    let orgDisp = document.querySelector("sp-organized-display");
+    const orgDisp = document.querySelector("sp-organized-display") as sp.organizeddisplay.OrganizedDisplay;
+    if (!orgDisp) {throw new Error("Can't find sp-organized-display");}
     orgDisp.seismographConfig.doGain = true;
     orgDisp.seismographConfig.ySublabelIsUnits = true;
     orgDisp.seisData = ds.processedWaveforms;
@@ -158,7 +163,6 @@ function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
 
 export const SELECTED_ROW = "selectedRow";
 
-const quakeTable = document.querySelector("sp-quake-table");
 quakeTable.addStyle(`
       td {
         padding-left: 5px;
@@ -169,7 +173,8 @@ quakeTable.addStyle(`
         color: white;
       }
     `);
-quakeTable.addEventListener("quakeclick", ce => {
+quakeTable.addEventListener("quakeclick", event => {
+  const ce = event as CustomEvent;
   console.log(`quakeclick: ${ce.detail.quake}`);
   displayQuake(ce.detail.quake, pageState);
 });

@@ -1,7 +1,7 @@
 import './style.css'
 import * as sp from 'seisplotjs';
 import {createNavigation} from './navbar';
-import {loadActiveStations, SC_QUAKE_URL, SC_STATION_URL} from './util';
+import {loadActiveStations, SC_QUAKE_URL} from './util';
 
 createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -25,7 +25,8 @@ app.innerHTML = `
 `
 }
 
-let map = document.querySelector("sp-station-quake-map");
+const map = document.querySelector("sp-station-quake-map") as sp.leafletutil.QuakeStationMap;
+if (!map) {throw new Error("Can't find sp-station-quake-map");}
 map.quakeList = []
 loadActiveStations().then(staList => {
   map.addStation(staList);
@@ -45,4 +46,5 @@ loadActiveStations().then(staList => {
   map.addQuake(qml.eventList);
   map.draw();
   document.querySelector("sp-quake-table").quakeList = qml.eventList;
+  return Promise.all([staList, quakePromise]);
 })

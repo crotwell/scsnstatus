@@ -199,7 +199,7 @@ function doPlotInner(state, dohList) {
   }
   let colorForStation = createColors(state.stationList);
   const xRange = null;
-  const yRange = [11, 15]
+  const yRange: [number, number] = [11, 15]
   doPlot("div.plot",
           dohList,
           doh => doh.volt,

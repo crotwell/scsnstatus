@@ -14,7 +14,7 @@ nameMap.set("li1043-95", "cloud");
 nameMap.set(ringserverweb.IRIS_HOST.split('.')[0], "iris");
 
 
-export default function hostToShortName(host) {
+export default function hostToShortName(host: string) {
   if (nameMap.has(host)) {
     return nameMap.get(host);
   }

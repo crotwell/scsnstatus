@@ -125,11 +125,13 @@ function createKeyCheckbox(stat: KilovaultSOC) {
                         curKey = key;
                         dataPromise.then((allStats: Array<KilovaultSOC>) => {
                           doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
+                          return Promise.resolve(allStats);
                         });
                       });
+  return stat;
 }
 
-function handleData(allStats: Array<KilovaultSOC>) {
+function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
@@ -193,9 +195,9 @@ const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => 
 let timerange = timeChooser.toInterval();
 let dataPromise = loadKilovaultStats(selectedStations, timerange)
   .then(handleData)
-  .then( () => {
+  .then( (allStats) => {
     console.log(`before sky cover`)
-    return nwsSkyCover();
+    return nwsSkyCover().then(() => allStats);
   }).catch( err => {
     console.log(`error in data: ${err}`);
     throw err;

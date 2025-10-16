@@ -46,3 +46,10 @@ sp-station-quake-map {
 .spjsversion {
   font-size: x-small;
 }
+
+table.forecast tr td {
+  margin: 3px;
+}
+table.forecast tr th {
+  font-size: small;
+}

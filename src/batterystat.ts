@@ -1,7 +1,7 @@
 import './style.css';
 import * as sp from 'seisplotjs';
-import { loadKilovaultStats} from './jsonl_loader.js';
-import type {KilovaultSOC} from './jsonl_loader.js';
+import { loadKilovaultStats} from './jsonl_loader';
+import type {KilovaultSOC} from './jsonl_loader';
 import {
   doPlot,
   doText,
@@ -11,7 +11,8 @@ import {
   createStationCheckboxes,
   createUpdatingClock,
   timesort,
-} from './statpage.js'
+} from './statpage'
+import {loadActiveStations} from './util';
 import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
 
@@ -81,9 +82,7 @@ function textDataFn(d: KilovaultSOC): string {
 }
 
 function stationForecast() {
-
-  sp.stationxml.fetchStationXml("../CO.staml").then( netList => {
-    let stationList = Array.from(sp.stationxml.activeStations(netList));
+  loadActiveStations().then( stationList => {
     stationList.sort( (a,b) => {
       if (a.stationCode < b.stationCode) { return -1;}
       if (a.stationCode > b.stationCode) { return  1;}

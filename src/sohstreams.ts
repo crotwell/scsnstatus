@@ -49,7 +49,7 @@ orgDisp.seismographConfig.doGain = false;
 orgDisp.seismographConfig.ySublabelIsUnits = true;
 orgDisp.seismographConfig.amplitudeWithZero();
 orgDisp.seismographConfig.wheelZoom = false;
-orgDisp.overlayby = sp.organizeddisplay.OVERLAY_ALL;
+orgDisp.overlayby = sp.organizeddisplay.OVERLAY_STATION;
 orgDisp.seisData = [];
 
 function makePlot(key: string) {

@@ -175,17 +175,17 @@ export function setupEventHandlers(config, loadAndPlotFun, redrawFun) {
   });
 
   const locDiv = document.querySelector("#loccode");
-  locCodeList.forEach((loc) => {
+  locCodeList.forEach((locCode) => {
     const span = locDiv.appendChild(document.createElement("span"));
     const button = span.appendChild(document.createElement("input"));
     const label = span.appendChild(document.createElement("label"));
-    label.textContent = loc;
+    label.textContent = locCode;
     button.setAttribute("type", "radio");
     button.setAttribute("class", "shape");
     button.setAttribute("name", "loccode");
-    button.textContent = loc;
-    button.value = loc;
-    button.checked = loc === config.locCode;
+    button.textContent = locCode;
+    button.value = locCode;
+    button.checked = locCode === config.locCode;
     button.addEventListener("click", (event) => {
       config.locCode = locCode;
       loadAndPlotFun(config);

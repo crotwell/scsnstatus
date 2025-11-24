@@ -135,7 +135,7 @@ export function doPlotHeli(config) {
       .channelCode(chanCodeQuery)
       .startTime(hash.timeRange.start)
       .endTime(
-        hash.timeRange.start.plus(sp.luxon.Duration.fromMillis(3600 * 1000)),
+        hash.timeRange.start.plus(sp.luxon.Duration.fromMillis(86400 * 1000)),
       );
     channelPromise = channelQuery.queryChannels();
   } else {

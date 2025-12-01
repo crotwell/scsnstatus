@@ -27,11 +27,8 @@ app.innerHTML = `
 </div>
 <div id="times">
   <label class="sectionlabel">Time Range: </label>
-  <button id="loadToday">Today</button>
-  <button id="loadNow">Now</button>
-  <button id="loadPrev">Previous</button>
-  <button id="loadNext">Next</button>
-  <sp-datetime></sp-datetime>
+  <sp-timerange duration="P7DT0M" prev-next="true"></sp-timerange>
+
   <label class="sectionlabel">Mouse: </label><span id="mousetime"></span>
 </div>
 
@@ -70,7 +67,7 @@ let state = {
   orientationCode: "Z",
   altOrientationCode: "",
   endTime: "now",
-  duration: "P1D",
+  duration: "P7D",
   dominmax: true,
   amp: "max",
   rmean: false,
@@ -144,11 +141,11 @@ const cellStatusService = new CellStatusService();
 function loadAndPlot(config) {
   if (config.station) {
     clearMessages();
-    const today = sp.luxon.DateTime.utc();
-    const weekAgo = today.minus(sp.luxon.Duration.fromISO("P7D"));
+    const chooserEnd = sp.util.checkStringOrDate(state.endTime);
+    const chooserStart = chooserEnd.minus(luxon.Duration.fromISO(state.duration));
     const promiseList = [];
-    let dayToGet = weekAgo;
-    while (dayToGet.toMillis() <= today.toMillis()) {
+    let dayToGet = chooserStart;
+    while (dayToGet.toMillis() <= chooserEnd.toMillis()) {
       dayToGet = dayToGet.plus({days: 1});
       promiseList.push(cellStatusService.queryCellStatus(config.station, dayToGet.year, dayToGet.ordinal)
       .then( jsonData => {
@@ -234,19 +231,20 @@ if (!state.endTime) {
 }
 chooserEnd = sp.util.checkStringOrDate(state.endTime);
 const chooserStart = chooserEnd.minus(luxon.Duration.fromISO(state.duration));
+const timeRange = luxon.Interval.fromDateTimes(chooserStart, chooserEnd);
 
 let throttleRedisplay: null | number = null;
 let throttleRedisplayDelay = 500;
 
-let dateChooser = document.querySelector("sp-datetime") as sp.datechooser.DateTimeChooser;
-dateChooser.time = chooserStart;
-dateChooser.updateCallback = (time) => {
+const timeRangeEl = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
+timeRangeEl.updateTimeRange(timeRange);
+timeRangeEl.updateCallback = (timeRange) => {
   if (throttleRedisplay) {
     window.clearTimeout(throttleRedisplay);
   }
   throttleRedisplay = window.setTimeout(() => {
-    let updatedTime = time.plus(luxon.Duration.fromISO(state.duration));
-    state.endTime = updatedTime.toISO();
+    state.duration = timeRange.toDuration();
+    state.endTime = timeRange.end;
     loadAndPlot(state);
   }, throttleRedisplayDelay);
 };

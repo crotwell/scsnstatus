@@ -98,6 +98,8 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
             statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
             statJson.soc.forEach( (s: any) => {
               s.percentCharge = parseFloat(s.percentCharge);
+              if (s.current) {s.current = parseFloat(s.current);}
+              if (s.voltage) {s.voltage = parseFloat(s.voltage);}
             });
             return statJson as KilovaultSOC;
       });

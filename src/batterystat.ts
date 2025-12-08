@@ -57,10 +57,24 @@ function dataFn(d: KilovaultSOC): number {
     if (firstObj && 'percentCharge' in firstObj && firstObj.percentCharge) {
       return firstObj.percentCharge;
     } else {
+      return -1;
+    }
+  } else if (curKey === "current") {
+    const firstObj = d.soc[0];
+    if (firstObj && 'current' in firstObj && firstObj.current) {
+      return firstObj.current;
+    } else {
+      return 0;
+    }
+  } else if (curKey === "voltage") {
+    const firstObj = d.soc[0];
+    if (firstObj && 'voltage' in firstObj && firstObj.voltage) {
+      return firstObj.voltage;
+    } else {
       return 0;
     }
   } else {
-    return 0;
+    return -1;
   }
 }
 
@@ -122,6 +136,11 @@ function stationForecast() {
           tr.appendChild(iconTd);
         });
         return forecast;
+      }).catch(err => {
+
+        const iconTd = document.createElement("td");
+        iconTd.textContent = "Fail";
+        tr.appendChild(iconTd);
       });
       forecastList.push(forecastPromise);
     });
@@ -171,6 +190,9 @@ function createKeyCheckbox(stat: KilovaultSOC) {
     }
     statKeys.push(key);
   }
+  statKeys.push("voltage");
+  statKeys.push("current");
+
   createKeyCheckboxes(selector,
                       statKeys,
                       curKey,
@@ -190,7 +212,7 @@ function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
   }
   allStats.sort(timesort);
   let expandData: Array<KilovaultSOC> = []
-  if (curKey === "soc") {
+  if (curKey === "soc" || curKey === "current" || curKey === "voltage") {
     allStats.forEach(stat => {
       if (stat.soc.length > 1) {
         stat.soc.forEach(s => {
@@ -203,7 +225,13 @@ function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
         expandData.push(stat);
       }
     });
-    expandData = expandData.filter(stat => stat.soc[0] && 'percentCharge' in  stat.soc[0] && stat.soc[0].percentCharge >= 0 && stat.soc[0].percentCharge <= 100);
+    if (curKey === "soc") {
+      expandData = expandData.filter(stat => stat.soc[0] && 'percentCharge' in  stat.soc[0] && stat.soc[0].percentCharge >= 0 && stat.soc[0].percentCharge <= 100);
+    } else if (curKey === "voltage") {
+      expandData = expandData.filter(stat => stat.soc[0] && 'voltage' in  stat.soc[0] && stat.soc[0].voltage >= 0 && stat.soc[0].voltage <= 20);
+    } else if (curKey === "current") {
+      expandData = expandData.filter(stat => stat.soc[0] && 'current' in  stat.soc[0] && stat.soc[0].current >= -100 && stat.soc[0].current <= 100);
+    }
   } else {
     expandData = allStats;
   }

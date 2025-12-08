@@ -11,7 +11,7 @@ const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
   <div>
-    <sp-timerange duration="P30DT0M"></sp-timerange>
+    <sp-timerange duration="P30DT0M" prev-next="true"></sp-timerange>
     <button id="loadMonth">Month</button>
     <button id="loadYear">Year</button>
     <button id="loadAll">All</button>
@@ -74,6 +74,15 @@ function displayForTime(timeRange: Interval, quakes: Array<sp.quakeml.Quake>): A
   map.draw();
   return quakesInTime;
 }
+
+document.querySelector("#loadMonth").addEventListener("click", () => {
+  const MONTH = Duration.fromISO("P31D");
+  timeRangeEl.duration = MONTH;
+});
+document.querySelector("#loadYear").addEventListener("click", () => {
+  const MONTH = Duration.fromISO("P366D");
+  timeRangeEl.duration = MONTH;
+});
 
 const quakeQuery = sp.quakeml.fetchQuakeML(SC_QUAKE_URL);
 const chanQuery = loadNetworks().then(staxml => {

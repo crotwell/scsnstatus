@@ -45,6 +45,7 @@ app.innerHTML = `
 
 
 let curKey = "soc";
+const alwaysKeys = ["soc", "current", "voltage", "temperature"]
 const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", ]
 let colorForStation = createColors(allStations);
 
@@ -70,6 +71,13 @@ function dataFn(d: KilovaultSOC): number {
     const firstObj = d.soc[0];
     if (firstObj && 'voltage' in firstObj && firstObj.voltage) {
       return firstObj.voltage;
+    } else {
+      return 0;
+    }
+  } else if (curKey === "temperature") {
+    const firstObj = d.soc[0];
+    if (firstObj && 'temperature' in firstObj && firstObj.temperature) {
+      return firstObj.temperature;
     } else {
       return 0;
     }
@@ -192,6 +200,7 @@ function createKeyCheckbox(stat: KilovaultSOC) {
   }
   statKeys.push("voltage");
   statKeys.push("current");
+  statKeys.push("temperature");
 
   createKeyCheckboxes(selector,
                       statKeys,
@@ -212,7 +221,7 @@ function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
   }
   allStats.sort(timesort);
   let expandData: Array<KilovaultSOC> = []
-  if (curKey === "soc" || curKey === "current" || curKey === "voltage") {
+  if (curKey === "soc" || curKey === "current" || curKey === "voltage"|| curKey === "temperature") {
     allStats.forEach(stat => {
       if (stat.soc.length > 1) {
         stat.soc.forEach(s => {

@@ -32,6 +32,7 @@ app.innerHTML = `
   <div class="datakeys"></div>
   <div class="nws">
     <h5>Current Sky Cover:</h5>
+    <button id="loadNWS">Load Weather Forecast</button>
     <ul class="nws">
     </ul>
   </div>
@@ -291,4 +292,9 @@ let dataPromise = loadKilovaultStats(selectedStations, timerange)
   }).catch( err => {
     console.log(`error in data: ${err}`);
     throw err;
-  })
+  });
+
+document.querySelector("#loadNWS").addEventListener("click", ()=> {
+  console.log(`before sky cover`)
+  return nwsSkyCover().then(() => stationForecast());
+})

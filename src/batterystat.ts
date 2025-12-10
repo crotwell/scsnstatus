@@ -47,7 +47,10 @@ app.innerHTML = `
 
 
 let curKey = "percentCharge";
-const kilovaultKeys = ["percentCharge", "current", "voltage", "temperature"]
+const kilovaultKeys = [
+  "percentCharge", "current", "voltage", "temperature",
+  "id", "cycles"
+]
 const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", ]
 let colorForStation = createColors(allStations);
 

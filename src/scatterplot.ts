@@ -83,6 +83,7 @@ export function scatterplot(selector,
   let min = 99999999;
   let max = -99999999;
   let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
+  const allDefinedData = data.filter(d => sp.util.isDef(keyFn(d)));
   let numberData = dataWithKey && typeof keyFn(dataWithKey) === 'number' ;
   let allOrdinalVals = [];
   if (numberData) {
@@ -99,7 +100,7 @@ export function scatterplot(selector,
       end = xRange[1];
     }
     if (yRange == null) {
-      data.forEach(d => {
+      allDefinedData.forEach(d => {
         const v = keyFn(d);
         if (v) {
           if (v < min) { min = v;}
@@ -169,7 +170,7 @@ export function scatterplot(selector,
   // Add dots
   svg.append('g')
     .selectAll("dot")
-    .data(data)
+    .data(allDefinedData)
     .enter()
     .append("circle")
       .attr("class", function (d) { return "dot " + d.station } )

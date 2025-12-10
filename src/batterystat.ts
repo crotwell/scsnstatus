@@ -17,6 +17,7 @@ import { Duration } from 'luxon';
 import {createNavigation} from './navbar';
 
 createNavigation();
+const DO_TEXT_OUTPUT = false;
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
@@ -45,8 +46,8 @@ app.innerHTML = `
 `;
 
 
-let curKey = "soc";
-const alwaysKeys = ["soc", "current", "voltage", "temperature"]
+let curKey = "percentCharge";
+const kilovaultKeys = ["percentCharge", "current", "voltage", "temperature"]
 const allStations = ["JSC", 'CASEE', 'CSB', 'HAW', 'HODGE', 'PAULI', 'TEEBA', "BIRD", ]
 let colorForStation = createColors(allStations);
 
@@ -54,53 +55,27 @@ let selectedStations = allStations.slice();
 
 
 function dataFn(d: KilovaultSOC): number {
-  if (curKey === "soc") {
+  if (d.soc.length > 0) {
     const firstObj = d.soc[0];
-    if (firstObj && 'percentCharge' in firstObj && firstObj.percentCharge) {
-      return firstObj.percentCharge;
+    if (firstObj && firstObj[curKey]!= null) {
+      return firstObj[curKey];
     } else {
-      return -1;
-    }
-  } else if (curKey === "current") {
-    const firstObj = d.soc[0];
-    if (firstObj && 'current' in firstObj && firstObj.current) {
-      return firstObj.current;
-    } else {
-      return 0;
-    }
-  } else if (curKey === "voltage") {
-    const firstObj = d.soc[0];
-    if (firstObj && 'voltage' in firstObj && firstObj.voltage) {
-      return firstObj.voltage;
-    } else {
-      return 0;
-    }
-  } else if (curKey === "temperature") {
-    const firstObj = d.soc[0];
-    if (firstObj && 'temperature' in firstObj && firstObj.temperature) {
-      return firstObj.temperature;
-    } else {
-      return 0;
+      return null;
     }
   } else {
-    return -1;
+    return null;
   }
 }
 
 function textDataFn(d: KilovaultSOC): string {
-  if (curKey === "soc") {
-    const firstObj = d.soc[0];
-    if (firstObj && 'percentCharge' in firstObj ) {
-      if (firstObj.percentCharge) {
-        return `${firstObj.id} ${firstObj.percentCharge}`;
-      } else {
-        return `undef`;
-      }
-    } else {
-      return "missing";
-    }
+  if (d.soc.length == 0) {
+    return "missing";
+  }
+  const firstObj = d.soc[0];
+  if (firstObj[curKey]!=null) {
+      return `${firstObj.id} ${firstObj[curKey]}`;
   } else {
-    return "";
+    return "blank";
   }
 }
 
@@ -193,15 +168,13 @@ function nwsSkyCover() {
 function createKeyCheckbox(stat: KilovaultSOC) {
   const selector = 'div.datakeys';
   let statKeys = [];
+  statKeys = statKeys.concat(kilovaultKeys);
   for(const key in stat) {
-    if (key === 'time' || key === 'station' ) {
+    if (key === 'time' || key === 'station' || key === 'soc' ) {
       continue;
     }
     statKeys.push(key);
   }
-  statKeys.push("voltage");
-  statKeys.push("current");
-  statKeys.push("temperature");
 
   createKeyCheckboxes(selector,
                       statKeys,
@@ -222,31 +195,20 @@ function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
   }
   allStats.sort(timesort);
   let expandData: Array<KilovaultSOC> = []
-  if (curKey === "soc" || curKey === "current" || curKey === "voltage"|| curKey === "temperature") {
-    allStats.forEach(stat => {
-      if (stat.soc.length > 1) {
-        stat.soc.forEach(s => {
-          const d = structuredClone(stat);
-          d.soc = [ s ]; // clone but with only one soc
-          d.time = stat.time
-          expandData.push(d)
-        })
-      } else {
-        expandData.push(stat);
-      }
-    });
-    if (curKey === "soc") {
-      expandData = expandData.filter(stat => stat.soc[0] && 'percentCharge' in  stat.soc[0] && stat.soc[0].percentCharge >= 0 && stat.soc[0].percentCharge <= 100);
-    } else if (curKey === "voltage") {
-      expandData = expandData.filter(stat => stat.soc[0] && 'voltage' in  stat.soc[0] && stat.soc[0].voltage >= 0 && stat.soc[0].voltage <= 20);
-    } else if (curKey === "current") {
-      expandData = expandData.filter(stat => stat.soc[0] && 'current' in  stat.soc[0] && stat.soc[0].current >= -100 && stat.soc[0].current <= 100);
+  allStats.forEach(stat => {
+    if (stat.soc.length > 1) {
+      stat.soc.forEach(s => {
+        const d = structuredClone(stat);
+        d.soc = [ s ]; // clone but with only one soc
+        d.time = stat.time
+        expandData.push(d)
+      })
+    } else {
+      expandData.push(stat);
     }
-  } else {
-    expandData = allStats;
-  }
+  });
 
-  if (false) {
+  if (DO_TEXT_OUTPUT) {
     // output raw values as text, for debugging
     doText("pre.raw",
             expandData,
@@ -273,6 +235,15 @@ const stationCallback = function(sta: string, checked: boolean) {
     return allStats;
   }).then((allStats: Array<KilovaultSOC>) => {
     doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
+    if (DO_TEXT_OUTPUT) {
+      // output raw values as text, for debugging
+      doText("pre.raw",
+              allStats,
+              textDataFn,
+              selectedStations,
+            //  lineColors
+            );
+    }
   });
 }
 
@@ -287,8 +258,7 @@ let timerange = timeChooser.toInterval();
 let dataPromise = loadKilovaultStats(selectedStations, timerange)
   .then(handleData)
   .then( (allStats) => {
-    console.log(`before sky cover`)
-    return nwsSkyCover().then(() => stationForecast()).then(() => allStats);
+    return allStats;
   }).catch( err => {
     console.log(`error in data: ${err}`);
     throw err;

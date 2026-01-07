@@ -34,7 +34,7 @@ app.innerHTML = `
 
 
 let curKey = "du__data_scsn";
-const allStations = stationList;
+const allStations = stationList.concat(["THECLOUD"]);
 let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();

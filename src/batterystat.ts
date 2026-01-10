@@ -56,12 +56,19 @@ let colorForStation = createColors(allStations);
 
 let selectedStations = allStations.slice();
 
+function batteryKey(kvKey) {
+  if (kvKey === "percentCharge") {
+    return "battery_level"
+  }
+}
 
 function dataFn(d: KilovaultSOC): number {
   if (d.soc.length > 0) {
     const firstObj = d.soc[0];
     if (firstObj && firstObj[curKey]!= null) {
       return firstObj[curKey];
+    } else if (firstObj && firstObj[batteryKey(curKey)]!= null) {
+      return firstObj[batteryKey(curKey)];
     } else {
       return null;
     }

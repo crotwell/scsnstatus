@@ -78,11 +78,14 @@ export function loadCellStats(stationList: Array<string>, interval: Interval): P
       return preprocess_stats(allStats.filter(x=> !!x));
     });
 }
+
 export function loadKilovaultStats(stationList: Array<string>, interval: Interval): Promise<Array<KilovaultSOC>> {
   const chan = "KVSOC";
   const sidChan = "W_KV_SOC";
+  const sidBatteryChan = "W_BAT_SOC";
   return Promise.all([loadStats(stationList, chan, interval),
-        loadStats(stationList, sidChan, interval)])
+        loadStats(stationList, sidChan, interval),
+              loadStats(stationList, sidBatteryChan, interval)])
     .then(plist => {
       let out = []
       for (const p of plist) {

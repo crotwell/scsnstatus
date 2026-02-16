@@ -79,6 +79,39 @@ export function loadCellStats(stationList: Array<string>, interval: Interval): P
     });
 }
 
+const cellvoltTable = [
+  [0, 2.5],
+  [10, 3.0],
+  [20, 3.20],
+  [30, 3.22],
+  [40, 3.25],
+  [50, 3.26],
+  [60, 3.27],
+  [70, 3.30],
+  [80, 3.32],
+  [90, 3.35],
+  [100, 3.40],
+];
+
+/**
+ * Convert individual cell volatages to overall percent charge. Note this is
+ * likely to be wrong, underestimation, due to load from station,or due to
+ * charging in progress.
+ *
+ * @param  v  voltage of individual cell in battery, 2.5-3.4v
+ * @return percent state of charge for cell, 0-100%
+ */
+function lifepo4_v2soc(v: number): number {
+  let prevCellv = cellvoltTable[0];
+  for (const cellv of cellvoltTable) {
+    if (v <= cellv[1]) {
+      let soc = (cellv[0]-prevCellv[0])*(v-prevCellv[1])/(cellv[1]-prevCellv[1])+prevCellv[0];
+      return soc;
+    }
+    prevCellv = cellv;
+  }
+}
+
 export function loadKilovaultStats(stationList: Array<string>, interval: Interval): Promise<Array<KilovaultSOC>> {
   const chan = "KVSOC";
   const sidChan = "W_KV_SOC";
@@ -103,6 +136,12 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
               s.percentCharge = parseFloat(s.percentCharge);
               if (s.current) {s.current = parseFloat(s.current);}
               if (s.voltage) {s.voltage = parseFloat(s.voltage);}
+              if (s.cell_voltages) {
+                // looks like aiobmsble
+                let cellSoc = 0;
+                s.cell_voltages.forEach((cv: number) => {cellSoc += lifepo4_v2soc(cv);});
+                s.percentCharge = cellSoc/s.cell_voltages.length;
+              }
             });
             return statJson as KilovaultSOC;
       });

@@ -143,6 +143,7 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
                 s.percentCharge = cellSoc/s.cell_voltages.length;
               }
             });
+            statJson.soc = statJson.soc.filter((s: any) => s.percentCharge>0);
             return statJson as KilovaultSOC;
       });
       return allStats.filter(x=> !!x);

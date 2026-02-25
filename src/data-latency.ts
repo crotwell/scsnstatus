@@ -48,8 +48,8 @@ export class StatsFailures {
   }
 }
 
-export const eeyore_host = "https://eeyore.seis.sc.edu/ringserver";
-export const cloud_host = "https://thecloud.seis.sc.edu/ringserver";
+export const eeyore_host = "https://eeyore.seis.sc.edu/ringserver/";
+export const cloud_host = "https://thecloud.seis.sc.edu/ringserver/";
 //export const cloud_host = "http://139-144-31-38.ip.linodeusercontent.com/ringserver";
 export const cloud_cname_host = "thecloud.seis.sc.edu";
 

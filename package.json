@@ -25,6 +25,6 @@
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1",
     "luxon": "^3.0.3",
-    "seisplotjs": "^3.1.3"
+    "seisplotjs": "^3.2.0"
   }
 }

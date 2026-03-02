@@ -46,5 +46,5 @@ loadActiveStations().then(staList => {
   map.addQuake(qml.eventList);
   map.draw();
   document.querySelector("sp-quake-table").quakeList = qml.eventList;
-  return Promise.all([staList, quakePromise]);
+  return Promise.all([staList, qml]);
 })

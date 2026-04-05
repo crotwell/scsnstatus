@@ -11,12 +11,12 @@
     "tsc": "tsc --project tsconfig.json"
   },
   "devDependencies": {
-    "@types/d3-axis": "^3.0.2",
-    "@types/d3-scale": "^4.0.2",
-    "@types/d3-selection": "^3.0.4",
-    "@types/leaflet": "^1.9.20",
-    "@types/luxon": "^3.0.0",
-    "typescript": "^5.2.2",
+    "@types/d3-axis": "^3.0.6",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-selection": "^3.0.11",
+    "@types/leaflet": "^1.9.21",
+    "@types/luxon": "^3.7.1",
+    "typescript": "^5.9.3",
     "vite": "^7.3.2"
   },
   "dependencies": {
@@ -24,7 +24,7 @@
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1",
-    "luxon": "^3.0.3",
-    "seisplotjs": "^3.2.0"
+    "luxon": "^3.7.2",
+    "seisplotjs": "^3.2.2"
   }
 }

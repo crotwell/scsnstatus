@@ -110,6 +110,7 @@ function lifepo4_v2soc(v: number): number {
     }
     prevCellv = cellv;
   }
+  return 100;
 }
 
 export function loadKilovaultStats(stationList: Array<string>, interval: Interval): Promise<Array<KilovaultSOC>> {

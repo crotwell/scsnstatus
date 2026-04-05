@@ -147,6 +147,8 @@ export function parseBetteryJsonline(line) {
       let cellSoc = 0;
       s.cell_voltages.forEach((cv: number) => {cellSoc += lifepo4_v2soc(cv);});
       s.percentCharge = cellSoc/s.cell_voltages.length;
+    } else {
+      s.battery_level = s.percentCharge;
     }
   });
   statJson.soc = statJson.soc.filter((s: any) => s.percentCharge>0);

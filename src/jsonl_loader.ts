@@ -128,27 +128,29 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
       return out;
     })
     .then(jsonTextList => {
-      const allStats = jsonTextList.filter(line => line.length > 2).map(line => {
-            let statJson = JSON.parse(line);
-            if ('station' in statJson === false) { throw new Error("No station in json object");}
-            if ('time' in statJson === false) { throw new Error("No time in json object");}
-            statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
-            statJson.soc.forEach( (s: any) => {
-              s.percentCharge = parseFloat(s.percentCharge);
-              if (s.current) {s.current = parseFloat(s.current);}
-              if (s.voltage) {s.voltage = parseFloat(s.voltage);}
-              if (s.cell_voltages) {
-                // looks like aiobmsble
-                let cellSoc = 0;
-                s.cell_voltages.forEach((cv: number) => {cellSoc += lifepo4_v2soc(cv);});
-                s.percentCharge = cellSoc/s.cell_voltages.length;
-              }
-            });
-            statJson.soc = statJson.soc.filter((s: any) => s.percentCharge>0);
-            return statJson as KilovaultSOC;
-      });
+      const allStats = jsonTextList.filter(line => line.length > 2).map(parseBetteryJsonline);
       return allStats.filter(x=> !!x);
     });
+}
+
+export function parseBetteryJsonline(line) {
+  let statJson = JSON.parse(line);
+  if ('station' in statJson === false) { throw new Error("No station in json object");}
+  if ('time' in statJson === false) { throw new Error("No time in json object");}
+  statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
+  statJson.soc.forEach( (s: any) => {
+    s.percentCharge = parseFloat(s.percentCharge);
+    if (s.current) {s.current = parseFloat(s.current);}
+    if (s.voltage) {s.voltage = parseFloat(s.voltage);}
+    if (s.cell_voltages) {
+      // looks like aiobmsble
+      let cellSoc = 0;
+      s.cell_voltages.forEach((cv: number) => {cellSoc += lifepo4_v2soc(cv);});
+      s.percentCharge = cellSoc/s.cell_voltages.length;
+    }
+  });
+  statJson.soc = statJson.soc.filter((s: any) => s.percentCharge>0);
+  return statJson as KilovaultSOC;
 }
 
 export function loadComputerStat(stationList: Array<string>, interval: Interval): Promise<Array<ComputerStat>> {

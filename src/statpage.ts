@@ -68,7 +68,9 @@ export function doPlot<Type extends DataSOHType>( selector: string,
     plotDiv.removeChild(plotDiv.lastChild);
   }
   if (filtered.length > 0) {
-    scatterplot(selector, filtered, keyFn, selectedStations, lineColors, xRange, yRange);
+    const xGrid = true;
+    const yGrid = true;
+    scatterplot(selector, filtered, keyFn, selectedStations, lineColors, xRange, yRange, xGrid, yGrid);
   } else {
     let p = plotDiv.appendChild(document.createElement("p"));
     p.textContent = "No Data";
@@ -76,7 +78,7 @@ export function doPlot<Type extends DataSOHType>( selector: string,
 }
 export function doText<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,
-                        keyFn: ((d:Type)=> string)|((d:Type)=> number),
+                        keyFn: ((d:Type)=> string)|((d:Type)=> number|((d:Type)=> Array<number>)),
                         selectedStations: Array<string>,
                     //    lineColors: Array<string>,
                       ) {
@@ -90,7 +92,11 @@ export function doText<Type extends DataSOHType>( selector: string,
   }
   if (filtered.length > 0) {
     let s = "";
-    filtered.forEach(d => s=`${s}\n${d.station} ${d.time}  ${keyFn(d)}`);
+    let vals = keyFn(d);
+    if (Array.isArray(vals)) {
+      val = vals.join(",")
+    }
+    filtered.forEach(d => s=`${s}\n${d.station} ${d.time}  ${val}`);
     plotDiv.textContent = s;
   } else {
     let p = plotDiv.appendChild(document.createElement("p"));

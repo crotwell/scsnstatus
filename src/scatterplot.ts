@@ -52,9 +52,10 @@ export function scatterplot(selector,
                             allStations,
                             colorForStation,
                             xRange,
-                            yRange
+                            yRange,
+                            xGridLines: boolean,
+                            yGridLines: boolean
                           ) {
-
   // set the dimensions and margins of the graph
   const div_element = document.querySelector(selector);
   if (! div_element) {
@@ -160,6 +161,25 @@ export function scatterplot(selector,
   svg.append("g")
     .call(d3_axisLeft(y));
 
+  // grid lines
+  if (xGridLines && numberData) {
+    svg.selectAll("line.hgrid").data(yNumberScale.ticks()).enter()
+        .append("line")
+        .classed("hgrid", true)
+        .attr("x1", 0)
+        .attr("x2", width)
+        .attr("y1", function(d){ return yNumberScale(d);})
+        .attr("y2", function(d){ return yNumberScale(d);});
+  }
+  if (yGridLines && numberData) {
+    svg.selectAll("line.vgrid").data(x.ticks()).enter()
+        .append("line")
+        .classed("vgrid", true)
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("x1", function(d){ return x(d);})
+        .attr("x2", function(d){ return x(d);});
+  }
 
   const highlight = function({}, d){
     highlightStation(d.station, colorForStation);

@@ -53,3 +53,14 @@ table.forecast tr td {
 table.forecast tr th {
   font-size: small;
 }
+
+line.hgrid {
+  fill: none;
+  stroke: gainsboro;
+  stroke-width: 1px;
+}
+line.vgrid {
+  fill: none;
+  stroke: gainsboro;
+  stroke-width: 1px;
+}

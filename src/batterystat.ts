@@ -68,12 +68,6 @@ function dataFn(d: BatterySOC): null|number|string|Array<number> {
   if (d.soc.length > 0) {
     const firstObj = d.soc[0];
     if (firstObj && firstObj[curKey]!= null) {
-      if (false && curKey === "cell_voltages") {
-        let v = 0;
-        firstObj[curKey].forEach(cv => v+=cv);
-        v = v/firstObj[curKey].length;
-        return v;
-      }
       return firstObj[curKey];
     } else if (firstObj && firstObj[batteryKey(curKey)]!= null) {
       return firstObj[batteryKey(curKey)];
@@ -114,7 +108,7 @@ function createKeyCheckbox(stat: BatterySOC) {
                       curKey,
                       (key)=>{
                         curKey = key;
-                        dataPromise.then((allStats: Array<BatterySOC>) => {
+                        dataPromise?.then((allStats: Array<BatterySOC>) => {
                           doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
                           return Promise.resolve(allStats);
                         });
@@ -159,7 +153,7 @@ function handleData(allStats: Array<BatterySOC>): Array<BatterySOC> {
 }
 
 const stationCallback = function(sta: string, checked: boolean) {
-  dataPromise.then(allStats => {
+  return dataPromise?.then(allStats => {
     if (checked) {
       selectedStations.push(sta);
     } else {
@@ -181,7 +175,7 @@ const stationCallback = function(sta: string, checked: boolean) {
 }
 
 createUpdatingClock();
-let dataPromise = null;
+let dataPromise: Promise<Array<BatterySOC>>|null = null;
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
   dataPromise = loadBatteryStats(selectedStations, timerange).then(handleData);

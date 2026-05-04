@@ -24,19 +24,19 @@ export function createStationCheckboxes(
     throw new Error(`Can't find element with selector: ${staSelector}`)
   }
   let styleText = "";
-  const allCheckboxes = [];
+  const allCheckboxes: Array<HTMLInputElement> = [];
   // all button
   const allButton = stationsDiv.appendChild(document.createElement('button'));
   allButton.setAttribute('name', "all");
   allButton.textContent="all";
-  allButton.addEventListener('click', event => {
+  allButton.addEventListener('click', (_event) => {
     allCheckboxes.forEach(cb => {
       cb.checked = true;
       stationCallback(cb.name, cb && cb.checked);
     });
   });
   allStations.forEach((sta, _idx) => {
-    const div = stationsDiv.appendChild(document.createElement('span'));
+    const div = stationsDiv.appendChild(document.createElement('span')) as HTMLInputElement;
     const cb = div.appendChild(document.createElement('input'));
     cb.setAttribute('type','checkbox');
     cb.setAttribute('checked','true');
@@ -56,14 +56,14 @@ export function createStationCheckboxes(
     `;
     nlabel.addEventListener("mouseover", (_event) => { highlightStation(sta, stationLineColors); });
     nlabel.addEventListener("mouseleave", (_event) => { doNotHighlightStation(stationLineColors); });
-    nlabel.addEventListener('click', event => {
+    nlabel.addEventListener('click', (_event) => {
       allCheckboxes.forEach(checkbox => {
         if (checkbox.getAttribute("name")===sta) {
           checkbox.checked = true;
           stationCallback(sta, checkbox && checkbox.checked);
         } else {
           checkbox.checked = false;
-          stationCallback(checkbox.getAttribute("name"), false);
+          stationCallback(sta, false);
         }
       })
     });
@@ -76,7 +76,7 @@ export function createStationCheckboxes(
 }
 export function doPlot<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,
-                        keyFn: ((d:Type)=> (string|number|null)),
+                        keyFn: ((d:Type)=> (string|number|null|Array<number>)),
                         selectedStations: Array<string>,
                         lineColors: Map<string, string>,
                         xRange?: [DateTime, DateTime]|null,
@@ -115,11 +115,13 @@ export function doText<Type extends DataSOHType>( selector: string,
   }
   if (filtered.length > 0) {
     let s = "";
-    let vals = keyFn(d);
-    if (Array.isArray(vals)) {
-      val = vals.join(",")
-    }
-    filtered.forEach(d => s=`${s}\n${d.station} ${d.time}  ${val}`);
+    filtered.forEach(d => {
+      let val = keyFn(d);
+      if (Array.isArray(val)) {
+        val = val.join(",")
+      }
+      s+=`${s}\n${d.station} ${d.time}  ${val}\n`
+    });
     plotDiv.textContent = s;
   } else {
     let p = plotDiv.appendChild(document.createElement("p"));

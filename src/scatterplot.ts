@@ -16,7 +16,7 @@ import 'd3-transition';
 
 
 
-export function highlightStation(station, colorForStation){
+export function highlightStation(station: string, colorForStation: Map<string, string>){
     d3_selectAll(".dot")
       .transition()
       .duration(200)
@@ -30,7 +30,7 @@ export function highlightStation(station, colorForStation){
       .attr("r", 7)
   }
 
-export function doNotHighlightStation(colorForStation){
+export function doNotHighlightStation(colorForStation: Map<string, string>){
     d3_selectAll(".dot")
       .transition()
       .duration(200)
@@ -46,11 +46,11 @@ export function doNotHighlightStation(colorForStation){
 // xRange: null|Array<DateTime, DateTime>,
 // yRange: null|Array<number, number>
 //                           ) {
-export function scatterplot(selector,
+export function scatterplot(selector: string,
                             data,
                             keyFn,
-                            allStations,
-                            colorForStation,
+                            allStations: Array<string>,
+                            colorForStation: Map<string, string>,
                             xRange,
                             yRange,
                             xGridLines: boolean,

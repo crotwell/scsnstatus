@@ -84,12 +84,31 @@ export function scatterplot(selector,
   let min = 99999999;
   let max = -99999999;
   let dataWithKey = data.find(d => sp.util.isDef(keyFn(d)));
-  const allDefinedData = data.filter(d => sp.util.isDef(keyFn(d)));
-  let numberData = dataWithKey && typeof keyFn(dataWithKey) === 'number' ;
+  let allDefinedData = data.filter(d => sp.util.isDef(keyFn(d)));
+  let numberData = dataWithKey && (
+    Array.isArray(keyFn(dataWithKey)) || typeof keyFn(dataWithKey) === 'number') ;
+  let extractValueFn = keyFn;
+  if (dataWithKey && Array.isArray(keyFn(dataWithKey))) {
+    let splitData = []
+    allDefinedData.forEach(d => {
+      const t = d.time
+      const sta = d.station
+      keyFn(d).forEach( v => {
+        let sd = {
+          time: t,
+          station: sta,
+          value: v
+        }
+        splitData.push(sd)
+      });
+    });
+    allDefinedData = splitData;
+    keyFn = d => d.value;
+  }
   let allOrdinalVals = [];
   if (numberData) {
     if (xRange == null) {
-      data.forEach(d => {
+      allDefinedData.forEach(d => {
         const v = keyFn(d);
         if (v) {
           if (d['time'] < start) { start = d['time'];}
@@ -104,6 +123,7 @@ export function scatterplot(selector,
       allDefinedData.forEach(d => {
         const v = keyFn(d);
         if (v) {
+
           if (v < min) { min = v;}
           if (v > max) { max = v;}
         }
@@ -118,7 +138,7 @@ export function scatterplot(selector,
     }
   } else {
     let valList = new Set();
-    data.forEach(d => {
+    allDefinedData.forEach(d => {
       const v = keyFn(d);
       if (v) {
         valList.add(`${v}`);

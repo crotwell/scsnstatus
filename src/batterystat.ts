@@ -1,9 +1,8 @@
 import './style.css';
-import * as sp from 'seisplotjs';
 
 import {nwsSkyCover, stationForecast} from './nws.ts';
-import { loadKilovaultStats} from './jsonl_loader';
-import type {KilovaultSOC} from './jsonl_loader';
+import {  loadBatteryStats} from './jsonl_loader';
+import type { BatterySOC} from './jsonl_loader';
 import {
   doPlot,
   doText,
@@ -51,24 +50,30 @@ app.innerHTML = `
 let curKey = "percentCharge";
 const kilovaultKeys = [
   "percentCharge", "current", "voltage", "temperature",
-  "id", "cycles", "battery_level"
+  "id", "cycles", "battery_level", "cell_voltages"
 ]
-const allStations = ["JSC", 'CASEE', 'CSB', 'HAW',
-    'HODGE', 'PAULI', 'TEEBA', "BIRD", "BELLE"]
-let colorForStation = createColors(allStations);
 
-let selectedStations = allStations.slice();
+let allStations: Array<string> = [];
+let colorForStation: Map<string, string> = new Map();
+let selectedStations: Array<string> = [];
 
-function batteryKey(kvKey) {
+function batteryKey(kvKey: string): string {
   if (kvKey === "percentCharge") {
     return "battery_level"
   }
+  return kvKey;
 }
 
-function dataFn(d: KilovaultSOC): number {
+function dataFn(d: BatterySOC): null|number|string|Array<number> {
   if (d.soc.length > 0) {
     const firstObj = d.soc[0];
     if (firstObj && firstObj[curKey]!= null) {
+      if (false && curKey === "cell_voltages") {
+        let v = 0;
+        firstObj[curKey].forEach(cv => v+=cv);
+        v = v/firstObj[curKey].length;
+        return v;
+      }
       return firstObj[curKey];
     } else if (firstObj && firstObj[batteryKey(curKey)]!= null) {
       return firstObj[batteryKey(curKey)];
@@ -80,7 +85,7 @@ function dataFn(d: KilovaultSOC): number {
   }
 }
 
-function textDataFn(d: KilovaultSOC): string {
+function textDataFn(d: BatterySOC): string {
   if (d.soc.length == 0) {
     return "missing";
   }
@@ -93,9 +98,9 @@ function textDataFn(d: KilovaultSOC): string {
 }
 
 
-function createKeyCheckbox(stat: KilovaultSOC) {
+function createKeyCheckbox(stat: BatterySOC) {
   const selector = 'div.datakeys';
-  let statKeys = [];
+  let statKeys: Array<string> = [];
   statKeys = statKeys.concat(kilovaultKeys);
   for(const key in stat) {
     if (key === 'time' || key === 'station' || key === 'soc' ) {
@@ -109,7 +114,7 @@ function createKeyCheckbox(stat: KilovaultSOC) {
                       curKey,
                       (key)=>{
                         curKey = key;
-                        dataPromise.then((allStats: Array<KilovaultSOC>) => {
+                        dataPromise.then((allStats: Array<BatterySOC>) => {
                           doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
                           return Promise.resolve(allStats);
                         });
@@ -117,12 +122,12 @@ function createKeyCheckbox(stat: KilovaultSOC) {
   return stat;
 }
 
-function handleData(allStats: Array<KilovaultSOC>): Array<KilovaultSOC> {
+function handleData(allStats: Array<BatterySOC>): Array<BatterySOC> {
   if (allStats.length > 0) {
     createKeyCheckbox(allStats[0]);
   }
   allStats.sort(timesort);
-  let expandData: Array<KilovaultSOC> = []
+  let expandData: Array<BatterySOC> = []
   allStats.forEach(stat => {
     if (stat.soc.length > 1) {
       stat.soc.forEach(s => {
@@ -161,7 +166,7 @@ const stationCallback = function(sta: string, checked: boolean) {
       selectedStations = selectedStations.filter(s => s !== sta);
     }
     return allStats;
-  }).then((allStats: Array<KilovaultSOC>) => {
+  }).then((allStats: Array<BatterySOC>) => {
     doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
     if (DO_TEXT_OUTPUT) {
       // output raw values as text, for debugging
@@ -175,24 +180,36 @@ const stationCallback = function(sta: string, checked: boolean) {
   });
 }
 
-createStationCheckboxes(allStations, stationCallback, colorForStation);
 createUpdatingClock();
+let dataPromise = null;
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
-  dataPromise = loadKilovaultStats(selectedStations, timerange).then(handleData);
+  dataPromise = loadBatteryStats(selectedStations, timerange).then(handleData);
 }));
 
-let timerange = timeChooser.toInterval();
-let dataPromise = loadKilovaultStats(selectedStations, timerange)
-  .then(handleData)
-  .then( (allStats) => {
-    return allStats;
-  }).catch( err => {
-    console.log(`error in data: ${err}`);
-    throw err;
-  });
+loadActiveStations()
+  .then(staList => staList.map(s => s.stationCode))
+  .then(staCodes => {
+    allStations = staCodes;
+    selectedStations = allStations.slice();
+    colorForStation = createColors(allStations);
+    selectedStations = allStations.slice();
+    createStationCheckboxes(allStations, stationCallback, colorForStation);
 
-document.querySelector("#loadNWS").addEventListener("click", ()=> {
+
+    let timerange = timeChooser.toInterval();
+    dataPromise = loadBatteryStats(selectedStations, timerange)
+      .then(handleData)
+      .then( (allStats) => {
+        return allStats;
+      }).catch( err => {
+        console.log(`error in data: ${err}`);
+        throw err;
+      });
+    return dataPromise;
+});
+
+document.querySelector("#loadNWS")?.addEventListener("click", ()=> {
   console.log(`before sky cover`)
   return nwsSkyCover().then(() => stationForecast());
 })

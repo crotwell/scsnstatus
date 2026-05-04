@@ -24,6 +24,17 @@ export function createStationCheckboxes(
     throw new Error(`Can't find element with selector: ${staSelector}`)
   }
   let styleText = "";
+  const allCheckboxes = [];
+  // all button
+  const allButton = stationsDiv.appendChild(document.createElement('button'));
+  allButton.setAttribute('name', "all");
+  allButton.textContent="all";
+  allButton.addEventListener('click', event => {
+    allCheckboxes.forEach(cb => {
+      cb.checked = true;
+      stationCallback(cb.name, cb && cb.checked);
+    });
+  });
   allStations.forEach((sta, _idx) => {
     const div = stationsDiv.appendChild(document.createElement('span'));
     const cb = div.appendChild(document.createElement('input'));
@@ -34,6 +45,7 @@ export function createStationCheckboxes(
       const checkbox = event.target as HTMLInputElement;
       stationCallback(sta, checkbox && checkbox.checked);
     });
+    allCheckboxes.push(cb);
     const nlabel = div.appendChild(document.createElement('label'));
     nlabel.setAttribute('class', sta);
     nlabel.textContent = sta;
@@ -44,6 +56,17 @@ export function createStationCheckboxes(
     `;
     nlabel.addEventListener("mouseover", (_event) => { highlightStation(sta, stationLineColors); });
     nlabel.addEventListener("mouseleave", (_event) => { doNotHighlightStation(stationLineColors); });
+    nlabel.addEventListener('click', event => {
+      allCheckboxes.forEach(checkbox => {
+        if (checkbox.getAttribute("name")===sta) {
+          checkbox.checked = true;
+          stationCallback(sta, checkbox && checkbox.checked);
+        } else {
+          checkbox.checked = false;
+          stationCallback(checkbox.getAttribute("name"), false);
+        }
+      })
+    });
   });
   const headEl = document.querySelector<HTMLElement>('head');
   if (! headEl) { throw new Error(`Can't find head element`);}
@@ -53,7 +76,7 @@ export function createStationCheckboxes(
 }
 export function doPlot<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,
-                        keyFn: ((d:Type)=> string)|((d:Type)=> number),
+                        keyFn: ((d:Type)=> (string|number|null)),
                         selectedStations: Array<string>,
                         lineColors: Map<string, string>,
                         xRange?: [DateTime, DateTime]|null,

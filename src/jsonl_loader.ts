@@ -33,6 +33,69 @@ export interface KilovaultSOC extends DataSOHType {
   [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
   soc: Array<PercentCharge>;
 }
+/*
+
+{"time": "2026-04-08T16:03:10.451380+00:00",
+"station": "PAULI", "soc": [
+{"voltage": 13.59,
+"current": 2.613,
+"battery_level": 99,
+"battery_health": 100,
+"cycle_charge": 384.0,
+"design_capacity": 320,
+"cycles": 0,
+"balancer": 0,
+"heater": true,
+"problem_code": 0,
+"cell_voltages": [3.396, 3.405, 3.394, 3.395],
+"temp_values": [16.0, 16.0, 0.0],
+"delta_voltage": 0.011,
+"cell_count": 4,
+"cycle_capacity": 5218.56,
+"power": 35.511,
+"battery_charging": true,
+"temperature": 10.667,
+"problem": false,
+"id": "L-12320BNN130-B01062",
+"percentCharge": 99.2}
+]}
+ */
+
+export interface BatteryStat {
+    id: string,
+    name: string,
+    address: string,
+    voltage: number,
+    current: number,
+    battery_level: number,
+    battery_health: number,
+    cycle_charge: number,
+    design_capacity: number,
+    cycles: number,
+    balancer: number,
+    heater: boolean,
+    problem_code: number,
+    cell_voltages: Array<number>,
+    temp_values: Array<number>,
+    delta_voltage: number,
+    cell_count: number,
+    power: number,
+    battery_charging: boolean,
+    temperature: number,
+    problem: boolean,
+    percentCharge: number,
+    [index: string]: string|number
+}
+
+export interface BatterySOC extends DataSOHType {
+  [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
+  soc: Array<BatteryStat>;
+}
+
+export interface KilovaultSOC extends DataSOHType {
+  [index: string]: string|number|DateTime|Array<{[index: string]: string|number}>;
+  soc: Array<PercentCharge>;
+}
 
 export interface LatencyVoltage extends DataSOHType {
   volt: number,
@@ -80,6 +143,7 @@ export function loadCellStats(stationList: Array<string>, interval: Interval): P
 }
 
 const cellvoltTable = [
+  [-20, 1.5], // fake values below 0, just extend linear trend
   [0, 2.5],
   [10, 3.0],
   [20, 3.20],
@@ -91,12 +155,13 @@ const cellvoltTable = [
   [80, 3.32],
   [90, 3.35],
   [100, 3.40],
+  [120, 3.50], // fake values above 100, just extend linear trend
 ];
 
 /**
  * Convert individual cell volatages to overall percent charge. Note this is
- * likely to be wrong, underestimation, due to load from station,or due to
- * charging in progress.
+ * likely to be wrong, underestimation, due to load from station,
+ * or overestimation due to charging in progress.
  *
  * @param  v  voltage of individual cell in battery, 2.5-3.4v
  * @return percent state of charge for cell, 0-100%
@@ -128,12 +193,50 @@ export function loadKilovaultStats(stationList: Array<string>, interval: Interva
       return out;
     })
     .then(jsonTextList => {
-      const allStats = jsonTextList.filter(line => line.length > 2).map(parseBetteryJsonline);
+      const allStats = jsonTextList.filter(line => line.length > 2).map(parseKVBatteryJsonline);
       return allStats.filter(x=> !!x);
     });
 }
 
-export function parseBetteryJsonline(line) {
+
+export function loadBatteryStats(stationList: Array<string>, interval: Interval): Promise<Array<BatterySOC>> {
+  const sidBatteryChan = "W_BAT_SOC";
+  return loadStats(stationList, sidBatteryChan, interval)
+    .then(plist => {
+      let out = []
+      for (const p of plist) {
+        out = out.concat(p);
+      }
+      return out;
+    })
+    .then(jsonTextList => {
+      const allStats = jsonTextList.filter(line => line.length > 2).map(parseBatteryJsonline);
+      return allStats.filter(x=> !!x);
+    });
+}
+
+export function parseBatteryJsonline(line): BatterySOC {
+  let statJson = JSON.parse(line);
+  if ('station' in statJson === false) { throw new Error("No station in json object");}
+  if ('time' in statJson === false) { throw new Error("No time in json object");}
+  statJson.time = sp.util.isoToDateTime(statJson['time'] as string);
+  statJson.soc.forEach( (s: any) => {
+    s.percentCharge = parseFloat(s.percentCharge);
+    if (s.current) {s.current = parseFloat(s.current);}
+    if (s.voltage) {s.voltage = parseFloat(s.voltage);}
+    if (s.cell_voltages) {
+      // looks like aiobmsble
+      let cellSoc = 0;
+      s.cell_voltages.forEach((cv: number) => {cellSoc += lifepo4_v2soc(cv);});
+      s.percentCharge = cellSoc/s.cell_voltages.length;
+    }
+  });
+  statJson.soc = statJson.soc.filter((s: any) => s.percentCharge>0);
+  return statJson as BatterySOC;
+}
+
+
+export function parseKVBatteryJsonline(line) {
   let statJson = JSON.parse(line);
   if ('station' in statJson === false) { throw new Error("No station in json object");}
   if ('time' in statJson === false) { throw new Error("No time in json object");}

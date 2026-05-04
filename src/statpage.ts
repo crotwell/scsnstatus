@@ -60,10 +60,13 @@ export function createStationCheckboxes(
       allCheckboxes.forEach(checkbox => {
         if (checkbox.getAttribute("name")===sta) {
           checkbox.checked = true;
-          stationCallback(sta, checkbox && checkbox.checked);
+          stationCallback(sta, true);
         } else {
           checkbox.checked = false;
-          stationCallback(sta, false);
+          const otherSta = checkbox.getAttribute("name");
+          if (otherSta) {
+            stationCallback(otherSta, false);
+          }
         }
       })
     });

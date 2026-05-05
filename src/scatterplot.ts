@@ -110,7 +110,7 @@ export function scatterplot(selector: string,
     if (xRange == null) {
       allDefinedData.forEach(d => {
         const v = keyFn(d);
-        if (v) {
+        if (sp.util.isDef(v)) {
           if (d['time'] < start) { start = d['time'];}
           if (d['time'] > end) { end = d['time'];}
         }
@@ -122,7 +122,7 @@ export function scatterplot(selector: string,
     if (yRange == null) {
       allDefinedData.forEach(d => {
         const v = keyFn(d);
-        if (v) {
+        if (sp.util.isDef(v)) {
 
           if (v < min) { min = v;}
           if (v > max) { max = v;}
@@ -140,7 +140,7 @@ export function scatterplot(selector: string,
     let valList = new Set();
     allDefinedData.forEach(d => {
       const v = keyFn(d);
-      if (v) {
+      if (sp.util.isDef(v)) {
         valList.add(`${v}`);
         if (xRange == null) {
           if (d['time'] < start) { start = d['time'];}

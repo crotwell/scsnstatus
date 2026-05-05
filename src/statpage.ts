@@ -17,6 +17,7 @@ export function createStationCheckboxes(
       allStations: Array<string>,
       stationCallback: (sta: string, sel: boolean)=>void,
       stationLineColors: Map<string, string>,
+      startAllChecked: boolean,
     ) {
   const staSelector = 'div.stations';
   const stationsDiv = document.querySelector<HTMLDivElement>(staSelector);
@@ -35,11 +36,14 @@ export function createStationCheckboxes(
       stationCallback(cb.name, cb && cb.checked);
     });
   });
+  let isDefaultChecked = startAllChecked?'true':'false';
+  console.log(`isDefaultChecked: ${isDefaultChecked}`)
   allStations.forEach((sta, _idx) => {
     const div = stationsDiv.appendChild(document.createElement('span')) as HTMLInputElement;
     const cb = div.appendChild(document.createElement('input'));
     cb.setAttribute('type','checkbox');
-    cb.setAttribute('checked','true');
+    cb.checked = startAllChecked;
+    cb.setAttribute('checked', isDefaultChecked);
     cb.setAttribute('name', sta);
     cb.addEventListener('click', event => {
       const checkbox = event.target as HTMLInputElement;
@@ -75,7 +79,7 @@ export function createStationCheckboxes(
   if (! headEl) { throw new Error(`Can't find head element`);}
   const stationStyle = headEl.appendChild(document.createElement('style'));
   stationStyle.appendChild(document.createTextNode(styleText));
-
+  return allCheckboxes;
 }
 export function doPlot<Type extends DataSOHType>( selector: string,
                         allStats: Array<Type>,

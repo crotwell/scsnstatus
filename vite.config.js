@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         heli: resolve(__dirname, 'heli/index.html'),
+        realtime: resolve(__dirname, 'realtime/index.html'),
         latency: resolve(__dirname, 'latency/index.html'),
         cellstat: resolve(__dirname, 'cellstat/index.html'),
         batterystat: resolve(__dirname, 'batterystat/index.html'),

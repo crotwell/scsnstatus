@@ -94,6 +94,6 @@ const stationCallback = function(sta: string, checked: boolean) {
   });
 }
 
-createStationCheckboxes(allStations, stationCallback, colorForStation);
+createStationCheckboxes(allStations, stationCallback, colorForStation, true);
 
 createUpdatingClock();

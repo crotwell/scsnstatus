@@ -188,7 +188,7 @@ loadActiveStations()
     selectedStations = allStations.slice();
     colorForStation = createColors(allStations);
     selectedStations = allStations.slice();
-    createStationCheckboxes(allStations, stationCallback, colorForStation);
+    createStationCheckboxes(allStations, stationCallback, colorForStation, true);
 
 
     let timerange = timeChooser.toInterval();

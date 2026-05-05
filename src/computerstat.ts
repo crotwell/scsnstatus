@@ -193,7 +193,7 @@ const stationCallback = function(sta: string, checked: boolean) {
   });
 }
 
-createStationCheckboxes(allStations, stationCallback, colorForStation);
+createStationCheckboxes(allStations, stationCallback, colorForStation, true);
 createUpdatingClock();
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {

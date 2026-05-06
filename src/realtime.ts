@@ -15,12 +15,15 @@ import {
   createStationCheckboxes,
   createUpdatingClock
 } from './statpage';
-import {loadActiveStations} from './util';
+import {loadActiveStations, loadNetworks} from './util';
 import {createNavigation} from './navbar';
 
 
 const EARTHSCOPE_SEEDLINK = "wss://rtserve.earthscope.org/seedlink";
-const SEEDLINK = EARTHSCOPE_SEEDLINK;
+const SCSN_SEEDLINK_V4 = "wss://eeyore.seis.sc.edu/testringserver/seedlink";
+const SCSN_SEEDLINK = "wss://eeyore.seis.sc.edu/ringserver/seedlink";
+
+const SEEDLINK = SCSN_SEEDLINK;
 
 createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -46,6 +49,7 @@ app.innerHTML = `
 
 <div id="realtime">
 </div>
+<sp-debug></sp-debug>
 <h5>Generated with <a href="https://github.com/crotwell/seisplotjs">Seisplotjs version <span class="sp_version">3.1.5-SNAPSHOT</span></a>.</h5>
 
 `;
@@ -53,6 +57,12 @@ app.innerHTML = `
 
 sp.util.updateVersionText('.sp_version');
 
+const sp_debug = document.querySelector("sp-debug");
+function addToDebug(msg: string) {
+  if (sp_debug) {
+    sp_debug.debug(msg);
+  };
+}
 
 createUpdatingClock();
 
@@ -63,11 +73,10 @@ let currSta = null;
 
 
 let stationCallback = function(sta) {
-  console.log(sta);
   currSta = sta;
   displayStations();
-
 }
+
 loadActiveStations()
   .then(staList => staList.map(s => s.stationCode))
   .then(staCodes => {
@@ -92,6 +101,12 @@ realtimeDiv.appendChild(rtDisp.organizedDisplay);
 rtDisp.organizedDisplay.draw();
 rtDisp.animationScaler.animate();
 
+loadNetworks().then(nets => {
+    rtConfig.networkList = nets;
+    // in case packets arrive before stationxml
+    rtDisp.rawSeisData.forEach(sdd => sdd.associateChannel(nets));
+    rtDisp.organizedDisplay.seisData.forEach(sdd => sdd.associateChannel(nets));
+});
 
 function errorFn(error) {
   console.assert(false, error);
@@ -107,6 +122,7 @@ function toggleConnection() {
     document.querySelector("button#disconnect").textContent = "Reconnect";
     if (seedlink) {
       seedlink.close();
+      seedlink=null;
     }
   } else {
     displayStations();
@@ -120,45 +136,53 @@ function displayStations() {
     seedlink=null;
   }
 
-  rtDisp.organizedDisplay.seisData = [];
   document.querySelector("button#disconnect").textContent = "Disconnect";
 
   let requestConfig = [];
 
   stationCheckboxes.forEach(cb => {
     if (cb.checked) {
-      requestConfig.push(`STATION CO_${cb.name}`);
-      requestConfig.push("SELECT 00_H_?_?");
+      requestConfig.push(`STATION ${cb.name} CO`);
+      requestConfig.push("SELECT 00HH?");
+    } else {
+      let seisData = rtDisp.organizedDisplay.seisData;
+      for (let i=0; i<seisData.length; i++) {
+        if (seisData[i].stationCode === cb.name) {
+          seisData.splice(i, 1);
+        }
+      }
+      rtDisp.organizedDisplay.seisData = seisData;
+      rtDisp.organizedDisplay.redraw();
     }
   });
+  if (requestConfig.length === 0) {
+    return;
+  }
 
   let start = sp.luxon.DateTime.utc().minus(duration);
-  let dataCmd = sp.seedlink4.createDataTimeCommand(start);
-  let requestConfigWithData = requestConfig.concat([ dataCmd ])
-  let endCommand = sp.seedlink4.END_COMMAND;
   if (!seedlink) {
-    seedlink = new sp.seedlink4.SeedlinkConnection(
+    seedlink = new sp.seedlink.SeedlinkConnection(
       SEEDLINK,
-      requestConfigWithData,
+      requestConfig,
       (packet) => {
         rtDisp.packetHandler(packet);
       },
       errorFn,
     );
-    seedlink.endCommand = endCommand;
+    seedlink.logCommandFn = addToDebug;
+    seedlink.setOnClose(() => {addToDebug("close seedlink connection");});
   }
   if (seedlink) {
-    start = sp.luxon.DateTime.utc().minus(duration);
-    dataCmd = sp.seedlink4.createDataTimeCommand(start);
-    requestConfigWithData = requestConfig.concat([ dataCmd ])
-    seedlink.requestConfig = requestConfigWithData;
-    requestConfigWithData.forEach(cmd => console.log(cmd));
+    seedlink.requestConfig = requestConfig;
+    seedlink.setTimeCommand(start);
     seedlink
       .connect()
+      .then(() => addToDebug("connected"))
       .catch(function (error) {
         addToDebug(`Error: ${error.name} - ${error.message}`);
         console.assert(false, error);
       });
+    stopped = false;
   }
 }
 
@@ -186,3 +210,15 @@ document
   .addEventListener("click", function (evt) {
     toggleConnection();
   });
+
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    if (seedlink) {
+      seedlink.close();
+      seedlink=null;
+    }
+  } else {
+    displayStations();
+  }
+});

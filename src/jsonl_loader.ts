@@ -260,9 +260,11 @@ export function parseKVBatteryJsonline(line) {
 
 export function loadComputerStat(stationList: Array<string>, interval: Interval): Promise<Array<ComputerStat>> {
   const chan = "DISK";
-  const sidChan = "W_DSK_";
+  const sidChan = "R_DSK_";
+  const oldsidChan = "W_DSK_";
   return Promise.all([loadStats(stationList, chan, interval),
-        loadStats(stationList, sidChan, interval)])
+        loadStats(stationList, sidChan, interval),
+        loadStats(stationList, oldsidChan, interval)])
     .then(plist => {
       let out = []
       for (const p of plist) {

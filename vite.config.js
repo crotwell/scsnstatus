@@ -6,6 +6,7 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: "/scsn/status/",
   build: {
+    sourcemap: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),

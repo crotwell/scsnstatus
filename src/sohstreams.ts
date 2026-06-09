@@ -22,7 +22,7 @@ app.innerHTML = `
   <h5 id="nowtime">Now!</h5>
   <h5>SOH STREAMS!</h5>
   <div>
-    <sp-timerange duration="P1DT120M"></sp-timerange>
+    <sp-timerange duration="P1DT120M" prev-next="true"></sp-timerange>
     <button id="loadToday">Today</button>
     <button id="loadNow">Now</button>
   </div>
@@ -51,6 +51,8 @@ orgDisp.seismographConfig.amplitudeWithZero();
 orgDisp.seismographConfig.wheelZoom = false;
 orgDisp.overlayby = sp.organizeddisplay.OVERLAY_STATION;
 orgDisp.seisData = [];
+
+let stationList = [];
 
 function makePlot(key: string) {
   orgDisp.seisData = [];
@@ -82,26 +84,12 @@ function makePlot(key: string) {
           subsourceCode.includes(ch.channelCode.charAt(2))
         );
     });
-
+    stationList = staList;
     return staList;
   }).then(staList => {
     const timeChooser = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
     const timeRange = timeChooser.getTimeRange();
-    const promiseList: Array<Promise<Array<sp.seismogram.SeismogramDisplayData>>> = new Array();
-    staList.forEach(sta => {
-      const sddList = new Array();
-      sta.channels.forEach(chan => {
-        if (!chan.isActiveAt()) {return;}
-        const sdd = sp.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(chan, timeRange);
-        sddList.push(sdd);
-      });
-      const seisGetter = mseedQ.loadSeismograms(sddList).then(staSddList => {
-          orgDisp.appendSeisData(staSddList);
-          return staSddList;
-        });
-      promiseList.push(seisGetter);
-    });
-    return promiseList;
+    return loadAndPlot(timeRange, staList);
   }).then(sddListList => {
     console.log(`loaded ${sddListList.length} stations`);
   }).catch(reason => {
@@ -110,6 +98,45 @@ function makePlot(key: string) {
   });
 }
 
+const timeChooser = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
+timeChooser.addEventListener("change", () => {
+  const timeRange = timeChooser.getTimeRange();
+  orgDisp.seismographConfig.linkedTimeScale.offset=sp.luxon.Duration.fromMillis(0);
+  orgDisp.seismographConfig.linkedTimeScale.duration=timeRange.toDuration();
+  return loadAndPlot(timeRange, stationList).catch(err => {})
+    .catch(reason => {
+      console.log(`error loading ${reason} `);
+      console.warn(false, reason);
+    });
+  });
+
+function loadAndPlot(timeRange: sp.luxon.TimeRange, staList: Array<sp.stationxml.Station>) {
+  const promiseList: Array<Promise<Array<sp.seismogram.SeismogramDisplayData>>> = new Array();
+  staList.forEach(sta => {
+    const sddList = new Array();
+    sta.channels.forEach(chan => {
+      if (!chan.isActiveAt()) {return;}
+      let existingSDD = orgDisp.seisData.filter(sdd => chan.sourceId.equals(sdd.channel.sourceId));
+      if (existingSDD.length == 0){
+        const sdd = sp.seismogram.SeismogramDisplayData.fromChannelAndTimeWindow(chan, timeRange);
+        orgDisp.appendSeisData(sdd);
+        sddList.push(sdd);
+      } else {
+        existingSDD.forEach(sdd => {
+          sdd.trimInPlace(timeRange);
+          sddList.push(sdd);
+        });
+      }
+    });
+    sddList.forEach(sdd => sdd.alignmentTime = timeRange.starttime);
+    const seisGetter = mseedQ.loadSeismograms(sddList).then(staSddList => {
+        orgDisp.seisDataUpdated();
+        return staSddList;
+      });
+    promiseList.push(seisGetter);
+  });
+  return promiseList;
+}
 
 function createKeyCheckbox(keys: Array<string>) {
   const selector = 'div.datakeys';

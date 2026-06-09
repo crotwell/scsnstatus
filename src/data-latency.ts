@@ -4,7 +4,8 @@ import hostToShortName  from './host-to-short-name';
 
 import {DateTime, Duration} from 'luxon';
 import {
-  ringserverweb
+  ringserverweb,
+  ringserverweb4
 } from 'seisplotjs';
 
 const DEFAULT_UPDATE_INTERVAL= Duration.fromObject({seconds: 10});
@@ -101,8 +102,8 @@ export class DataLatencyService {
     this.inProgress = true;
     const networkCode = this.networkCode;
 
-    const pattern = `^(FDSN:)?${networkCode}.*_H.Z.*`;
-    const irisStats = this.createStreamStats(ringserverweb.IRIS_HOST, pattern);
+    const pattern = `^(FDSN:)?${networkCode}.*_H_?._?Z.*`;
+    const irisStats = this.createStreamStats(ringserverweb4.EARTHSCOPE_HOST, pattern);
     const eeyoreStats = this.createStreamStats(eeyore_host, pattern);
     const cloudStats = this.createStreamStats(cloud_host, pattern);
     const accessTime = DateTime.utc();

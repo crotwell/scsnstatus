@@ -8,13 +8,11 @@ const orientList = ["Z", "N/1", "E/2"];
 const bandInstCodeList = ["HN", "HH", "LH"];
 
 export function updateDateChooser(config) {
-  let dateChooser = document.querySelector("sp-datetime");
+  let dateChooser = document.querySelector("sp-datetime") as sp.datechooser.TimeRangeChooser;
   if (config.endTime && config.duration) {
-    dateChooser.updateTime(
+    dateChooser.end =
       sp.util
-        .isoToDateTime(config.endTime)
-        .minus(luxon.Duration.fromISO(config.duration)),
-    );
+        .isoToDateTime(config.endTime);
   } else {
     throw new Error(
       `missing end/duration: ${config.endTime} ${config.duration}`,

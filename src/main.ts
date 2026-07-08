@@ -1,7 +1,8 @@
 import './style.css'
-import * as sp from 'seisplotjs';
+import {leafletutil, infotable, quakeml, version as sp_version} from 'seisplotjs';
 import {createNavigation} from './navbar';
 import {loadActiveStations, SC_QUAKE_URL} from './util';
+import {Interval, Duration, DateTime} from 'luxon';
 
 createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -21,30 +22,30 @@ app.innerHTML = `
   <sp-quake-table>
   </sp-quake-table>
 
-  <h5 class="spjsversion">Built using <a href="https://crotwell.github.io/seisplotjs/">spjs version</a>: ${sp.version}</h5>
+  <h5 class="spjsversion">Built using <a href="https://crotwell.github.io/seisplotjs/">spjs version</a>: ${sp_version}</h5>
 `
 }
 
-const map = document.querySelector("sp-station-quake-map") as sp.leafletutil.QuakeStationMap;
+const map = document.querySelector("sp-station-quake-map") as leafletutil.QuakeStationMap;
 if (!map) {throw new Error("Can't find sp-station-quake-map");}
-map.quakeList = []
+map.quakeList = [];
+map.stationList = [];
 loadActiveStations().then(staList => {
-  map.addStation(staList);
-  map.draw();
+  map.stationList = staList;
   return staList;
 }).then(staList => {
-  const quakePromise = sp.quakeml.fetchQuakeML(SC_QUAKE_URL)
+  const quakeTable = document.querySelector("sp-quake-table") as infotable.QuakeTable;
+  if (!map) {throw new Error("Can't find sp-quake-table");}
+  const quakePromise = quakeml.fetchQuakeML(SC_QUAKE_URL)
     .then(qml => {
-      const monthAgo = sp.luxon.Interval.before(sp.luxon.DateTime.utc(),
-        sp.luxon.Duration.fromISO("P31DT0M"));
+      const monthAgo = Interval.before(DateTime.utc(), Duration.fromISO("P31DT0M"));
       qml.eventList = qml.eventList.filter( q=> monthAgo.contains(q.time));
       return qml;
+    }).then(qml => {
+      map.quakeList = []
+      map.addQuake(qml.eventList);
+      map.draw();
+      quakeTable.quakeList = qml.eventList;
     });
   return Promise.all([staList, quakePromise]);
-}).then( ([staList, qml] ) => {
-  map.quakeList = []
-  map.addQuake(qml.eventList);
-  map.draw();
-  document.querySelector("sp-quake-table").quakeList = qml.eventList;
-  return Promise.all([staList, qml]);
-})
+});

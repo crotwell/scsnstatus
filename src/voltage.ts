@@ -1,21 +1,19 @@
 import './style.css'
 import * as sp from 'seisplotjs';
-import {setupStationRadioButtons} from './heli/controls';
-import {showMessage, clearMessages} from './heli/doplot';
 import {loadLatencyVoltage} from './jsonl_loader';
 import type {LatencyVoltage} from './jsonl_loader';
 import {
   doPlot,
   createColors,
+  createKeyCheckboxes,
   initTimeChooser,
   createStationCheckboxes,
   createUpdatingClock,
-  timesort,
+  timesort
 } from './statpage'
 import {loadActiveStations} from './util';
-import {stationList} from './util';
 
-import {Interval, Duration, DateTime} from 'luxon';
+import { Duration} from 'luxon';
 
 import {createNavigation} from './navbar';
 
@@ -56,37 +54,10 @@ app.innerHTML = `
 sp.util.updateVersionText('.sp_version');
 }
 
-
-
-// state preserved for browser history
-// also see near bottom where we check if page history has state obj and use that
-let state = {
-  netCodeList: ["CO", "N4"],
-  stationList: stationList,
-  bandCodeList: ["H", "L"],
-  instCodeList: ["H", "N"],
-  orientationCodeList: ["Z", "N", "E", "1", "2"],
-  netCode: "CO",
-  station: stationList[0],
-  locCode: "00",
-  bandCode: "H",
-  instCode: "H",
-  orientationCode: "Z",
-  altOrientationCode: "",
-  endTime: "now",
-  duration: "P7D",
-  dominmax: true,
-  amp: "max",
-  rmean: false,
-  filter: {
-    type: "allpass",
-    lowcut: "1.0",
-    highcut: "10.0",
-  },
-};
+createUpdatingClock();
 
 let curKey = "voltage";
-const batteryKeys = [
+const knownKeys = [
   "voltage"
 ]
 
@@ -95,7 +66,7 @@ let colorForStation: Map<string, string> = new Map();
 let selectedStations: Array<string> = [];
 
 const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
-  dataPromise = loadBatteryStats(selectedStations, timerange).then(handleData);
+  dataPromise = loadLatencyVoltage(selectedStations, timerange);
 }));
 let dataPromise: Promise<Array<LatencyVoltage>>|null = null;
 
@@ -116,16 +87,33 @@ const stationCallback = function(sta: string, checked: boolean) {
       selectedStations = selectedStations.filter(s => s !== sta);
     }
     return allStats;
-  }).then((allStats: Array<BatterySOC>) => {
-    const xRange = null;
-    const yRange: [number, number] = [11, 15]
-    doPlot("div.plot",
-            allStats,
-            doh => doh.volt,
-            selectedStations,
-            colorForStation,
-            xRange, yRange);
+  }).then((allStats: Array<LatencyVoltage>) => {
+    doPlotInner(allStats);
   });
+}
+
+function createKeyCheckbox(stat: LatencyVoltage) {
+  const selector = 'div.datakeys';
+  let statKeys: Array<string> = [];
+  statKeys = statKeys.concat(knownKeys);
+  for(const key in stat) {
+    if (key === 'time' || key === 'station' || key === 'soc' ) {
+      continue;
+    }
+    statKeys.push(key);
+  }
+
+  createKeyCheckboxes(selector,
+                      statKeys,
+                      curKey,
+                      (key: string)=>{
+                        curKey = key;
+                        dataPromise?.then((allStats: Array<LatencyVoltage>) => {
+                          doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
+                          return Promise.resolve(allStats);
+                        });
+                      });
+  return stat;
 }
 
 loadActiveStations()
@@ -140,10 +128,14 @@ loadActiveStations()
 
     let timerange = timeChooser.toInterval();
     dataPromise = loadLatencyVoltage(selectedStations, timerange)
-      .then(dohList => {
-        console.log(`got voltage, ${dohList.length}`)
-        doPlotInner(state,dohList);
-        return dohList;
+      .then(allStats => {
+        console.log(`got voltage, ${allStats.length}`)
+        if (allStats.length > 0) {
+          createKeyCheckbox(allStats[0]);
+        }
+        allStats.sort(timesort);
+        doPlotInner(allStats);
+        return allStats;
       }).then( (allStats) => {
         return allStats;
       }).catch( err => {
@@ -153,14 +145,7 @@ loadActiveStations()
     return dataPromise;
 });
 
-function doPlotInner(state, dohList) {
-  let voltList = "";
-  let n = 0
-  for (let v of dohList) {
-    voltList += `${v.time} ${v.volt}\n`;
-    n+=1;
-    if (n>10) {break;}
-  }
+function doPlotInner(dohList: Array<LatencyVoltage>) {
   const xRange = null;
   const yRange: [number, number] = [11, 15]
   doPlot("div.plot",

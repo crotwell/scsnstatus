@@ -2,14 +2,20 @@ import './style.css'
 import * as sp from 'seisplotjs';
 import {setupStationRadioButtons} from './heli/controls';
 import {showMessage, clearMessages} from './heli/doplot';
+import {loadLatencyVoltage} from './jsonl_loader';
 import type {LatencyVoltage} from './jsonl_loader';
 import {
   doPlot,
   createColors,
-} from './statpage.js'
+  initTimeChooser,
+  createStationCheckboxes,
+  createUpdatingClock,
+  timesort,
+} from './statpage'
+import {loadActiveStations} from './util';
 import {stationList} from './util';
 
-const luxon = sp.luxon;
+import {Interval, Duration, DateTime} from 'luxon';
 
 import {createNavigation} from './navbar';
 
@@ -39,8 +45,9 @@ app.innerHTML = `
 </details>
 
 <h5>Voltage</h5>
-<div class='plot'>
-</div>
+<div class="plot"></div>
+<div class="stations"></div>
+<div class="datakeys"></div>
 
 <h5>Generated with <a href="https://github.com/crotwell/seisplotjs">Seisplotjs version <span class="sp_version">3.1.5-SNAPSHOT</span></a>.</h5>
 
@@ -78,113 +85,73 @@ let state = {
   },
 };
 
-export class CellStatusService {
+let curKey = "voltage";
+const batteryKeys = [
+  "voltage"
+]
 
-  relativeURL = '/scsn/cell-stats/';
-  baseURL = 'http://eeyore.seis.sc.edu'+this.relativeURL;
-  cache = [];
-  maxCacheLength = 100;
+let allStations: Array<string> = [];
+let colorForStation: Map<string, string> = new Map();
+let selectedStations: Array<string> = [];
 
-  queryCellStatus(station: string, year: number, dayofyear: number) {
-    const today = sp.luxon.DateTime.utc();
-    if (year !== today.year || dayofyear !== today.ordinal) {
-      // only look in cache if not "today" so we get updates
-      // careful of int vs string with ===
-      const yearStr = ""+year;
-      let dayofyearStr = ""+dayofyear;
-      if (dayofyearStr.length === 1) { dayofyearStr = `0${dayofyearStr}`;}
-      if (dayofyearStr.length === 2) { dayofyearStr = `0${dayofyearStr}`;}
-      let cachedValue = this.cache.find( cellStat => {
-        return cellStat["dayofyear"] === dayofyearStr
-          && cellStat["station"] === station && cellStat["year"] === yearStr;
-      });
-      if (cachedValue) {
-        return Promise.resolve(cachedValue);
-      }
-    }
-    let url = `https://eeyore.seis.sc.edu:${this.relativeURL}${year}/${dayofyear}/${station}.json`;
-    return sp.util.doFetchWithTimeout(url, null, 10)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-        return response.json();
-      }).then(json => {
-        if (year !== today.year || dayofyear !== today.ordinal) {
-          // only push non-today
-          this.cache.push(json);
-        }
-        while (this.cache.length > this.maxCacheLength) {
-          this.cache.shift();
-        }
-        return json;
-      }).catch(error => {
-        console.log(error);
-        console.log("...returning valid but empty value.")
-        return this.emptyCellStatus(station, year, dayofyear);
-      });
+const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
+  dataPromise = loadBatteryStats(selectedStations, timerange).then(handleData);
+}));
+let dataPromise: Promise<Array<LatencyVoltage>>|null = null;
 
-  }
 
-  emptyCellStatus(station: string, year: number, dayofyear: number) {
-    return {
-      "station": station,
-      "dayofyear": dayofyear,
-      "values": [],
-      "year": year
-    };
-  }
-}
-
-const cellStatusService = new CellStatusService();
-
-function loadAndPlot(config) {
-  if (config.station) {
-    clearMessages();
-    const chooserEnd = sp.util.checkStringOrDate(state.endTime);
-    const chooserStart = chooserEnd.minus(luxon.Duration.fromISO(state.duration));
-    const promiseList = [];
-    let dayToGet = chooserStart;
-    while (dayToGet.toMillis() <= chooserEnd.toMillis()) {
-      dayToGet = dayToGet.plus({days: 1});
-      promiseList.push(cellStatusService.queryCellStatus(config.station, dayToGet.year, dayToGet.ordinal)
-      .then( jsonData => {
-        return parseLatency(jsonData);
-      }));
-    }
-    Promise.all(promiseList)
-    .then(listOfdohList => {
-      let dohList: Array<LatencyVoltage> = [];
-      for (let dayList of listOfdohList) {
-        dohList = dohList.concat(dayList);
-      }
-      return dohList;
-    }).then( dohList => {
-      doPlotInner(config, dohList);
-    });
+function dataFn(d: LatencyVoltage): null|number|string|Array<number> {
+  if (curKey in d) {
+    return d[curKey];
   } else {
-    showMessage(`No station selected... ${config.station}`);
+    return null;
   }
 }
 
-function parseLatency(jsonData): Array<LatencyVoltage> {
-
-  let dohList: Array<LatencyVoltage> = [];
-  for (let v of jsonData["values"]) {
-    const doh = {
-      station: jsonData["station"],
-      time: sp.util.isoToDateTime(v["time"]),
-      volt: parseFloat(v["volt"]),
-      eeyore: v["latency"]["eeyore"],
-      thecloud: v["latency"]["thecloud"],
-      iris: v["latency"]["iris"]
-    };
-    dohList.push(doh);
-  }
-  return dohList;
+const stationCallback = function(sta: string, checked: boolean) {
+  return dataPromise?.then(allStats => {
+    if (checked) {
+      selectedStations.push(sta);
+    } else {
+      selectedStations = selectedStations.filter(s => s !== sta);
+    }
+    return allStats;
+  }).then((allStats: Array<BatterySOC>) => {
+    const xRange = null;
+    const yRange: [number, number] = [11, 15]
+    doPlot("div.plot",
+            allStats,
+            doh => doh.volt,
+            selectedStations,
+            colorForStation,
+            xRange, yRange);
+  });
 }
 
-setupStationRadioButtons(state, loadAndPlot);
+loadActiveStations()
+  .then(staList => staList.map(s => s.stationCode))
+  .then(staCodes => {
+    allStations = staCodes;
+    selectedStations = allStations.slice();
+    colorForStation = createColors(allStations);
+    selectedStations = allStations.slice();
+    createStationCheckboxes(allStations, stationCallback, colorForStation, true);
+
+
+    let timerange = timeChooser.toInterval();
+    dataPromise = loadLatencyVoltage(selectedStations, timerange)
+      .then(dohList => {
+        console.log(`got voltage, ${dohList.length}`)
+        doPlotInner(state,dohList);
+        return dohList;
+      }).then( (allStats) => {
+        return allStats;
+      }).catch( err => {
+        console.log(`error in data: ${err}`);
+        throw err;
+      });
+    return dataPromise;
+});
 
 function doPlotInner(state, dohList) {
   let voltList = "";
@@ -194,57 +161,12 @@ function doPlotInner(state, dohList) {
     n+=1;
     if (n>10) {break;}
   }
-  let colorForStation = createColors(state.stationList);
   const xRange = null;
   const yRange: [number, number] = [11, 15]
   doPlot("div.plot",
           dohList,
           doh => doh.volt,
-          [state.station],
+          selectedStations,
           colorForStation,
           xRange, yRange);
 }
-
-// Check browser state, in case of back or forward buttons
-let currentState = window.history.state;
-
-if (currentState) {
-  if (currentState.station) {
-    state = currentState;
-    loadAndPlot(state);
-  }
-} else {
-  loadAndPlot(state);
-}
-// also register for events that change state
-window.onpopstate = function (event) {
-  if (event.state && event.state.station) {
-    state = event.state;
-    loadAndPlot(state);
-  }
-};
-
-
-let chooserEnd;
-if (!state.endTime) {
-  state.endTime = "now";
-}
-chooserEnd = sp.util.checkStringOrDate(state.endTime);
-const chooserStart = chooserEnd.minus(luxon.Duration.fromISO(state.duration));
-const timeRange = luxon.Interval.fromDateTimes(chooserStart, chooserEnd);
-
-let throttleRedisplay: null | number = null;
-let throttleRedisplayDelay = 500;
-
-const timeRangeEl = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
-timeRangeEl.updateTimeRange(timeRange);
-timeRangeEl.updateCallback = (timeRange) => {
-  if (throttleRedisplay) {
-    window.clearTimeout(throttleRedisplay);
-  }
-  throttleRedisplay = window.setTimeout(() => {
-    state.duration = timeRange.toDuration();
-    state.endTime = timeRange.end;
-    loadAndPlot(state);
-  }, throttleRedisplayDelay);
-};

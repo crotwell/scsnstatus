@@ -258,6 +258,105 @@ export function parseKVBatteryJsonline(line) {
   return statJson as KilovaultSOC;
 }
 
+export class CellStatusService {
+
+  relativeURL = '/scsn/cell-stats/';
+  baseURL = 'http://eeyore.seis.sc.edu'+this.relativeURL;
+  cache = [];
+  maxCacheLength = 100;
+
+  queryCellStatus(station: string, year: number, dayofyear: number) {
+    const today = DateTime.utc();
+    if (year !== today.year || dayofyear !== today.ordinal) {
+      // only look in cache if not "today" so we get updates
+      // careful of int vs string with ===
+      const yearStr = ""+year;
+      let dayofyearStr = ""+dayofyear;
+      if (dayofyearStr.length === 1) { dayofyearStr = `0${dayofyearStr}`;}
+      if (dayofyearStr.length === 2) { dayofyearStr = `0${dayofyearStr}`;}
+      let cachedValue = this.cache.find( cellStat => {
+        return cellStat["dayofyear"] === dayofyearStr
+          && cellStat["station"] === station && cellStat["year"] === yearStr;
+      });
+      if (cachedValue) {
+        return Promise.resolve(cachedValue);
+      }
+    }
+    let url = `https://eeyore.seis.sc.edu:${this.relativeURL}${year}/${dayofyear}/${station}.json`;
+    return sp.util.doFetchWithTimeout(url, null, 10)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        return response.json();
+      }).then(json => {
+        if (year !== today.year || dayofyear !== today.ordinal) {
+          // only push non-today
+          this.cache.push(json);
+        }
+        while (this.cache.length > this.maxCacheLength) {
+          this.cache.shift();
+        }
+        return json;
+      }).catch(error => {
+        //console.log(error);
+        //console.log("...returning valid but empty value.")
+        return this.emptyCellStatus(station, year, dayofyear);
+      });
+
+  }
+
+  emptyCellStatus(station: string, year: number, dayofyear: number) {
+    return {
+      "station": station,
+      "dayofyear": dayofyear,
+      "values": [],
+      "year": year
+    };
+  }
+}
+
+export function parseLatency(jsonData: Any): Array<LatencyVoltage> {
+
+  let dohList: Array<LatencyVoltage> = [];
+  for (let v of jsonData["values"]) {
+    const doh = {
+      station: jsonData["station"],
+      time: sp.util.isoToDateTime(v["time"]),
+      volt: parseFloat(v["volt"]),
+      eeyore: v["latency"]["eeyore"],
+      thecloud: v["latency"]["thecloud"],
+      iris: v["latency"]["iris"]
+    };
+    dohList.push(doh);
+  }
+  return dohList;
+}
+
+export const cellStatusService = new CellStatusService();
+
+export function loadLatencyVoltage(stationList: Array<string>, interval: Interval): Promise<Array<LatencyVoltage>> {
+  const promiseList = [];
+  let dayToGet = interval.start;
+  while (dayToGet.toMillis() <= interval.end.toMillis()) {
+    dayToGet = dayToGet.plus({days: 1});
+    stationList.forEach(station => {
+      promiseList.push(cellStatusService.queryCellStatus(station, dayToGet.year, dayToGet.ordinal)
+      .then( jsonData => {
+        return parseLatency(jsonData);
+      }));
+    });
+  }
+  return Promise.all(promiseList)
+  .then(listOfdohList => {
+    let dohList: Array<LatencyVoltage> = [];
+    for (let dayList of listOfdohList) {
+      dohList = dohList.concat(dayList);
+    }
+    return dohList;
+  });
+}
+
 export function loadComputerStat(stationList: Array<string>, interval: Interval): Promise<Array<ComputerStat>> {
   const chan = "DISK";
   const sidChan = "R_DSK_";

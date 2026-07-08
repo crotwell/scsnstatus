@@ -48,7 +48,7 @@ app.innerHTML = `
 
 
 let curKey = "percentCharge";
-const kilovaultKeys = [
+const batteryKeys = [
   "percentCharge", "current", "voltage", "temperature",
   "id", "cycles", "battery_level", "cell_voltages"
 ]
@@ -95,7 +95,7 @@ function textDataFn(d: BatterySOC): string {
 function createKeyCheckbox(stat: BatterySOC) {
   const selector = 'div.datakeys';
   let statKeys: Array<string> = [];
-  statKeys = statKeys.concat(kilovaultKeys);
+  statKeys = statKeys.concat(batteryKeys);
   for(const key in stat) {
     if (key === 'time' || key === 'station' || key === 'soc' ) {
       continue;

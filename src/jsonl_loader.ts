@@ -122,7 +122,7 @@ export interface ComputerStat extends DataSOHType {
 
 export function loadCellStats(stationList: Array<string>, interval: Interval): Promise<Array<CellSOH>> {
   const chan = "CEL";
-  const sidChan = "W_CEL_";
+  const sidChan = "U_CEL_";
   return Promise.all([loadStats(stationList, chan, interval),
         loadStats(stationList, sidChan, interval)])
     .then(plist => {

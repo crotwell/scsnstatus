@@ -1,8 +1,11 @@
 import * as sp from 'seisplotjs';
 import {Duration, DateTime, Interval} from 'luxon';
+import {calcHost} from './util';
 
-export const DEFAULT_HOST = "eeyore.seis.sc.edu"
-//export const DEFAULT_HOST = "thecloud.seis.sc.edu"
+//export const DEFAULT_HOST = "eeyore.seis.sc.edu"
+export const DEFAULT_HOST = calcHost();
+
+
 export interface DataSOHType {
   station: string;
   time: DateTime;
@@ -261,7 +264,7 @@ export function parseKVBatteryJsonline(line) {
 export class CellStatusService {
 
   relativeURL = '/scsn/cell-stats/';
-  baseURL = 'http://eeyore.seis.sc.edu'+this.relativeURL;
+  baseURL = `http://${DEFAULT_HOST}${this.relativeURL}`;
   cache = [];
   maxCacheLength = 100;
 
@@ -282,7 +285,7 @@ export class CellStatusService {
         return Promise.resolve(cachedValue);
       }
     }
-    let url = `https://eeyore.seis.sc.edu:${this.relativeURL}${year}/${dayofyear}/${station}.json`;
+    let url = `https://${DEFAULT_HOST}${this.relativeURL}${year}/${dayofyear}/${station}.json`;
     return sp.util.doFetchWithTimeout(url, null, 10)
       .then(response => {
         if (!response.ok) {

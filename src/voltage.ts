@@ -56,23 +56,30 @@ sp.util.updateVersionText('.sp_version');
 
 createUpdatingClock();
 
-let curKey = "voltage";
+let curKey = "volt";
 const knownKeys = [
-  "voltage"
+  "volt"
 ]
 
 let allStations: Array<string> = [];
 let colorForStation: Map<string, string> = new Map();
 let selectedStations: Array<string> = [];
 
-const timeChooser = initTimeChooser(Duration.fromISO("P2DT120M"), (timerange => {
-  dataPromise = loadLatencyVoltage(selectedStations, timerange);
+const timeChooser = initTimeChooser(Duration.fromISO("P7DT0M"), (timerange => {
+  dataPromise = loadLatencyVoltage(selectedStations, timerange)
+  .then(allStats => {
+    doPlotInner(allStats);
+    return allStats;
+  });
 }));
 let dataPromise: Promise<Array<LatencyVoltage>>|null = null;
 
 
 function dataFn(d: LatencyVoltage): null|number|string|Array<number> {
   if (curKey in d) {
+    if (curKey === "volt" && d[curKey] <= 0) {
+      return null;
+    }
     return d[curKey];
   } else {
     return null;
@@ -109,7 +116,20 @@ function createKeyCheckbox(stat: LatencyVoltage) {
                       (key: string)=>{
                         curKey = key;
                         dataPromise?.then((allStats: Array<LatencyVoltage>) => {
-                          doPlot("div.plot", allStats, dataFn, selectedStations, colorForStation);
+
+                          let xRange = null;
+                          let yRange: [number, number] = [11, 15]
+                          if (key === "volt") {
+                            yRange = [11, 15]
+                          } else {
+                            // latency
+                            yRange = [0, 90000] // slightly over a day, 86400
+                          }
+
+                          doPlot("div.plot", allStats, dataFn,
+                                selectedStations, colorForStation,
+                                xRange, yRange
+                          );
                           return Promise.resolve(allStats);
                         });
                       });
@@ -126,14 +146,9 @@ loadActiveStations()
     createStationCheckboxes(allStations, stationCallback, colorForStation, true);
 
 
-    let timerange = timeChooser.toInterval();
+    let timerange = timeChooser.getTimeRange();
     dataPromise = loadLatencyVoltage(selectedStations, timerange)
       .then(allStats => {
-        console.log(`got voltage, ${allStats.length}`)
-        if (allStats.length > 0) {
-          createKeyCheckbox(allStats[0]);
-        }
-        allStats.sort(timesort);
         doPlotInner(allStats);
         return allStats;
       }).then( (allStats) => {
@@ -145,11 +160,15 @@ loadActiveStations()
     return dataPromise;
 });
 
-function doPlotInner(dohList: Array<LatencyVoltage>) {
+function doPlotInner(allStats: Array<LatencyVoltage>) {
+  if (allStats.length > 0) {
+    createKeyCheckbox(allStats[0]);
+  }
+  allStats.sort(timesort);
   const xRange = null;
   const yRange: [number, number] = [11, 15]
   doPlot("div.plot",
-          dohList,
+          allStats,
           doh => doh.volt,
           selectedStations,
           colorForStation,

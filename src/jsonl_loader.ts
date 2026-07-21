@@ -402,20 +402,34 @@ export function loadStats(stationList: Array<string>, chan: string, interval: In
   let root = `${protocol}//${host}/scsn`;
   let pattern = "jsonl/%n/%s/%Y/%j/%n.%s.%l.%c.%Y.%j.%H.jsonl";
   let msArchive = new sp.mseedarchive.MSeedArchive(root, pattern);
+  let fdsn_pattern = "jsonl/FDSN\:%n/%s/%Y/%j/FDSN\:%n.%s.%l.%c.%Y.%j.%H.jsonl";
+  let fdsn_msArchive = new sp.mseedarchive.MSeedArchive(root, fdsn_pattern);
   let promiseList = [];
   for(const sta of stationList) {
     let time = interval.start;
     while (time <= interval.end) {
-      let basePattern = msArchive.fillBasePattern(net, sta, loc, chan);
-      let url = msArchive.rootUrl + "/" + msArchive.fillTimePattern(basePattern, time);
+      const basePattern = msArchive.fillBasePattern(net, sta, loc, chan);
+      const url = msArchive.rootUrl + "/" + msArchive.fillTimePattern(basePattern, time);
       promiseList.push(sp.util.doFetchWithTimeout(url).then(resp => {
         if (resp.ok) {
           return resp.text();
         } else {
-          return "";
+          // try with FDSN: pattern
+          const fdsn_basePattern = fdsn_msArchive.fillBasePattern(net, sta, loc, chan);
+          const fdsn_url = fdsn_msArchive.rootUrl + "/" + fdsn_msArchive.fillTimePattern(fdsn_basePattern, time);
+          console.log(`reload FDSN ${fdsn_url}`)
+          return sp.util.doFetchWithTimeout(fdsn_url).then(resp => {
+            if (resp.ok) {
+              return resp.text();
+            } else {
+              return "";
+            }
+          });
         }
       }).catch(err => {
         // no data?
+        console.log(`no data ${url}`)
+        console.log(err)
         return "";
       }));
       time = time.plus(one_hour);

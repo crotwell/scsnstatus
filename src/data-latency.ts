@@ -56,7 +56,7 @@ export const cloud_cname_host = "thecloud.seis.sc.edu";
 
 export const HOST_LIST = [ 'eeyore', 'cloud', 'iris'];
 
-export const DEFAULT_HISTORY_LENGTH = 12;
+export const DEFAULT_HISTORY_LENGTH = 6;
 
 export class HostStreamStats {
   host: string;

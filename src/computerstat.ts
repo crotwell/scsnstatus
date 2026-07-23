@@ -37,7 +37,7 @@ let curKey = "du__data_scsn";
 const allStations = stationList.concat(["THECLOUD"]);
 let colorForStation = createColors(allStations);
 
-let selectedStations = allStations.slice();
+let selectedStations = allStations.slice().filter(sta => sta != "C1SC" && sta != "BARN");
 
 function duSubkeyMatches(subkey: string|null, path: string): boolean {
   if (subkey == null

@@ -33,7 +33,8 @@ app.innerHTML = `
 
 let curKey = "rsrq";
 const allStations = stationList
-let selectedStations = allStations.slice();
+let selectedStations = allStations.slice().filter(sta => sta != "C1SC" && sta != "BARN");
+
 let colorForStation = createColors(allStations);
 
 function createDataFn(curKey: string): ((d:CellSOH)=> string)|((d:CellSOH)=> number) {
@@ -59,7 +60,7 @@ const timeChooser = initTimeChooser(Duration.fromISO("PT120M"), (timerange => {
 }));
 
 let timerange = timeChooser.toInterval();
-let dataPromise = loadCellStats(allStations, timerange).then(handleData);
+let dataPromise = loadCellStats(selectedStations, timerange).then(handleData);
 
 function createKeyCheckbox(stat: CellSOH) {
   const selector = 'div.datakeys';

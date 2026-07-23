@@ -185,9 +185,8 @@ loadActiveStations()
   .then(staList => staList.map(s => s.stationCode))
   .then(staCodes => {
     allStations = staCodes;
-    selectedStations = allStations.slice();
+    selectedStations = allStations.slice().filter(sta => sta != "C1SC" && sta != "BARN");
     colorForStation = createColors(allStations);
-    selectedStations = allStations.slice();
     createStationCheckboxes(allStations, stationCallback, colorForStation, true);
 
 

@@ -75,14 +75,18 @@ const timeChooser = initTimeChooser(Duration.fromISO("P7DT0M"), (timerange => {
 let dataPromise: Promise<Array<LatencyVoltage>>|null = null;
 
 
-function dataFn(d: LatencyVoltage): null|number|string|Array<number> {
-  if (curKey in d) {
-    if (curKey === "volt" && d[curKey] <= 0) {
+function dataFn(d: LatencyVoltage): null|number {
+  switch (curKey) {
+    case "volt":
+      return d.volt >= 0 ? d.volt : null;
+    case "eeyore":
+      return d.eeyore;
+    case "thecloud":
+      return d.thecloud;
+    case "iris":
+      return d.iris;
+    default:
       return null;
-    }
-    return d[curKey];
-  } else {
-    return null;
   }
 }
 
@@ -120,10 +124,17 @@ function createKeyCheckbox(stat: LatencyVoltage) {
                           let xRange = null;
                           let yRange: [number, number] = [11, 15]
                           if (key === "volt") {
+                            // fixed volt range
                             yRange = [11, 15]
                           } else {
                             // latency
-                            yRange = [0, 90000] // slightly over a day, 86400
+                            let latMax = allStats.reduce<number>(
+                              (acc: number, cur:LatencyVoltage)=>{
+                                const x=dataFn(cur);
+                                return x==null?acc:Math.max(acc, x);
+                              }, 0);
+                            latMax = Math.min(latMax, 90000);
+                            yRange = [0, latMax] // slightly over a day, 86400
                           }
 
                           doPlot("div.plot", allStats, dataFn,

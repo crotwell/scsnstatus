@@ -5,24 +5,22 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   base: "/scsn/status/",
+  input: {
+    main: resolve(__dirname, 'index.html'),
+    heli: resolve(__dirname, 'heli/index.html'),
+    realtime: resolve(__dirname, 'realtime/index.html'),
+    latency: resolve(__dirname, 'latency/index.html'),
+    cellstat: resolve(__dirname, 'cellstat/index.html'),
+    batterystat: resolve(__dirname, 'batterystat/index.html'),
+    voltage: resolve(__dirname, 'voltage/index.html'),
+    computerstat: resolve(__dirname, 'computerstat/index.html'),
+    stations: resolve(__dirname, 'stations/index.html'),
+    sohstream: resolve(__dirname, 'sohstreams/index.html'),
+    scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),
+    about: resolve(__dirname, 'about/index.html'),
+    contact: resolve(__dirname, 'contact/index.html'),
+  },
   build: {
     sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        heli: resolve(__dirname, 'heli/index.html'),
-        realtime: resolve(__dirname, 'realtime/index.html'),
-        latency: resolve(__dirname, 'latency/index.html'),
-        cellstat: resolve(__dirname, 'cellstat/index.html'),
-        batterystat: resolve(__dirname, 'batterystat/index.html'),
-        voltage: resolve(__dirname, 'voltage/index.html'),
-        computerstat: resolve(__dirname, 'computerstat/index.html'),
-        stations: resolve(__dirname, 'stations/index.html'),
-        sohstream: resolve(__dirname, 'sohstreams/index.html'),
-        scearthquakes: resolve(__dirname, 'scearthquakes/index.html'),
-        about: resolve(__dirname, 'about/index.html'),
-        contact: resolve(__dirname, 'contact/index.html'),
-      },
-    },
   },
 })

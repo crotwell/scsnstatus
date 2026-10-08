@@ -46,7 +46,30 @@ stationsQuery.queryStations().then( netList => {
     }
   }
   map.redraw();
+  return netList;
+}).then(netList => {
+  const outPromise = [];
+  const staToDec = new Map();
+  for (const n of netList) {
+    for (const s of n.stations) {
+      outPromise.push(magDec(s).then(d => {
+        console.log(`${s.sourceId} ${d}`);
+        staToDec.set(s.sourceId.toString(), d);
+        return d;
+      }));
+    }
+  }
+  return Promise.all(outPromise).then(decList => {
+    const colFn = (sta) => {
+      return staToDec.get(sta.sourceId.toString());
+    };
+    table.addColumn("declination", "Mag Dec", colFn);
+    console.log(`colFn: ${netList[0].stations[0].sourceId} -> ${colFn(netList[0].stations[0])}`);
+    table.draw();
+    return netList;
+  });
 });
+
 const otherStationsQuery = new sp.fdsnstation.StationQuery();
 const latLonBox = new sp.fdsncommon.LatLonBox(-83.75, -78.5, 31.0, 35.5);
 otherStationsQuery.endAfter(DateTime.utc()).latLonRegion(latLonBox);
@@ -63,3 +86,11 @@ otherStationsQuery.queryStations().then( netList => {
   map.redraw();
   otherTable.draw();
 });
+
+function magDec(station): Promise<number> {
+  const accessKey = 'zNEw7';
+  const url = `https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination?lat1=${station.latitude}&lon1=${station.longitude}&key=${accessKey}&resultFormat=json`;
+  return sp.util.pullJson(url).then(magDecJson => {
+    return magDecJson.result[0].declination;
+  });
+}

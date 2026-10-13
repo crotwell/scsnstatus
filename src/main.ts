@@ -3,6 +3,8 @@ import {leafletutil, infotable, quakeml, version as sp_version} from 'seisplotjs
 import {createNavigation} from './navbar';
 import {loadActiveStations, SC_QUAKE_URL} from './util';
 import {Interval, Duration, DateTime} from 'luxon';
+import * as sp from 'seisplotjs';
+
 
 createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -10,32 +12,35 @@ const app = document.querySelector<HTMLDivElement>('#app')!
 if (true) {
 app.innerHTML = `
   <h1>South Carolina Seismic Network Status</h1>
-  <sp-station-quake-map
-    tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
-    tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
-    zoomLevel="7"
-    centerLat="33.5" centerLon="-81"
-    fitbounds="false">
-  </sp-station-quake-map>
+  <div id="map"></div>
 
   <h3>Earthquakes in last month:</h3>
-  <sp-quake-table>
-  </sp-quake-table>
+  <div id="table"></div>
 
   <h5 class="spjsversion">Built using <a href="https://crotwell.github.io/seisplotjs/">spjs version</a>: ${sp_version}</h5>
 `
 }
 
-const map = document.querySelector("sp-station-quake-map") as leafletutil.QuakeStationMap;
-if (!map) {throw new Error("Can't find sp-station-quake-map");}
+
+const map = new sp.leafletutil.QuakeStationMap();
+map.setAttribute(sp.leafletutil.TILE_TEMPLATE, "http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}/");
+map.setAttribute(sp.leafletutil.TILE_ATTRIBUTION, 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC');
+map.setAttribute(sp.leafletutil.ZOOM_LEVEL, "7");
+map.setAttribute(sp.leafletutil.CENTER_LAT, "33.5");
+map.setAttribute(sp.leafletutil.CENTER_LON, "-81");
+map.setAttribute(sp.leafletutil.FIT_BOUNDS, "false");
+document.querySelector("#map").appendChild(map);
+
+const quakeTable = new sp.infotable.QuakeTable();
+document.querySelector("#table").appendChild(quakeTable);
+
+
 map.quakeList = [];
 map.stationList = [];
 loadActiveStations().then(staList => {
   map.stationList = staList;
   return staList;
 }).then(staList => {
-  const quakeTable = document.querySelector("sp-quake-table") as infotable.QuakeTable;
-  if (!map) {throw new Error("Can't find sp-quake-table");}
   const quakePromise = quakeml.fetchQuakeML(SC_QUAKE_URL)
     .then(qml => {
       const monthAgo = Interval.before(DateTime.utc(), Duration.fromISO("P31DT0M"));

@@ -10,27 +10,32 @@ const app = document.querySelector<HTMLDivElement>('#app')!
 app.innerHTML = `
   <div class="plot">
   <h3>Stations:</h3>
-  <sp-station-quake-map
-    tileUrl="http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}/"
-    tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
-    zoomLevel="7"
-    centerLat="33.5" centerLon="-81"
-    fitbounds="false">
-  </sp-station-quake-map>
+  <div id="map"></div>
   <h3>South Carolina Seismic Network, CO</h3>
-  <sp-station-table class="scsn"></sp-station-table>
+  <div class="scsn"></div>
   <h3>Other networks</h3>
-  <sp-station-table class="other"></sp-station-table>
+  <div class="other"></div>
   </div>
   <div class="stations"></div>
   <div class="datakeys"></div>
   <div><pre class="raw"></pre></div>
 `;
 
+const map = new sp.leafletutil.QuakeStationMap();
+map.setAttribute(sp.leafletutil.TILE_TEMPLATE, "http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}/");
+map.setAttribute(sp.leafletutil.TILE_ATTRIBUTION, 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC');
+map.setAttribute(sp.leafletutil.ZOOM_LEVEL, "7");
+map.setAttribute(sp.leafletutil.CENTER_LAT, "33.5");
+map.setAttribute(sp.leafletutil.CENTER_LON, "-81");
+map.setAttribute(sp.leafletutil.FIT_BOUNDS, "false");
+document.querySelector("#map").appendChild(map);
 
-const map = document.querySelector("sp-station-quake-map") as sp.leafletutil.QuakeStationMap;
-const table = document.querySelector("sp-station-table.scsn") as sp.infotable.StationTable;
-const otherTable = document.querySelector("sp-station-table.other") as sp.infotable.StationTable;
+const table = new sp.infotable.StationTable();
+table.classList.add("scsn");
+document.querySelector("div.scsn").appendChild(table);
+const otherTable = new sp.infotable.StationTable();
+otherTable.classList.add("other");
+document.querySelector("div.other").appendChild(otherTable);
 
 const stationsQuery = new sp.fdsnstation.StationQuery();
 stationsQuery.networkCode('CO');

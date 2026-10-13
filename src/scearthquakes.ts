@@ -10,35 +10,48 @@ createNavigation();
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
-  <div>
-    <sp-timerange duration="P30DT0M" prev-next="true"></sp-timerange>
+  <div id="timechooser">
     <button id="loadMonth">Month</button>
     <button id="loadYear">Year</button>
     <button id="loadAll">All</button>
   </div>
   <div class="showalleq show">
     <h3>Earthquakes:</h3>
-    <sp-station-quake-map
-      tileUrl="https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
-      tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
-      zoomLevel="7"
-      centerLat="33.5" centerLon="-81"
-      fitbounds="false">
-    </sp-station-quake-map>
-    <sp-quake-table>
-    </sp-quake-table>
+    <div id="map"></div>
+    <div id="table"></div>
   </div>
   <div class="showquake hide">
     <div class="loadingmessage hide">Loading data...</div>
-    <sp-organized-display
-      sort="distance"
-      tileUrl="https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}"
-      tileAttribution='Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
-    ></sp-organized-display>
   </div>
   <div class="datakeys"></div>
   <div><pre class="raw"></pre></div>
 `;
+
+const map = new sp.leafletutil.QuakeStationMap();
+map.setAttribute(sp.leafletutil.TILE_TEMPLATE, "http://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}/");
+map.setAttribute(sp.leafletutil.TILE_ATTRIBUTION, 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC');
+map.setAttribute(sp.leafletutil.ZOOM_LEVEL, "7");
+map.setAttribute(sp.leafletutil.CENTER_LAT, "33.5");
+map.setAttribute(sp.leafletutil.CENTER_LON, "-81");
+map.setAttribute(sp.leafletutil.FIT_BOUNDS, "false");
+document.querySelector("#map").appendChild(map);
+
+const quakeTable = new sp.infotable.QuakeTable();
+document.querySelector("#table").appendChild(quakeTable);
+
+const timeRangeEl = new sp.datechooser.TimeRangeChooser();
+timeRangeEl.setAttribute("duration","P30DT0M");
+timeRangeEl.setAttribute("prev-next", "true");
+const timeRangeDiv = document.querySelector("#timechooser");
+timeRangeDiv.insertBefore(timeRangeEl, timeRangeDiv.firstChild);
+
+const orgDisp = new sp.organizeddisplay.OrganizedDisplay();
+const orgDispDiv = document.querySelector(".showquake");
+orgDisp.setAttribute("sort", "distance");
+orgDisp.setAttribute("tileUrl", "https://www.seis.sc.edu/tilecache/NatGeo/{z}/{y}/{x}");
+orgDisp.setAttribute("tileAttribution", 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC');
+orgDispDiv.appendChild(orgDisp);
+
 
 let allQuakes: Array<sp.quakeml.Quake> = [];
 export type PageState = {
@@ -53,16 +66,10 @@ let pageState: PageState = {
   dataset: new sp.dataset.Dataset(),
 }
 
-const timeRangeEl = document.querySelector("sp-timerange") as sp.datechooser.TimeRangeChooser;
 timeRangeEl.updateCallback = (timeRange) => {
     console.log( `Range: ${timeRange.start.toISO()} to ${timeRange.end.toISO()}`);
     displayForTime(timeRange, allQuakes);
 }
-
-const quakeTable = document.querySelector("sp-quake-table") as sp.infotable.QuakeTable;
-if (!quakeTable) {throw new Error("Can't find sp-quake-table");}
-const map = document.querySelector("sp-station-quake-map") as sp.leafletutil.QuakeStationMap;
-if (!map) {throw new Error("Can't find sp-station-quake-map");}
 
 function displayForTime(timeRange: Interval, quakes: Array<sp.quakeml.Quake>): Array<sp.quakeml.Quake> {
   const quakesInTime = quakes.filter(q => {

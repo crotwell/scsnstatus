@@ -132,6 +132,8 @@ function displayQuake(quake: sp.quakeml.Quake, pageState: PageState) {
   let loader = new sp.seismogramloader.SeismogramLoader(
     pageState.dataset.inventory,
     pageState.dataset.catalog);
+  loader.taupQuery = new sp.taup3.TauPQuery();
+  loader.taupQuery.pathBase(sp.fdsncommon.USCWS_PATH_BASE);
   loader.dataselectQuery = new sp.fdsndataselect.DataSelectQuery("eeyore.seis.sc.edu");
   //loader.dataselectQuery.port(8080)
   loader.endOffset = Duration.fromObject({minutes: 5});

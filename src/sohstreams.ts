@@ -66,6 +66,9 @@ function makePlot(key: string) {
     subsourceCode.push("U");
     subsourceCode.push("V");
     subsourceCode.push("W");
+    subsourceCode.push("1");
+    subsourceCode.push("2");
+    subsourceCode.push("3");
   } else {
     sourceCode.push("C");
     subsourceCode.push("E");
